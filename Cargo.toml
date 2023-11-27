@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.75"
 axum = { version = "0.6.20", features = ["tracing", "macros", "headers"] }
+axum-login = "0.9.0"
 axum-macros = "0.3.8"
 axum-template = { version = "1.0.0", features = ["handlebars"] }
 handlebars = { version = "4.5.0", features = ["dir_source"] }
