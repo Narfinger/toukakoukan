@@ -8,7 +8,7 @@ use axum::{
 };
 use axum_template::{engine::Engine, Key, RenderHtml};
 use handlebars::Handlebars;
-use tower_http::services::ServeDir;
+use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 type AppEngine = Engine<Handlebars<'static>>;
@@ -40,10 +40,14 @@ async fn main() {
     println!("templates {:?}", hbs.get_templates());
     // build our application with a single route
     let serve_dir_from_assets = ServeDir::new("static");
-    Router::new().nest_service("/static", serve_dir_from_assets);
-    let app = Router::new().route("/", get(index)).with_state(AppState {
-        engine: Engine::from(hbs),
-    });
+    let static_files = Router::new().nest_service("/static", serve_dir_from_assets);
+    let app = Router::new()
+        .route("/", get(index))
+        .with_state(AppState {
+            engine: Engine::from(hbs),
+        })
+        .layer(TraceLayer::new_for_http())
+        .fallback_service(static_files);
     // run it with hyper on localhost:3000
     println!("See example: http://127.0.0.1:3000/example");
 
