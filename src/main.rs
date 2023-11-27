@@ -1,3 +1,5 @@
+use std::io;
+
 use axum::{
     extract::{FromRef, Path},
     response::IntoResponse,
@@ -6,6 +8,7 @@ use axum::{
 };
 use axum_template::{engine::Engine, Key, RenderHtml};
 use handlebars::Handlebars;
+use tower_http::services::ServeDir;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 type AppEngine = Engine<Handlebars<'static>>;
@@ -36,6 +39,8 @@ async fn main() {
     hbs.dev_mode();
     println!("templates {:?}", hbs.get_templates());
     // build our application with a single route
+    let serve_dir_from_assets = ServeDir::new("static");
+    Router::new().nest_service("/static", serve_dir_from_assets);
     let app = Router::new().route("/", get(index)).with_state(AppState {
         engine: Engine::from(hbs),
     });
