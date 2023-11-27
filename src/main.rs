@@ -8,6 +8,7 @@ use axum::{
 };
 use axum_template::{engine::Engine, Key, RenderHtml};
 use handlebars::Handlebars;
+use sqlx::{Connection, Pool, Sqlite, SqliteConnection};
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -15,14 +16,32 @@ type AppEngine = Engine<Handlebars<'static>>;
 #[derive(Clone, FromRef)]
 struct AppState {
     engine: AppEngine,
+    pool: Pool<Sqlite>,
 }
 
 async fn index(engine: AppEngine) -> impl IntoResponse {
     RenderHtml("index", engine, ())
 }
 
+#[derive(Debug)]
+struct Expense {
+    people: Vec<String>,
+    payed: usize,
+    amount: u64,
+}
+
+#[derive(Debug)]
+struct ExpenseGroup {
+    expenses: Vec<Expense>,
+    name: String,
+}
+
 #[tokio::main]
 async fn main() {
+    let pool = Pool::<Sqlite>::connect("sqlite::memory:")
+        .await
+        .expect("Error in db");
+
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
@@ -46,6 +65,7 @@ async fn main() {
         .route("/", get(index))
         .with_state(AppState {
             engine: Engine::from(hbs),
+            pool: pool,
         })
         .layer(TraceLayer::new_for_http())
         .fallback_service(static_files);
