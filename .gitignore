@@ -1,2 +1,6 @@
 /target
 web/target
+Rocket.toml
+RootCA.crt
+RootCA.key
+RootCA.pem
