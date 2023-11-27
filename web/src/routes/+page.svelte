@@ -5,11 +5,12 @@
 		{ people: ['christian', 'emilia'], payed: 1, amount: 300 },
 		{ people: ['christian', 'emilia'], payed: 0, amount: 200 }
 	];
+	let group_id = 0;
 </script>
 
 <h1>Main Expense Overview</h1>
 
-<button><a href="/add">ADDD</a></button>
+<button><a href="/add/{group_id}">ADDD</a></button>
 
 <table>
 	{#each expenses as exp}
