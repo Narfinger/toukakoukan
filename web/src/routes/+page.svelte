@@ -10,7 +10,7 @@
 
 <h1>Main Expense Overview</h1>
 
-<button><a href="/add/{group_id}">ADDD</a></button>
+<h2><a href="/add/{group_id}">ADDD</a></h2>
 
 <table>
 	{#each expenses as exp}
