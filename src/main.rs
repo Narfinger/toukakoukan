@@ -39,8 +39,9 @@ async fn main() {
     hbs.dev_mode();
     println!("templates {:?}", hbs.get_templates());
     // build our application with a single route
-    let serve_dir_from_assets = ServeDir::new("static");
-    let static_files = Router::new().nest_service("/static", serve_dir_from_assets);
+    let static_files = Router::new()
+        .nest_service("/static", ServeDir::new("static"))
+        .nest_service("/js", ServeDir::new("json"));
     let app = Router::new()
         .route("/", get(index))
         .with_state(AppState {
