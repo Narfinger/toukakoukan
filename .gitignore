@@ -4,3 +4,7 @@ Rocket.toml
 RootCA.crt
 RootCA.key
 RootCA.pem
+web-remix/node_modules
+web-remix/.cache
+web-remix/build
+web-remix/public
