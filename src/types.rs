@@ -33,15 +33,32 @@ impl Type<Sqlite> for PayedType {
     }
 }
 
+impl<'q> Decode<'q, Sqlite> for PayedType {
+    fn decode(
+        value: <Sqlite as sqlx::database::HasValueRef<'q>>::ValueRef,
+    ) -> Result<Self, sqlx::error::BoxDynError> {
+        let value = <&str as Decode<Sqlite>>::decode(value)?;
+
+        let mut it = value.split_whitespace();
+        let first = it.next().ok_or("not enough whitespace")?;
+        let snd = it.next().ok_or("Not enough whitespace")?.parse()?;
+        match first {
+            "EVEN" => Ok(PayedType::EvenSplit(snd)),
+            "OWED" => Ok(PayedType::OwedTotal(snd)),
+            &_ => Err("NOT".into()),
+        }
+    }
+}
+
 /// An expense
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub(crate) struct Expense {
     /// the id of the expense
-    pub(crate) id: usize,
+    pub(crate) id: i64,
     /// payed type
     pub(crate) payed_type: PayedType,
     /// amount
-    pub(crate) amount: u64,
+    pub(crate) amount: i64,
     /// time the expense was created
     pub(crate) time: OffsetDateTime,
 }
@@ -50,7 +67,7 @@ pub(crate) struct Expense {
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub(crate) struct ExpenseGroup {
     /// the id of the expense group
-    pub(crate) id: usize,
+    pub(crate) id: i64,
     /// the people that are in the expense group
     pub(crate) people: Vec<String>,
     /// the list of expenses

@@ -27,8 +27,20 @@ async fn index(engine: AppEngine) -> impl IntoResponse {
     RenderHtml("index", engine, ())
 }
 
-//async fn expenses(state: AppState, expense_group_id: usize) -> Json<types::Expense> {}
-async fn add_expense(
+async fn get_expenses(
+    State(state): State<AppState>,
+    Path(expense_group_id): Path<u32>,
+) -> impl IntoResponse {
+    let rows =
+        sqlx::query_as::<_, types::Expense>("SELECT * FROM expense WHERE expense_group_id = ?")
+            .bind(expense_group_id)
+            .fetch_all(&state.pool)
+            .await
+            .expect("Error in getting expenses");
+    Json(rows)
+}
+
+async fn post_expense(
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
     Json(payload): extract::Json<types::Expense>,
@@ -54,11 +66,6 @@ async fn add_expense_group(
     State(state): State<AppState>,
     extract::Json(payload): extract::Json<types::ExpenseGroup>,
 ) -> impl IntoResponse {
-    struct Response {
-        id: usize,
-        name: String,
-    }
-
     let row: SqliteRow = sqlx::query("INSERT INTO expense_group (name) VALUES (?) RETURNING id;")
         .bind(payload.name)
         .fetch_one(&state.pool)
@@ -92,8 +99,8 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
     let mut hbs = Handlebars::new();
-    hbs.register_templates_directory(".html.hbs", "./templates/")
-        .unwrap();
+    // hbs.register_templates_directory(".html.hbs", "./templates/")
+    //.unwrap();
     hbs.dev_mode();
     println!("templates {:?}", hbs.get_templates());
     // build our application with a single route
@@ -106,8 +113,9 @@ async fn main() {
         .nest_service("/js", ServeDir::new("json"));
     let app = Router::new()
         .route("/", get(index))
-        .route("/add_expense/:id", post(add_expense))
-        .route("/add_expense_group", post(add_expense_group))
+        .route("/expense/:id/", get(get_expenses))
+        .route("/expense/:id/", post(post_expense))
+        .route("/add_expense_group/", post(add_expense_group))
         .with_state(state)
         .layer(TraceLayer::new_for_http())
         .fallback_service(static_files);
