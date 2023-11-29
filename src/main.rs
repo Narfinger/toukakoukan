@@ -4,13 +4,15 @@ use axum::{
     extract::{FromRef, Path},
     response::IntoResponse,
     routing::get,
-    Router,
+    Json, Router,
 };
 use axum_template::{engine::Engine, Key, RenderHtml};
 use handlebars::Handlebars;
 use sqlx::{Connection, Pool, Sqlite, SqliteConnection};
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+mod types;
 
 type AppEngine = Engine<Handlebars<'static>>;
 #[derive(Clone, FromRef)]
@@ -23,22 +25,11 @@ async fn index(engine: AppEngine) -> impl IntoResponse {
     RenderHtml("index", engine, ())
 }
 
-#[derive(Debug)]
-struct Expense {
-    people: Vec<String>,
-    payed: usize,
-    amount: u64,
-}
-
-#[derive(Debug)]
-struct ExpenseGroup {
-    expenses: Vec<Expense>,
-    name: String,
-}
+async fn expenses(state: AppState, expense_group_id: usize) -> Json<types::Expense> {}
 
 #[tokio::main]
 async fn main() {
-    let pool = Pool::<Sqlite>::connect("sqlite::memory:")
+    let pool = Pool::<Sqlite>::connect("test.db")
         .await
         .expect("Error in db");
 
