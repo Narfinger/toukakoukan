@@ -13,6 +13,7 @@ use sqlx::{sqlite::SqliteRow, Connection, Pool, Row, Sqlite, SqliteConnection};
 use std::io;
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use types::PayedType;
 
 mod types;
 
@@ -27,50 +28,85 @@ async fn index(engine: AppEngine) -> impl IntoResponse {
     RenderHtml("index", engine, ())
 }
 
+/// this calculates how much `user_id` ows the group `expense_group_id`
+/// A positive value means that `user_id` is owed x amount of money
+/// A negative value means that `user_id` owes x amount of money
+async fn get_total_owed(
+    State(state): State<AppState>,
+    Path((user_id, expense_group_id)): Path<(u32, u32)>,
+) -> Result<Json<i64>, StatusCode> {
+    let rows = sqlx::query(
+        "SELECT payed_type,sum(amount) FROM expense WHERE expense_group_id = ? GROUP BY payed_type",
+    )
+    .bind(expense_group_id)
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    let res = rows
+        .iter()
+        .map(|i| (i.get::<PayedType, _>(0), i.get::<i64, _>(1)));
+
+    let mut sum = 0;
+    for (i, amount) in res {
+        match i {
+            PayedType::EvenSplit(j) => {
+                if j == user_id as usize {
+                    sum += amount / 2;
+                } else {
+                    sum -= amount / 2;
+                }
+            }
+            PayedType::OwedTotal(j) => {
+                if j == user_id as usize {
+                    sum += amount;
+                } else {
+                    sum -= amount;
+                }
+            }
+        }
+    }
+
+    Ok(Json(sum))
+}
+
 async fn get_expenses(
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
-) -> impl IntoResponse {
+) -> Result<Json<Vec<types::Expense>>, StatusCode> {
     let rows =
         sqlx::query_as::<_, types::Expense>("SELECT * FROM expense WHERE expense_group_id = ?")
             .bind(expense_group_id)
             .fetch_all(&state.pool)
             .await
-            .expect("Error in getting expenses");
-    Json(rows)
+            .map_err(|_| StatusCode::NOT_FOUND)?;
+    Ok(Json(rows))
 }
 
 async fn post_expense(
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
     Json(payload): extract::Json<types::Expense>,
-) -> impl IntoResponse {
-    let insert_res =
-        sqlx::query("INSERT INTO expense (payed_type, amount, expense_group_id) VALUES (?, ?, ?);")
-            .bind(payload.payed_type)
-            .bind(payload.amount as i64)
-            .bind(expense_group_id as i64)
-            .execute(&state.pool)
-            .await;
-
-    match insert_res {
-        Ok(_) => StatusCode::OK,
-        Err(e) => {
-            warn!("error {}", e);
-            StatusCode::INTERNAL_SERVER_ERROR
-        }
-    }
+) -> Result<(), StatusCode> {
+    sqlx::query("INSERT INTO expense (payed_type, amount, expense_group_id) VALUES (?, ?, ?);")
+        .bind(payload.payed_type)
+        .bind(payload.amount as i64)
+        .bind(expense_group_id as i64)
+        .execute(&state.pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(())
 }
 
 async fn add_expense_group(
     State(state): State<AppState>,
     extract::Json(payload): extract::Json<types::ExpenseGroup>,
-) -> impl IntoResponse {
+) -> Result<(), StatusCode> {
     let row: SqliteRow = sqlx::query("INSERT INTO expense_group (name) VALUES (?) RETURNING id;")
         .bind(payload.name)
         .fetch_one(&state.pool)
         .await
-        .expect("Error in inserting expense group");
+        .map_err(|_| StatusCode::NOT_FOUND)?;
     let key: i64 = row.get(0);
     for i in payload.people {
         sqlx::query("INSERT INTO expense_group_people (expense_group_id, name) VALUES (?,?)")
@@ -78,8 +114,9 @@ async fn add_expense_group(
             .bind(i)
             .execute(&state.pool)
             .await
-            .expect("Could not insert name");
+            .map_err(|_| StatusCode::NOT_FOUND)?;
     }
+    Ok(())
 }
 
 #[tokio::main]
@@ -115,6 +152,7 @@ async fn main() {
         .route("/", get(index))
         .route("/expense/:id/", get(get_expenses))
         .route("/expense/:id/", post(post_expense))
+        .route("/total/:id/:id/", get(get_total_owed))
         .route("/add_expense_group/", post(add_expense_group))
         .with_state(state)
         .layer(TraceLayer::new_for_http())

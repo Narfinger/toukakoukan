@@ -26,4 +26,4 @@ insert into expense_group (name) VALUES ('test2');
 insert into expense_group_people (expense_group_id, name) VALUES (1, 'Person1'), (1, 'Person2'), (2, 'Person3'), (2, 'Person4');
 
 insert into expense (payed_type, amount, expense_group_id, time) VALUES ('EVEN 0', 300, 1, '2023-11-29 12:19');
-insert into expense (payed_type, amount, expense_group_id, time) VALUES ('EVEN 1', 300, 1, '2023-11-29 12:20');
+insert into expense (payed_type, amount, expense_group_id, time) VALUES ('EVEN 1', 200, 1, '2023-11-29 12:20');
