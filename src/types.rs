@@ -3,6 +3,7 @@ use sqlx::{
     database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
     Decode, Encode, Sqlite,
 };
+use time::{OffsetDateTime, PrimitiveDateTime};
 
 /// What type of payment we have
 #[derive(Debug, Serialize, Deserialize)]
@@ -41,6 +42,8 @@ pub(crate) struct Expense {
     pub(crate) payed_type: PayedType,
     /// amount
     pub(crate) amount: u64,
+    /// time the expense was created
+    pub(crate) time: OffsetDateTime,
 }
 
 /// An Expense Group, a collection of people and expenses

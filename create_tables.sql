@@ -15,5 +15,6 @@ CREATE TABLE expense (
     payed_type TEXT NOT NULL,
     amount INTEGER NOT NULL,
     expense_group_id INTEGER NOT NULL,
+    time TEXT NOT NULL,
     FOREIGN KEY (expense_group_id) REFERENCES expense_group (expense_group_id)
 );

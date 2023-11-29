@@ -1,14 +1,15 @@
 use axum::{
-    extract::{self, FromRef, Path},
+    extract::{self, FromRef, Json, Path, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::get,
-    Json, Router,
+    routing::{get, post},
+    Router,
 };
+use axum_macros::debug_handler;
 use axum_template::{engine::Engine, Key, RenderHtml};
 use handlebars::Handlebars;
 use log::{info, warn};
-use sqlx::{Connection, Pool, Sqlite, SqliteConnection};
+use sqlx::{sqlite::SqliteRow, Connection, Pool, Row, Sqlite, SqliteConnection};
 use std::io;
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -27,15 +28,16 @@ async fn index(engine: AppEngine) -> impl IntoResponse {
 }
 
 //async fn expenses(state: AppState, expense_group_id: usize) -> Json<types::Expense> {}
-
 async fn add_expense(
-    state: AppState,
-    extract::Json(payload): extract::Json<types::Expense>,
+    State(state): State<AppState>,
+    Path(expense_group_id): Path<u32>,
+    Json(payload): extract::Json<types::Expense>,
 ) -> impl IntoResponse {
     let insert_res =
         sqlx::query("INSERT INTO expense (payed_type, amount, expense_group_id) VALUES (?, ?, ?);")
             .bind(payload.payed_type)
             .bind(payload.amount as i64)
+            .bind(expense_group_id as i64)
             .execute(&state.pool)
             .await;
 
@@ -45,6 +47,31 @@ async fn add_expense(
             warn!("error {}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         }
+    }
+}
+
+async fn add_expense_group(
+    State(state): State<AppState>,
+    extract::Json(payload): extract::Json<types::ExpenseGroup>,
+) -> impl IntoResponse {
+    struct Response {
+        id: usize,
+        name: String,
+    }
+
+    let row: SqliteRow = sqlx::query("INSERT INTO expense_group (name) VALUES (?) RETURNING id;")
+        .bind(payload.name)
+        .fetch_one(&state.pool)
+        .await
+        .expect("Error in inserting expense group");
+    let key: i64 = row.get(0);
+    for i in payload.people {
+        sqlx::query("INSERT INTO expense_group_people (expense_group_id, name) VALUES (?,?)")
+            .bind(key)
+            .bind(i)
+            .execute(&state.pool)
+            .await
+            .expect("Could not insert name");
     }
 }
 
@@ -70,15 +97,18 @@ async fn main() {
     hbs.dev_mode();
     println!("templates {:?}", hbs.get_templates());
     // build our application with a single route
+    let state = AppState {
+        engine: Engine::from(hbs),
+        pool,
+    };
     let static_files = Router::new()
         .nest_service("/static", ServeDir::new("static"))
         .nest_service("/js", ServeDir::new("json"));
     let app = Router::new()
         .route("/", get(index))
-        .with_state(AppState {
-            engine: Engine::from(hbs),
-            pool: pool,
-        })
+        .route("/add_expense/:id", post(add_expense))
+        .route("/add_expense_group", post(add_expense_group))
+        .with_state(state)
         .layer(TraceLayer::new_for_http())
         .fallback_service(static_files);
     // run it with hyper on localhost:3000
