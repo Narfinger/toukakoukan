@@ -1,14 +1,15 @@
-use std::io;
-
 use axum::{
-    extract::{FromRef, Path},
+    extract::{self, FromRef, Path},
+    http::StatusCode,
     response::IntoResponse,
     routing::get,
     Json, Router,
 };
 use axum_template::{engine::Engine, Key, RenderHtml};
 use handlebars::Handlebars;
+use log::{info, warn};
 use sqlx::{Connection, Pool, Sqlite, SqliteConnection};
+use std::io;
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -25,7 +26,27 @@ async fn index(engine: AppEngine) -> impl IntoResponse {
     RenderHtml("index", engine, ())
 }
 
-async fn expenses(state: AppState, expense_group_id: usize) -> Json<types::Expense> {}
+//async fn expenses(state: AppState, expense_group_id: usize) -> Json<types::Expense> {}
+
+async fn add_expense(
+    state: AppState,
+    extract::Json(payload): extract::Json<types::Expense>,
+) -> impl IntoResponse {
+    let insert_res =
+        sqlx::query("INSERT INTO expense (payed_type, amount, expense_group_id) VALUES (?, ?, ?);")
+            .bind(payload.payed_type)
+            .bind(payload.amount as i64)
+            .execute(&state.pool)
+            .await;
+
+    match insert_res {
+        Ok(_) => StatusCode::OK,
+        Err(e) => {
+            warn!("error {}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}
 
 #[tokio::main]
 async fn main() {
