@@ -1,4 +1,5 @@
 <script>
+	import '../app.css';
 	let expenses = [
 		{ people: ['christian', 'emilia'], payed: 0, amount: 500 },
 		{ people: ['christian', 'emilia'], payed: 1, amount: 1000 },
@@ -8,21 +9,24 @@
 	let group_id = 0;
 </script>
 
-<h1>Main Expense Overview</h1>
+<div class="container mx-auto">
+	<h1 class="text-3xl font-bold underline">Main Expense Overview</h1>
 
-<h2><a href="/add/{group_id}">ADDD</a></h2>
+	<button class="btn"> Button </button>
+	<h2><a href="/add/{group_id}">ADDD</a></h2>
 
-<table>
-	{#each expenses as exp}
-		<tr>
-			<td
-				>{#if exp['payed'] == 0}
-					"You are owed"
-				{:else}
-					"You owe"
-				{/if}
-			</td>
-			<td>{exp['amount'] / exp['people'].length}YEN</td>
-		</tr>
-	{/each}
-</table>
+	<table class="border-collapse table-auto">
+		{#each expenses as exp}
+			<tr>
+				<td
+					>{#if exp['payed'] == 0}
+						"You are owed"
+					{:else}
+						"You owe"
+					{/if}
+				</td>
+				<td>{exp['amount'] / exp['people'].length}YEN</td>
+			</tr>
+		{/each}
+	</table>
+</div>
