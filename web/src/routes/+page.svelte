@@ -10,12 +10,12 @@
 </script>
 
 <div class="container mx-auto">
-	<h1 class="text-3xl font-bold underline">Main Expense Overview</h1>
+	<h1 class="underline">Main Expense Overview</h1>
 
-	<button class="btn"> Button </button>
+	<button class="btn btn-primary"> Button </button>
 	<h2><a href="/add/{group_id}">ADDD</a></h2>
 
-	<table class="border-collapse table-auto">
+	<table class="table">
 		{#each expenses as exp}
 			<tr>
 				<td
