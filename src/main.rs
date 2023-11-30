@@ -17,6 +17,8 @@ use types::PayedType;
 
 mod types;
 
+const EXPENSE_LIMIT: i64 = 25;
+
 type AppEngine = Engine<Handlebars<'static>>;
 #[derive(Clone, FromRef)]
 struct AppState {
@@ -74,12 +76,14 @@ async fn get_expenses(
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
 ) -> Result<Json<Vec<types::Expense>>, StatusCode> {
-    let rows =
-        sqlx::query_as::<_, types::Expense>("SELECT * FROM expense WHERE expense_group_id = ?")
-            .bind(expense_group_id)
-            .fetch_all(&state.pool)
-            .await
-            .map_err(|_| StatusCode::NOT_FOUND)?;
+    let rows = sqlx::query_as::<_, types::Expense>(
+        "SELECT * FROM expense WHERE expense_group_id = ? LIMIT >",
+    )
+    .bind(expense_group_id)
+    .bind(EXPENSE_LIMIT)
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND)?;
     Ok(Json(rows))
 }
 
