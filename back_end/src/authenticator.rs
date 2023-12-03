@@ -15,9 +15,8 @@ use crate::store::Store;
 /// check store that contains token and see if it matches authorization header starting with "Bearer"
 /// used example in axum docs on middleware <https://docs.rs/axum/latest/axum/middleware/index.html>
 ///
-/// Returns Error's in JSON format.  
-#[allow(clippy::missing_errors_doc)]
-pub async fn auth<B: Send + Sync>(
+/// Returns Error's in JSON format.
+pub(crate) async fn auth<B: Send + Sync>(
     State(store): State<Arc<Store>>,
     req: Request<B>,
     next: Next<B>,
@@ -47,7 +46,7 @@ pub async fn auth<B: Send + Sync>(
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct JsonError {
+pub(crate) struct JsonError {
     error: String,
 }
 

@@ -4,16 +4,21 @@
 #![allow(missing_docs)]
 
 use axum::Router;
+use sqlx::{Pool, Sqlite};
 use std::net::SocketAddr;
 use std::{env, sync::Arc};
 use tower_sessions::{MemoryStore, SessionManagerLayer};
 use tracing::log::warn;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-pub mod middlewares;
-pub mod routes;
+use crate::types::AppState;
+
+mod authenticator;
+mod routes;
 mod services;
 mod store;
+mod types;
+mod usersecure;
 
 // SETUP Constants
 const SESSION_COOKIE_NAME: &str = "axum_svelte_session";
@@ -42,7 +47,15 @@ async fn main() {
         .expect("Can not parse address and port");
 
     // create store for backend.  Stores an api_token.
-    let shared_state = Arc::new(store::Store::new("123456789"));
+    let shared_state = {
+        let pool = Pool::<Sqlite>::connect("test.db")
+            .await
+            .expect("Error in db");
+        AppState {
+            pool: pool,
+            api_token: String::from("1234567989"),
+        }
+    };
 
     // setup up sessions and store to keep track of session information
     let session_store = MemoryStore::default();

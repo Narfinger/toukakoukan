@@ -5,8 +5,7 @@ use axum::{
 };
 use tower_sessions::Session;
 
-#[allow(clippy::missing_errors_doc)]
-pub async fn user_secure<B: Send>(
+pub(crate) async fn user_secure<B: Send>(
     session: Session,
     req: Request<B>,
     next: Next<B>,
