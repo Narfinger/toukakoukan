@@ -19,6 +19,12 @@ CREATE TABLE expense (
     FOREIGN KEY (expense_group_id) REFERENCES expense_group (expense_group_id)
 );
 
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    password TEXT NOT NULL
+);
+
 -- example values for testing
 insert into expense_group (name) VALUES ('test1');
 insert into expense_group (name) VALUES ('test2');
