@@ -52,7 +52,7 @@ pub fn backend<Store: SessionStore>(
     Router::new()
         .merge(back_public_route(state))
         .merge(back_auth_route())
-        .merge(back_token_route(state))
+        //.merge(back_token_route(state))
         .layer(session_service)
 }
 
@@ -77,7 +77,7 @@ pub fn back_public_route(state: AppState) -> Router {
 pub fn back_auth_route() -> Router {
     Router::new()
         .route("/secure", get(routes::session_handler))
-        .route_layer(user_secure)
+        .route_layer(middleware::from_fn(user_secure))
 }
 
 // *********
@@ -85,9 +85,10 @@ pub fn back_auth_route() -> Router {
 // *********
 //
 // invoked with State that stores API that is checked by the `middleware::auth`
-pub fn back_token_route<S>(state: AppState) -> Router<S> {
+/*pub fn back_token_route<S>(state: AppState) -> Router<S> {
     Router::new()
         .route("/api", get(routes::api_handler))
-        .route_layer(middleware::from_fn_with_state(state.clone(), auth))
+        .route_layer(middleware::from_fn_with_state(state.clone(), auth::<_>))
         .with_state(state)
 }
+*/
