@@ -12,21 +12,15 @@ use axum_macros::debug_handler;
 use axum_template::{engine::Engine, Key, RenderHtml};
 use log::{info, warn};
 use sqlx::{sqlite::SqliteRow, Connection, Pool, Row, Sqlite, SqliteConnection, SqlitePool};
-use std::{io, time::Duration};
-use tower::ServiceBuilder;
+
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use types::{Backend, PayedType, User};
+use types::{AppState, PayedType};
 
+mod auth;
 mod types;
 
 const EXPENSE_LIMIT: i64 = 25;
-type AuthSession = axum_login::AuthSession<Backend>;
-
-#[derive(Clone, FromRef)]
-struct AppState {
-    pool: Pool<Sqlite>,
-}
 
 async fn index(_: AppState) -> impl IntoResponse {
     String::from("<p>test</p>")
@@ -125,61 +119,6 @@ async fn add_expense_group(
     Ok(())
 }
 
-async fn login(
-    mut auth_session: AuthSession,
-    Form(creds): Form<types::Credentials>,
-) -> impl IntoResponse {
-    let user = match auth_session.authenticate(creds.clone()).await {
-        Ok(Some(user)) => user,
-        Ok(None) => return StatusCode::UNAUTHORIZED.into_response(),
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
-
-    if auth_session.login(&user).await.is_err() {
-        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
-    }
-
-    Redirect::to("/protected").into_response()
-}
-
-fn protected_routes() -> Router {
-    Router::new()
-        .route(
-            "/protected",
-            get(|| async { "Gotta be logged in to see me!" }),
-        )
-        .route_layer(login_required!(Backend, login_url = "/login"))
-}
-
-async fn get_login() -> impl IntoResponse {
-    String::from("PLEASE LOGIN").into_response()
-}
-
-async fn post_login(
-    mut auth_session: AuthSession,
-    Form(creds): Form<types::Credentials>,
-) -> impl IntoResponse {
-    let user = match auth_session.authenticate(creds.clone()).await {
-        Ok(Some(user)) => user,
-        Ok(None) => return String::from("LOGIN ERROR").into_response(),
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
-
-    if auth_session.login(&user).await.is_err() {
-        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
-    }
-
-    Redirect::to("/").into_response()
-}
-
-async fn protected(auth_session: AuthSession) -> impl IntoResponse {
-    match auth_session.user {
-        Some(user) => format!("You are a user {:?}", user).into_response(),
-
-        None => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    }
-}
-
 #[tokio::main]
 async fn main() {
     let pool = Pool::<Sqlite>::connect("test.db")
@@ -197,37 +136,12 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let session_store = MemoryStore::default();
-    let session_layer = SessionManagerLayer::new(session_store)
-        .with_secure(false)
-        .with_expiry(Expiry::OnInactivity(time::Duration::days(1)));
-
-    // Auth service.
-    //
-    // This combines the session layer with our backend to establish the auth
-    // service which will provide the auth session as a request extension.
-    let backend = pool;
-    let auth_service = ServiceBuilder::new()
-        .layer(HandleErrorLayer::new(|_: BoxError| async {
-            StatusCode::BAD_REQUEST
-        }))
-        .layer(AuthManagerLayerBuilder::new(backend, session_layer).build());
-
-    let auth_routes = Router::new()
-        .route("/login", post(post_login))
-        .route("/login", get(get_login));
-
-    let app = protected::router()
-        .route_layer(login_required!(Backend, login_url = "/login"))
-        .merge(auth_routes)
-        .layer(auth_service);
-
     // build our application with a single route
-    let state = AppState { pool };
-    let static_files = Router::new()
+    let state = AppState { pool: pool.clone() };
+    let static_files: Router<()> = Router::new()
         .nest_service("/static", ServeDir::new("static"))
         .nest_service("/js", ServeDir::new("json"));
-    /*
+
     let app = Router::new()
         //.route("/", get(index))
         .route("/expense/:id/", get(get_expenses))
@@ -235,18 +149,12 @@ async fn main() {
         .route("/total/:id/:id/", get(get_total_owed))
         .route("/add_expense_group/", post(add_expense_group))
         .with_state(state)
+        .merge(auth::login_auth_routes(pool))
         .layer(TraceLayer::new_for_http())
         .fallback_service(static_files);
-    */
+
     // run it with hyper on localhost:3000
     println!("See example: http://127.0.0.1:3000/example");
-
-    let app = Router::new()
-        .route("/protected", get(todo!()))
-        .route_layer(login_required!(Backend, login_url = "/login"))
-        .route("/login", post(todo!()))
-        .route("/login", get(todo!()))
-        .layer(auth_service);
 
     axum::Server::bind(&([127, 0, 0, 1], 3000).into())
         .serve(app.into_make_service())
