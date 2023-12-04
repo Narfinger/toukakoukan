@@ -1,13 +1,15 @@
+use crate::types::{AppState, Expense};
+use axum::{body::Body, http::Request};
 use axum::{
     extract::{self, Path, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
-use serde_json::json;
-
 use serde::Deserialize;
+use serde_json::json;
 use tower_sessions::Session;
+use tracing::info;
 
 /// imitating an API response
 #[allow(clippy::unused_async)]
@@ -52,42 +54,6 @@ pub struct Login {
     username: String,
     password: String,
 }
-
-pub(crate) async fn get_expenses(
-    State(state): State<AppState>,
-    Path(expense_group_id): Path<u32>,
-) -> Result<Json<Vec<Expense>>, StatusCode> {
-    let rows =
-        sqlx::query_as::<_, Expense>("SELECT * FROM expense WHERE expense_group_id = ? LIMIT >")
-            .bind(expense_group_id)
-            .bind(25)
-            .fetch_all(&state.pool)
-            .await
-            .map_err(|_| StatusCode::NOT_FOUND)?;
-    Ok(Json(rows))
-}
-
-pub async fn post_expense(
-    State(state): State<AppState>,
-    Path(expense_group_id): Path<u32>,
-    Json(payload): extract::Json<Expense>,
-) -> Result<(), StatusCode> {
-    sqlx::query(
-        "INSERT INTO expense (payed_type, amount, expense_group_id) VALUES (?, ?, ?);
-",
-    )
-    .bind(payload.payed_type)
-    .bind(payload.amount as i64)
-    .bind(expense_group_id as i64)
-    .execute(&state.pool)
-    .await
-    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    Ok(())
-}
-
-use axum::{body::Body, http::Request};
-
-use crate::types::{AppState, Expense};
 
 #[allow(clippy::unused_async)]
 pub async fn not_implemented_route(req: Request<Body>) -> impl IntoResponse {

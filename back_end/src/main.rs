@@ -1,8 +1,4 @@
-#![deny(clippy::all)]
-#![warn(clippy::pedantic)]
-#![warn(clippy::nursery)]
-#![allow(missing_docs)]
-
+use anyhow::Context;
 use axum::Router;
 use sqlx::{Pool, Sqlite};
 use std::net::SocketAddr;
@@ -13,6 +9,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::types::AppState;
 
+mod api;
 mod authenticator;
 mod routes;
 mod services;
@@ -22,15 +19,12 @@ mod usersecure;
 
 // SETUP Constants
 const SESSION_COOKIE_NAME: &str = "axum_svelte_session";
-const FRONT_PUBLIC: &str = "./front_end/dist";
+const FRONT_PUBLIC: &str = "../front_end/dist";
 const SERVER_PORT: &str = "3000";
 const SERVER_HOST: &str = "0.0.0.0";
 
-/// Server that is split into a Frontend to serve static files (Svelte) and Backend
-/// Backend is further split into a non authorized area and a secure area
-/// The Back end is using 2 middleware: sessions (managing session data) and user_secure (checking for authorization)
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), anyhow::Error> {
     // start tracing - level set by either RUST_LOG env variable or defaults to debug
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
@@ -39,18 +33,15 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    // configure server from environmental variables
-    let (port, host) = from_env();
-
-    let addr: SocketAddr = format!("{}:{}", host, port)
+    let addr: SocketAddr = format!("{}:{}", SERVER_HOST, SERVER_PORT)
         .parse()
-        .expect("Can not parse address and port");
+        .context("Can not parse address and port")?;
 
     // create store for backend.  Stores an api_token.
     let shared_state = {
         let pool = Pool::<Sqlite>::connect("test.db")
             .await
-            .expect("Error in db");
+            .context("Error in db")?;
         AppState {
             pool: pool,
             api_token: String::from("1234567989"),
@@ -72,7 +63,8 @@ async fn main() {
         .serve(app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
-        .unwrap();
+        .context("Could not bind server")?;
+    Ok(())
 }
 
 /// Tokio signal handler that will wait for a user to press CTRL+C.
@@ -82,17 +74,4 @@ async fn shutdown_signal() {
         .await
         .expect("Expect shutdown signal handler");
     println!("signal shutdown");
-}
-
-// Variables from Environment or default to configure server
-// port, host, secret
-fn from_env() -> (String, String) {
-    (
-        env::var("SERVER_PORT")
-            .ok()
-            .unwrap_or_else(|| SERVER_PORT.to_string()),
-        env::var("SERVER_HOST")
-            .ok()
-            .unwrap_or_else(|| SERVER_HOST.to_string()),
-    )
 }

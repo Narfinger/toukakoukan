@@ -1,4 +1,10 @@
-use crate::{authenticator::auth, types::AppState, usersecure::user_secure};
+use crate::{
+    api::{self, api_endpoints},
+    authenticator::auth,
+    routes::api_handler,
+    types::AppState,
+    usersecure::user_secure,
+};
 use axum::{
     error_handling::HandleErrorLayer,
     handler::HandlerWithoutStateExt,
@@ -66,8 +72,8 @@ pub fn back_public_route(state: AppState) -> Router {
         .route("/auth/login", post(routes::login)) // sets username in session
         .route("/auth/logout", get(routes::logout)) // deletes username in session
         .route("/test", get(routes::not_implemented_route))
-        .route("/expenses/:id/", get(routes::get_expenses))
-        .with_state(state)
+        .with_state(state.clone())
+        .nest("/api", api_endpoints(state))
 }
 
 // *********

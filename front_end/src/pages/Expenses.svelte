@@ -1,12 +1,19 @@
 <script>
     import "../app.css";
-    let group_id = 0;
+    let group_id = 1;
+    async function getGroup() {
+        let response = await fetch("/api/group/" + group_id + "/");
+        let group = await response.json();
+        return group;
+    }
+
     async function getExpenses() {
-        let response = await fetch("/expense/" + group_id + "/");
+        let response = await fetch("/api/expense/" + group_id + "/");
         let expenses = await response.json();
         return expenses;
     }
-    const promise = getExpenses();
+    const expense = getExpenses();
+    const group = getGroup();
 </script>
 
 <div class="container mx-auto px-4">
@@ -14,7 +21,7 @@
 
     <button class="btn btn-primary">Add</button>
 
-    {#await promise}
+    {#await expense}
         <p>Loading expenses</p>
     {:then expenses}
         <table class="table">
@@ -27,7 +34,7 @@
                             "You owe"
                         {/if}
                     </td>
-                    <td>{exp["amount"] / exp["people"].length}YEN</td>
+                    <!-- <td>{exp["amount"] / exp["people"].length}YEN</td>-->
                 </tr>
             {/each}
         </table>
