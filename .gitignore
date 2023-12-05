@@ -9,3 +9,4 @@ Cargo.lock
 /front_end/node_modules
 /front_end/dist/
 test.db
+back_end/target/

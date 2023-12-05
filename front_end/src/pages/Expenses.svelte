@@ -1,5 +1,7 @@
 <script>
+    import { createEventDispatcher } from "svelte";
     import "../app.css";
+    let isProduction = import.meta.env.MODE === "production";
     let group_id = 1;
     async function getGroup() {
         let response = await fetch("/api/group/" + group_id + "/");
@@ -24,6 +26,14 @@
     {#await expense}
         <p>Loading expenses</p>
     {:then expenses}
+        <div>
+            {#await group then group}
+                <h2>{group.name}</h2>
+                {#each group.people as p}
+                    <div>{p}</div>
+                {/each}
+            {/await}
+        </div>
         <table class="table">
             {#each expenses as exp}
                 <tr>
