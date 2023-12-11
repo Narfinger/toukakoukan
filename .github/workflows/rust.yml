@@ -1,0 +1,24 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build_rust:
+    name: "Rust Project"
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions/checkout@v3
+      - run: cargo build
+        working-directory: backend
+  build_web:
+    name: "Build web"
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm install
+        working-directory: "frontend"
+      - run: npm run build
+        working-directory: "frontend"
