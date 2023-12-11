@@ -78,6 +78,8 @@ pub(crate) struct Expense {
     pub(crate) payed_type: PayedType,
     /// amount
     pub(crate) amount: i64,
+    /// name
+    pub(crate) name: String,
     /// time the expense was created
     pub(crate) time: OffsetDateTime,
 }
