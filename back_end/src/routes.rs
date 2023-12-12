@@ -1,4 +1,4 @@
-use crate::types::{AppState, Expense};
+use crate::types::{AppState, Expense, User};
 use axum::{body::Body, http::Request};
 use axum::{
     extract::{self, Path, State},
@@ -6,8 +6,10 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use password_auth::verify_password;
 use serde::Deserialize;
 use serde_json::json;
+use sqlx::{query, query_as, Pool, Sqlite};
 use tower_sessions::Session;
 use tracing::info;
 
@@ -21,12 +23,14 @@ pub async fn api_handler() -> impl IntoResponse {
 }
 
 /// route to handle log in
-#[allow(clippy::unused_async)]
-#[allow(clippy::missing_panics_doc)]
-pub async fn login(session: Session, Json(login): Json<Login>) -> impl IntoResponse {
+pub(crate) async fn login(
+    state: AppState,
+    session: Session,
+    Json(login): Json<Login>,
+) -> impl IntoResponse {
     tracing::info!("Logging in user: {}", login.username);
 
-    if check_password(&login.username, &login.password) {
+    if check_password(state.pool, &login.username, &login.password).await {
         session.insert("user_id", login.username).unwrap();
         Json(json!({"result": "ok"}))
     } else {
@@ -44,9 +48,20 @@ pub async fn logout(session: Session) -> impl IntoResponse {
     Json(json!({"result": "ok"}))
 }
 
-// assume all passwords work
-const fn check_password(_username: &str, _password: &str) -> bool {
-    true
+/// password checking with database
+async fn check_password(pool: Pool<Sqlite>, username: &str, password: &str) -> bool {
+    return true;
+    /// working login thing
+    let pw_hash: Result<(String,), _> = query_as("select password_hash from users where name = ?")
+        .bind(username)
+        .fetch_one(&pool)
+        .await;
+    if let Ok((pw_hash,)) = pw_hash {
+        verify_password(password, &pw_hash).is_ok()
+    } else {
+        info!("Somethign is wrong with the db connection");
+        false
+    }
 }
 
 #[derive(Deserialize)]

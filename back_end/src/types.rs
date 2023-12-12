@@ -1,4 +1,15 @@
+use std::collections::HashMap;
+
+use axum::async_trait;
+use axum_macros::FromRef;
+use password_auth::verify_password;
+use serde::{Deserialize, Serialize};
+use sqlx::{
+    database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
+    Decode, Encode, FromRow, SqlitePool,
+};
 use sqlx::{Pool, Sqlite};
+use time::{OffsetDateTime, PrimitiveDateTime};
 
 #[derive(Debug, Clone)]
 pub(crate) struct AppState {
@@ -28,18 +39,6 @@ impl<'q> Decode<'q, Sqlite> for PayedType {
         }
     }
 }
-
-use std::collections::HashMap;
-
-use axum::async_trait;
-use axum_macros::FromRef;
-use password_auth::verify_password;
-use serde::{Deserialize, Serialize};
-use sqlx::{
-    database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
-    Decode, Encode, FromRow, SqlitePool,
-};
-use time::{OffsetDateTime, PrimitiveDateTime};
 
 /// What type of payment we have
 #[derive(Debug, Serialize, Deserialize)]
@@ -95,4 +94,15 @@ pub(crate) struct ExpenseGroup {
     pub(crate) expenses: Vec<Expense>,
     /// the name of the expense group
     pub(crate) name: String,
+}
+
+/// Users
+#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+pub(crate) struct User {
+    /// name of the user
+    pub(crate) name: String,
+    /// password hash of the user
+    pub(crate) password_hash: String,
+    /// the expense groups they have
+    pub(crate) groups: Vec<ExpenseGroup>,
 }

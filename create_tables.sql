@@ -22,7 +22,7 @@ CREATE TABLE expense (
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
-    password TEXT NOT NULL
+    password_hash TEXT NOT NULL
 );
 
 -- example values for testing
