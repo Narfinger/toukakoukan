@@ -2,9 +2,7 @@ use anyhow::Context;
 use axum::Router;
 use sqlx::{Pool, Sqlite};
 use std::net::SocketAddr;
-use std::{env, sync::Arc};
 use tower_sessions::{MemoryStore, SessionManagerLayer};
-use tracing::log::warn;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::types::AppState;

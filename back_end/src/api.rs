@@ -1,16 +1,12 @@
 use axum::{
     extract::{self, Path, State},
     http::StatusCode,
-    response::IntoResponse,
     routing::{get, post},
     Json, Router,
 };
-use serde_json::json;
 
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
-use tokio::join;
-use tower_sessions::Session;
 use tracing::info;
 
 use crate::types::{AppState, Expense};

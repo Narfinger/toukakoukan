@@ -1,10 +1,4 @@
-use crate::{
-    api::{self, api_endpoints},
-    authenticator::auth,
-    routes::api_handler,
-    types::AppState,
-    usersecure::user_secure,
-};
+use crate::{api::api_endpoints, types::AppState, usersecure::user_secure};
 use axum::{
     error_handling::HandleErrorLayer,
     handler::HandlerWithoutStateExt,

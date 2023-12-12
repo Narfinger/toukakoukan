@@ -1,15 +1,10 @@
-use std::collections::HashMap;
-
-use axum::async_trait;
-use axum_macros::FromRef;
-use password_auth::verify_password;
 use serde::{Deserialize, Serialize};
 use sqlx::{
     database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
-    Decode, Encode, FromRow, SqlitePool,
+    Decode, Encode,
 };
 use sqlx::{Pool, Sqlite};
-use time::{OffsetDateTime, PrimitiveDateTime};
+use time::OffsetDateTime;
 
 #[derive(Debug, Clone)]
 pub(crate) struct AppState {
