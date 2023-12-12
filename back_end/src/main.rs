@@ -40,10 +40,7 @@ async fn main() -> Result<(), anyhow::Error> {
         let pool = Pool::<Sqlite>::connect("test.db")
             .await
             .context("Error in db")?;
-        AppState {
-            pool: pool,
-            api_token: String::from("1234567989"),
-        }
+        AppState { pool: pool }
     };
 
     // setup up sessions and store to keep track of session information

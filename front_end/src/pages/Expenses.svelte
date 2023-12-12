@@ -44,7 +44,12 @@
 
 <div class="flex flex-col p-8 justify-center">
     <h1 class="underline">Main Expense Overview</h1>
-    <div><button class="btn btn-primary">Add</button></div>
+    <div>
+        <button
+            class="btn btn-primary"
+            on:click={() => (window.location.hash = "addexpense")}>Add</button
+        >
+    </div>
     <div>
         {#await group then group}
             <h2>Group: {group.name}</h2>

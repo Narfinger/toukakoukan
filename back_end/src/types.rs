@@ -9,13 +9,6 @@ use time::OffsetDateTime;
 #[derive(Debug, Clone)]
 pub(crate) struct AppState {
     pub(crate) pool: Pool<Sqlite>,
-    pub(crate) api_token: String,
-}
-
-impl AppState {
-    pub fn api_token_check(&self, auth_header: &str) -> bool {
-        auth_header == format!("Bearer {}", self.api_token)
-    }
 }
 
 impl<'q> Decode<'q, Sqlite> for PayedType {

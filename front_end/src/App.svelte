@@ -7,13 +7,25 @@
 	import Expenses from "./pages/Expenses.svelte";
 	import Apicheck from "./pages/Apicheck.svelte";
 	import Login from "./pages/Login.svelte";
+	import AddExpense from "./pages/AddExpense.svelte";
 	import { onMount } from "svelte";
 
-	let menu;
+	const routingMap = {
+		"": Login,
+		"#expenses": Expenses,
+		"#login": Login,
+		"#addexpense": AddExpense,
+	};
+	let page = Login;
+	function routeChange() {
+		page = routingMap[location.hash] || Login;
+	}
 	$: loggedin = $user !== "";
 
 	// check if logged in
 	onMount(getSession);
 </script>
 
-<Login />
+<svelte:window on:hashchange={routeChange} />
+
+<svelte:component this={page} />
