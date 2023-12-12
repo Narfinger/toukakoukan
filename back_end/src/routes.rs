@@ -1,4 +1,5 @@
 use crate::types::{AppState, Expense, User};
+use axum::debug_handler;
 use axum::{body::Body, http::Request};
 use axum::{
     extract::{self, Path, State},
@@ -23,14 +24,15 @@ pub async fn api_handler() -> impl IntoResponse {
 }
 
 /// route to handle log in
+#[debug_handler]
 pub(crate) async fn login(
-    state: AppState,
     session: Session,
+    State(state): State<AppState>,
     Json(login): Json<Login>,
 ) -> impl IntoResponse {
     tracing::info!("Logging in user: {}", login.username);
 
-    if check_password(state.pool, &login.username, &login.password).await {
+    if check_password(&state.pool, &login.username, &login.password).await {
         session.insert("user_id", login.username).unwrap();
         Json(json!({"result": "ok"}))
     } else {
@@ -49,12 +51,12 @@ pub async fn logout(session: Session) -> impl IntoResponse {
 }
 
 /// password checking with database
-async fn check_password(pool: Pool<Sqlite>, username: &str, password: &str) -> bool {
+async fn check_password(pool: &Pool<Sqlite>, username: &str, password: &str) -> bool {
     return true;
     /// working login thing
     let pw_hash: Result<(String,), _> = query_as("select password_hash from users where name = ?")
         .bind(username)
-        .fetch_one(&pool)
+        .fetch_one(pool)
         .await;
     if let Ok((pw_hash,)) = pw_hash {
         verify_password(password, &pw_hash).is_ok()
