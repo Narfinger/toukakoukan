@@ -3,6 +3,7 @@
     import { getSession, postLogin } from "./../js/auth";
     import Expenses from "./Expenses.svelte";
     import { createEventDispatcher } from "svelte";
+    import { route_expense } from "../js/consts.js";
 
     let isProduction = import.meta.env.MODE === "production";
 
@@ -12,7 +13,7 @@
     async function handleLogin() {
         if (!isProduction) {
             getSession();
-            window.location.hash = "expenses";
+            window.location.hash = route_expense;
             return;
         }
         let loginResponse = await postLogin(username, password);

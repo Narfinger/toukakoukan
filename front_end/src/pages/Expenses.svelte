@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import { route_addexpense } from "../js/consts";
 
     let isProduction = import.meta.env.MODE === "production";
     let group_id = 1;
@@ -47,7 +48,7 @@
     <div>
         <button
             class="btn btn-primary"
-            on:click={() => (window.location.hash = "addexpense")}>Add</button
+            on:click={() => (window.location.hash = "#addexpenses")}>Add</button
         >
     </div>
     <div>

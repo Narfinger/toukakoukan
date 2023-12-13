@@ -9,15 +9,21 @@
 	import Login from "./pages/Login.svelte";
 	import AddExpense from "./pages/AddExpense.svelte";
 	import { onMount } from "svelte";
+	import {
+		route_addexpense,
+		route_expense,
+		route_login,
+	} from "./js/consts.js";
 
 	const routingMap = {
-		"": Login,
-		"#expenses": Expenses,
-		"#login": Login,
-		"#addexpense": AddExpense,
+		"": Expenses,
+		route_expense: Expenses,
+		route_login: Login,
+		route_addexpense: AddExpense,
 	};
 	let page = Login;
 	function routeChange() {
+		console.log(location.hash);
 		page = routingMap[location.hash] || Login;
 	}
 	$: loggedin = $user !== "";
