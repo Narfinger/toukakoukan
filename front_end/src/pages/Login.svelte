@@ -21,7 +21,7 @@
             errorMessage = loginResponse.message;
         } else {
             getSession();
-            window.location.hash = "expenses";
+            window.location.hash = route_expense;
         }
     }
 </script>

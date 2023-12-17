@@ -94,3 +94,10 @@ pub(crate) struct User {
     /// the expense groups they have
     pub(crate) groups: Vec<ExpenseGroup>,
 }
+
+#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+pub(crate) struct Group {
+    pub(crate) id: String,
+    pub(crate) name: String,
+    pub(crate) users: Vec<User>,
+}

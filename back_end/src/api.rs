@@ -1,15 +1,36 @@
 use axum::{
     extract::{self, Path, State},
     http::StatusCode,
+    middleware,
     routing::{get, post},
     Json, Router,
 };
 
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
+use tower_sessions::Session;
 use tracing::info;
 
-use crate::types::{AppState, Expense};
+use crate::{
+    types::{AppState, Expense, Group},
+    usersecure::user_secure,
+};
+
+async fn groups(
+    session: Session,
+    State(state): State<AppState>,
+) -> Result<Json<Vec<Group>>, StatusCode> {
+    let user_id = session.get_value("user_id");
+    let q = sqlx::query(
+        "SELECT * FROM groups INNER JOIN expense_group_people INNER JOIN users WHERE users.id = ?",
+    )
+    .bind(user_id)
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND);
+
+    todo!("transform this to a nice group object");
+}
 
 async fn get_expenses(
     State(state): State<AppState>,
@@ -73,8 +94,10 @@ async fn get_group(
 
 pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
     Router::new()
+        .route("/groups/", get(groups))
         .route("/expense/:id/", get(get_expenses))
         .route("/expense/:id/", post(post_expense))
         .route("/group/:id/", get(get_group))
         .with_state(state)
+        .route_layer(middleware::from_fn(user_secure))
 }

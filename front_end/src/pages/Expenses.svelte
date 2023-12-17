@@ -1,14 +1,25 @@
-<script>
+<script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { route_addexpense } from "../js/consts";
 
     let isProduction = import.meta.env.MODE === "production";
-    let group_id = 1;
-    async function getGroup() {
+    async function getGroups(): Promise<Array<any>> {
+        if (!isProduction) {
+            return Promise.resolve([
+                { id: 1, name: "Testgroup1" },
+                { id: 2, name: "Testgroup2" },
+            ]);
+        } else {
+            let response = await fetch("/api/groups/");
+            let groups = await response.json();
+            return groups;
+        }
+    }
+    async function getGroup(group_id) {
         if (!isProduction) {
             return Promise.resolve({
                 name: "Test1",
-                people: ["Test1", "Test2"],
+                people: ["PTest1", "PTest2"],
             });
         }
         let response = await fetch("/api/group/" + group_id + "/");
@@ -16,7 +27,7 @@
         return group;
     }
 
-    async function getExpenses() {
+    async function getExpenses(group_id) {
         if (!isProduction) {
             return Promise.resolve([
                 {
@@ -39,12 +50,49 @@
         let expenses = await response.json();
         return expenses;
     }
-    const expense = getExpenses();
-    const group = getGroup();
+    const groups = getGroups().then((groups) => groups.enumerate());
+    let active_tab = 0;
+    $: group_id = groups.then((groups) => {
+        groups[active_tab].id;
+    });
+
+    $: expense = groups.then((groups) => {
+        return getExpenses(group_id);
+    });
+    $: group = groups.then((groups) => {
+        return getExpenses(group_id);
+    });
+    function switchTab(index) {
+        active_tab = index;
+    }
 </script>
 
 <div class="flex flex-col p-8 justify-center">
     <h1 class="underline">Main Expense Overview</h1>
+
+    <div role="tablist" class="tabs tabs-bordered">
+        {#await groups then groups}
+            {#each groups as g}
+                {#if g.id == active_tab}
+                    <a
+                        role="tab"
+                        class="tab tab-active"
+                        tabindex={0}
+                        on:click={() => {
+                            switchTab(0);
+                        }}>{g.name}</a
+                    >
+                {:else}
+                    <a
+                        role="tab"
+                        class="tab"
+                        tabindex={1}
+                        on:click={() => switchTab(1)}>{g.name}</a
+                    >
+                {/if}
+            {/each}
+        {/await}
+    </div>
     <div>
         <button
             class="btn btn-primary"

@@ -34,6 +34,7 @@ pub(crate) async fn login(
 
     if check_password(&state.pool, &login.username, &login.password).await {
         session.insert("user_id", login.username).unwrap();
+        todo!("add a random session token here and check it (probably)");
         Json(json!({"result": "ok"}))
     } else {
         Json(json!({"result": "error"}))
