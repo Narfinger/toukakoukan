@@ -3,7 +3,7 @@ use sqlx::{
     database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
     Decode, Encode,
 };
-use sqlx::{Pool, Sqlite};
+use sqlx::{FromRow, Pool, Sqlite};
 use time::OffsetDateTime;
 
 #[derive(Debug, Clone)]
@@ -97,7 +97,28 @@ pub(crate) struct User {
 
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub(crate) struct Group {
-    pub(crate) id: String,
+    pub(crate) id: u32,
     pub(crate) name: String,
-    pub(crate) users: Vec<User>,
+    pub(crate) users: Vec<String>
+}
+
+pub(crate) const GROUP_QUERY_STRING: &str = "SELECT id,expense_group_id, user_id, groups.name, users.name, password_hash FROM groups INNER JOIN expense_group_people INNER JOIN users WHERE users.id = ?";
+/// this is the wrong one because it doesn't give us all the users and just on user that matchs.
+#[derive(Debug, FromRow)]
+pub(crate) struct GroupQueryResult {
+    id: u32,
+    expense_group_id: u32,
+    user_id: u32,
+    group_name: String,
+    user_name: String,
+    password_hash: String,
+}
+
+impl From<GroupQueryResult> for Group {
+    fn from(value: GroupQueryResult) -> Self {
+        Group {
+            id: value.id,
+            name: value.group_name,
+        }
+    }
 }

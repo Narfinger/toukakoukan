@@ -6,8 +6,10 @@ CREATE TABLE expense_group (
 CREATE TABLE expense_group_people (
     id INTEGER PRIMARY KEY,
     expense_group_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     name TEXT NOT NULL,
-    FOREIGN KEY (expense_group_id) REFERENCES expense_group (expense_group_id)
+    FOREIGN KEY (expense_group_id) REFERENCES expense_group (expense_group_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE expense (

@@ -7,12 +7,12 @@ use axum::{
 };
 
 use serde::{Deserialize, Serialize};
-use sqlx::Row;
+use sqlx::{prelude::FromRow, Row};
 use tower_sessions::Session;
 use tracing::info;
 
 use crate::{
-    types::{AppState, Expense, Group},
+    types::{AppState, Expense, Group, GroupQueryResult, GROUP_QUERY_STRING},
     usersecure::user_secure,
 };
 
@@ -21,15 +21,13 @@ async fn groups(
     State(state): State<AppState>,
 ) -> Result<Json<Vec<Group>>, StatusCode> {
     let user_id = session.get_value("user_id");
-    let q = sqlx::query(
-        "SELECT * FROM groups INNER JOIN expense_group_people INNER JOIN users WHERE users.id = ?",
-    )
-    .bind(user_id)
-    .fetch_all(&state.pool)
-    .await
-    .map_err(|_| StatusCode::NOT_FOUND);
-
-    todo!("transform this to a nice group object");
+    let q: Vec<Group> = sqlx::query_as::<_, GroupQueryResult>(GROUP_QUERY_STRING)
+        .bind(user_id)
+        .fetch_all(&state.pool)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)
+        .map(|g| g.into())?;
+    Ok(Json(q))
 }
 
 async fn get_expenses(
