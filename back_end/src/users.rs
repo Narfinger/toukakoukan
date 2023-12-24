@@ -123,6 +123,7 @@ mod test {
         let pool = setup_db_connection().await.expect("NO DB");
         let user = User::from_id(&pool, 1).await.expect("NO USER");
         let groups = user.groups(&pool).await.expect("NO GROUPS");
+        println!("groups {:?}", groups);
         assert_eq!(groups[0].name, "group1");
         assert_eq!(groups.len(), 2);
         assert_eq!(groups[0].users[0], "test1");
