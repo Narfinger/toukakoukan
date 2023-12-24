@@ -9,7 +9,7 @@ CREATE TABLE expense_group_people (
     expense_group_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (expense_group_id) REFERENCES expense_group (id),
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    FOREIGN KEY (user_id) REFERENCES user (id)
 );
 
 CREATE TABLE expense (
@@ -21,7 +21,7 @@ CREATE TABLE expense (
     FOREIGN KEY (expense_group_id) REFERENCES expense_group (id)
 );
 
-CREATE TABLE users (
+CREATE TABLE user (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     password_hash TEXT NOT NULL

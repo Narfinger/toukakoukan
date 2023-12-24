@@ -18,7 +18,7 @@ pub(crate) struct User {
 
 impl User {
     pub(crate) async fn from_id(pool: &Pool<Sqlite>, id: i64) -> Result<User> {
-        sqlx::query_as::<_, User>("SELECT * FROM users where id=?")
+        sqlx::query_as::<_, User>("SELECT * FROM user where id=?")
             .bind(id)
             .fetch_one(pool)
             .await
@@ -52,13 +52,17 @@ impl User {
     }
 }
 
-pub(crate) const GROUP_QUERY_STRING: &str = "SELECT group.id, users.id, users.name, group.name FROM (expense_group_people JOIN expense_group JOIN user) WHERE expense_group_id IN (
-    SELECT expense_group_id from expense_group_people WHERE user_id = ?) GROUP BY group.id";
+pub(crate) const GROUP_QUERY_STRING: &str = "SELECT expense_group.id AS egid, user.id AS uid, user.name AS uname, expense_group.name AS egname FROM (expense_group_people JOIN expense_group JOIN user) WHERE expense_group_id IN (
+    SELECT expense_group_id from expense_group_people WHERE user_id = ?) GROUP BY expense_group.id";
 #[derive(Debug, FromRow)]
 struct GroupQueryResult {
+    #[sqlx(rename = "egid")]
     group_id: i64,
+    #[sqlx(rename = "uid")]
     user_id: i64,
+    #[sqlx(rename = "uname")]
     user_name: String,
+    #[sqlx(rename = "egname")]
     group_name: String,
 }
 
@@ -82,7 +86,7 @@ mod test {
 
         //fill data
         sqlx::query(
-            "INSERT INTO users (id, name, password_hash) VALUES (1, 'test1', 'xx'), (2, 'test2', 'xx'), (3, 'test3', 'xx')",
+            "INSERT INTO user (id, name, password_hash) VALUES (1, 'test1', 'xx'), (2, 'test2', 'xx'), (3, 'test3', 'xx')",
         )
         .execute(pool)
         .await.context("Error inserting users")?;
