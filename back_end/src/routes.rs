@@ -1,4 +1,4 @@
-use crate::types::{AppState, Expense, User};
+use crate::types::{AppState, Expense};
 use axum::debug_handler;
 use axum::{body::Body, http::Request};
 use axum::{

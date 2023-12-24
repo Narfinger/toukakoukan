@@ -13,6 +13,7 @@ mod routes;
 mod services;
 mod store;
 mod types;
+mod users;
 mod usersecure;
 
 // SETUP Constants

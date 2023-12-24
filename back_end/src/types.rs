@@ -8,6 +8,8 @@ use sqlx::{
 use sqlx::{FromRow, Pool, Sqlite};
 use time::OffsetDateTime;
 
+use crate::users::User;
+
 #[derive(Debug, Clone)]
 pub(crate) struct AppState {
     pub(crate) pool: Pool<Sqlite>,
@@ -86,53 +88,9 @@ pub(crate) struct ExpenseGroup {
     pub(crate) name: String,
 }
 
-/// Users
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
-pub(crate) struct User {
-    /// name of the user
-    pub(crate) name: String,
-    /// password hash of the user
-    pub(crate) password_hash: String,
-}
-
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub(crate) struct Group {
-    pub(crate) id: u32,
+    pub(crate) id: i64,
     pub(crate) name: String,
-    pub(crate) users: Vec<String>,
-}
-
-pub(crate) const GROUP_QUERY_STRING: &str = "SELECT group.id, user.id, user.name, group.name FROM (expense_group_people JOIN expense_group JOIN user) WHERE expense_group_id in (
-    SELECT expense_group_id from expense_group_people WHERE user_id = ?) GROUP BY group.id";
-#[derive(Debug, FromRow)]
-pub(crate) struct GroupQueryResult {
-    group_id: i64,
-    user_id: i64,
-    user_name: String,
-    group_name: String,
-}
-
-pub(crate) fn group_query_result_to_group_query_return(
-    groups: Vec<GroupQueryResult>,
-) -> Vec<GroupQueryReturn> {
-    let mut map: HashMap<(i64, String), Vec<String>> = HashMap::new();
-    for i in groups {
-        map.entry((i.group_id, i.group_name))
-            .or_default()
-            .push(i.user_name);
-    }
-    map.into_iter()
-        .map(|((group_id, group_name), users)| GroupQueryReturn {
-            group_id,
-            group_name,
-            users,
-        })
-        .collect::<Vec<GroupQueryReturn>>()
-}
-
-#[derive(Debug, Serialize)]
-pub(crate) struct GroupQueryReturn {
-    pub(crate) group_id: i64,
-    pub(crate) group_name: String,
     pub(crate) users: Vec<String>,
 }

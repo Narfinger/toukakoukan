@@ -15,26 +15,27 @@ use tower_sessions::Session;
 use tracing::info;
 
 use crate::{
-    types::{
-        group_query_result_to_group_query_return, AppState, Expense, Group, GroupQueryResult,
-        GroupQueryReturn, GROUP_QUERY_STRING,
-    },
+    types::{AppState, Expense, Group},
+    users::User,
     usersecure::user_secure,
 };
 
 async fn groups(
     session: Session,
     State(state): State<AppState>,
-) -> Result<Json<Vec<GroupQueryReturn>>, StatusCode> {
-    let user_id = session.get_value("user_id");
-
-    let groups: Vec<GroupQueryResult> = sqlx::query_as::<_, GroupQueryResult>(GROUP_QUERY_STRING)
-        .bind(user_id)
-        .fetch_all(&state.pool)
+) -> Result<Json<Vec<Group>>, StatusCode> {
+    let user_id_val = session
+        .get_value("user_id")
+        .ok_or(StatusCode::UNAUTHORIZED)?;
+    let user_id: i64 = serde_json::from_value(user_id_val).map_err(|e| StatusCode::NOT_FOUND)?;
+    let user = User::from_id(&state.pool, user_id.into())
         .await
-        .map_err(|_| StatusCode::NOT_FOUND)?;
-
-    Ok(Json(group_query_result_to_group_query_return(groups)))
+        .map_err(|e| StatusCode::NOT_FOUND)?;
+    let groups = user
+        .groups(&state.pool)
+        .await
+        .map_err(|e| StatusCode::NOT_FOUND)?;
+    Ok(Json(groups))
 }
 
 async fn get_expenses(
