@@ -41,6 +41,7 @@ async fn main() -> Result<(), anyhow::Error> {
         let pool = Pool::<Sqlite>::connect("test.db")
             .await
             .context("Error in db")?;
+        sqlx::migrate!().run(&pool).await?;
         AppState { pool: pool }
     };
 
