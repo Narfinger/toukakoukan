@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use sqlx::{
     database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
@@ -91,34 +93,46 @@ pub(crate) struct User {
     pub(crate) name: String,
     /// password hash of the user
     pub(crate) password_hash: String,
-    /// the expense groups they have
-    pub(crate) groups: Vec<ExpenseGroup>,
 }
 
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub(crate) struct Group {
     pub(crate) id: u32,
     pub(crate) name: String,
-    pub(crate) users: Vec<String>
+    pub(crate) users: Vec<String>,
 }
 
-pub(crate) const GROUP_QUERY_STRING: &str = "SELECT id,expense_group_id, user_id, groups.name, users.name, password_hash FROM groups INNER JOIN expense_group_people INNER JOIN users WHERE users.id = ?";
-/// this is the wrong one because it doesn't give us all the users and just on user that matchs.
+pub(crate) const GROUP_QUERY_STRING: &str = "SELECT group.id, user.id, user.name, group.name FROM (expense_group_people JOIN expense_group JOIN user) WHERE expense_group_id in (
+    SELECT expense_group_id from expense_group_people WHERE user_id = ?) GROUP BY group.id";
 #[derive(Debug, FromRow)]
 pub(crate) struct GroupQueryResult {
-    id: u32,
-    expense_group_id: u32,
-    user_id: u32,
-    group_name: String,
+    group_id: i64,
+    user_id: i64,
     user_name: String,
-    password_hash: String,
+    group_name: String,
 }
 
-impl From<GroupQueryResult> for Group {
-    fn from(value: GroupQueryResult) -> Self {
-        Group {
-            id: value.id,
-            name: value.group_name,
-        }
+pub(crate) fn group_query_result_to_group_query_return(
+    groups: Vec<GroupQueryResult>,
+) -> Vec<GroupQueryReturn> {
+    let mut map: HashMap<(i64, String), Vec<String>> = HashMap::new();
+    for i in groups {
+        map.entry((i.group_id, i.group_name))
+            .or_default()
+            .push(i.user_name);
     }
+    map.into_iter()
+        .map(|((group_id, group_name), users)| GroupQueryReturn {
+            group_id,
+            group_name,
+            users,
+        })
+        .collect::<Vec<GroupQueryReturn>>()
+}
+
+#[derive(Debug, Serialize)]
+pub(crate) struct GroupQueryReturn {
+    pub(crate) group_id: i64,
+    pub(crate) group_name: String,
+    pub(crate) users: Vec<String>,
 }

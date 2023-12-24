@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use axum::{
+    debug_handler,
     extract::{self, Path, State},
     http::StatusCode,
     middleware,
@@ -12,22 +15,26 @@ use tower_sessions::Session;
 use tracing::info;
 
 use crate::{
-    types::{AppState, Expense, Group, GroupQueryResult, GROUP_QUERY_STRING},
+    types::{
+        group_query_result_to_group_query_return, AppState, Expense, Group, GroupQueryResult,
+        GroupQueryReturn, GROUP_QUERY_STRING,
+    },
     usersecure::user_secure,
 };
 
 async fn groups(
     session: Session,
     State(state): State<AppState>,
-) -> Result<Json<Vec<Group>>, StatusCode> {
+) -> Result<Json<Vec<GroupQueryReturn>>, StatusCode> {
     let user_id = session.get_value("user_id");
-    let q: Vec<Group> = sqlx::query_as::<_, GroupQueryResult>(GROUP_QUERY_STRING)
+
+    let groups: Vec<GroupQueryResult> = sqlx::query_as::<_, GroupQueryResult>(GROUP_QUERY_STRING)
         .bind(user_id)
         .fetch_all(&state.pool)
         .await
-        .map_err(|_| StatusCode::NOT_FOUND)
-        .map(|g| g.into())?;
-    Ok(Json(q))
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    Ok(Json(group_query_result_to_group_query_return(groups)))
 }
 
 async fn get_expenses(
