@@ -88,7 +88,7 @@ pub(crate) struct ExpenseGroup {
     pub(crate) name: String,
 }
 
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+#[derive(Debug, sqlx::FromRow, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct Group {
     pub(crate) id: i64,
     pub(crate) name: String,

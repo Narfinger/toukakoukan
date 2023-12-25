@@ -16,6 +16,18 @@ pub(crate) struct User {
     password_hash: String,
 }
 
+#[derive(Debug, FromRow)]
+struct GroupQueryResult {
+    #[sqlx(rename = "uid")]
+    user_id: i64,
+    #[sqlx(rename = "uname")]
+    user_name: String,
+    #[sqlx(rename = "egname")]
+    group_name: String,
+    #[sqlx(rename = "egid")]
+    group_id: i64,
+}
+
 impl User {
     pub(crate) async fn from_id(pool: &Pool<Sqlite>, id: i64) -> Result<User> {
         sqlx::query_as::<_, User>("SELECT * FROM user where id=?")
@@ -29,11 +41,11 @@ impl User {
         let user_id = self.id;
 
         let groups: Vec<GroupQueryResult> =
-            sqlx::query_as::<_, GroupQueryResult>(GROUP_QUERY_STRING)
+            sqlx::query_as::<_, GroupQueryResult>("SELECT user.id AS uid, user.name AS uname, expense_group.name AS egname, expense_group_id AS egid FROM ((user join expense_group_people ON expense_group_people.user_id = user.id) join expense_group on expense_group_people.expense_group_id = expense_group.id) WHERE expense_group_people.expense_group_id in (SELECT expense_group_id FROM expense_group_people WHERE user_id=?)")
                 .bind(user_id)
                 .fetch_all(pool)
                 .await
-                .context("Query did not get group results")?;
+                .context("Could not find groups")?;
 
         let mut map: HashMap<(i64, String), Vec<String>> = HashMap::new();
         for i in groups {
@@ -52,31 +64,8 @@ impl User {
     }
 }
 
-pub(crate) const GROUP_QUERY_STRING: &str = "SELECT expense_group.id AS egid, user.id AS uid, user.name AS uname, expense_group.name AS egname FROM (expense_group_people JOIN expense_group JOIN user) WHERE expense_group_id IN (
-    SELECT expense_group_id from expense_group_people WHERE user_id = ?) GROUP BY expense_group.id";
-#[derive(Debug, FromRow)]
-struct GroupQueryResult {
-    #[sqlx(rename = "egid")]
-    group_id: i64,
-    #[sqlx(rename = "uid")]
-    user_id: i64,
-    #[sqlx(rename = "uname")]
-    user_name: String,
-    #[sqlx(rename = "egname")]
-    group_name: String,
-}
-
-#[derive(Debug, Serialize)]
-struct GroupQueryReturn {
-    pub(crate) group_id: i64,
-    pub(crate) group_name: String,
-    pub(crate) users: Vec<String>,
-}
-
 #[cfg(test)]
 mod test {
-
-    use anyhow::{Context, Result};
     use sqlx::{Pool, Sqlite};
 
     use crate::users::User;
@@ -92,12 +81,17 @@ mod test {
     #[sqlx::test(migrations = "./migrations/", fixtures("../fixtures/all.sql"))]
     async fn get_users_groups(pool: Pool<Sqlite>) {
         let user = User::from_id(&pool, 1).await.expect("NO USER");
-        let groups = user.groups(&pool).await.expect("NO GROUPS");
+        let mut groups = user.groups(&pool).await.expect("NO GROUPS");
+        groups.sort();
         println!("groups {:?}", groups);
         assert_eq!(groups[0].name, "group1");
         assert_eq!(groups.len(), 2);
         assert_eq!(groups[0].users[0], "test1");
         assert_eq!(groups[0].users[1], "test2");
+        assert_eq!(groups[0].users.len(), 2);
+        assert_eq!(groups[1].name, "group2");
         assert_eq!(groups[1].users[0], "test1");
+        assert_eq!(groups[1].users[1], "test2");
+        assert_eq!(groups[1].users.len(), 2);
     }
 }
