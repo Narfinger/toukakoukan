@@ -75,52 +75,22 @@ struct GroupQueryReturn {
 
 #[cfg(test)]
 mod test {
+
     use anyhow::{Context, Result};
     use sqlx::{Pool, Sqlite};
 
     use crate::users::User;
 
-    async fn fill_db(pool: &Pool<Sqlite>) -> anyhow::Result<()> {
-        //let str = include_str!("../../create_tables.sql");
-        sqlx::migrate!().run(pool).await?;
-
-        //fill data
-        sqlx::query(
-            "INSERT INTO user (id, name, password_hash) VALUES (1, 'test1', 'xx'), (2, 'test2', 'xx'), (3, 'test3', 'xx')",
-        )
-        .execute(pool)
-        .await.context("Error inserting users")?;
-        sqlx::query("INSERT INTO expense_group (id, name) VALUES (1, 'group1'), (2, 'group2'), (3, 'group3'), (4, 'group4')")
-            .execute(pool)
-            .await
-            .context("Error inserting expense_group")?;
-        sqlx::query(
-            "INSERT INTO expense_group_people (id, expense_group_id, user_id) VALUES (1,1,1), (2,1,2), (3,2,1), (4,2,2), (5,2,3)",
-        )
-        .execute(pool)
-        .await.context("Error inserting expense group people")?;
-        Ok(())
-    }
-
-    async fn setup_db_connection() -> anyhow::Result<Pool<Sqlite>> {
-        let pool = Pool::<Sqlite>::connect(":memory:")
-            .await
-            .context("Could not get pool")?;
-        fill_db(&pool).await.context("Error filling db")?;
-        Ok(pool)
-    }
-
-    #[tokio::test]
-    async fn get_user() {
-        let pool = setup_db_connection().await.expect("NO DB");
+    #[sqlx::test(migrations = "./migrations/", fixtures("../fixtures/all.sql"))]
+    async fn get_user(pool: Pool<Sqlite>) {
+        //let pool = setup_db_connection().await.expect("NO DB");
         let user = User::from_id(&pool, 1).await.expect("NO USER");
 
         assert_eq!(user.name, "test1");
     }
 
-    #[tokio::test]
-    async fn get_users_groups() {
-        let pool = setup_db_connection().await.expect("NO DB");
+    #[sqlx::test(migrations = "./migrations/", fixtures("../fixtures/all.sql"))]
+    async fn get_users_groups(pool: Pool<Sqlite>) {
         let user = User::from_id(&pool, 1).await.expect("NO USER");
         let groups = user.groups(&pool).await.expect("NO GROUPS");
         println!("groups {:?}", groups);
