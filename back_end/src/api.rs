@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use axum::{
     debug_handler,
     extract::{self, Path, State},
@@ -10,7 +8,7 @@ use axum::{
 };
 
 use serde::{Deserialize, Serialize};
-use sqlx::{prelude::FromRow, Row};
+use sqlx::Row;
 use tower_sessions::Session;
 use tracing::info;
 
@@ -27,14 +25,14 @@ async fn groups(
     let user_id_val = session
         .get_value("user_id")
         .ok_or(StatusCode::UNAUTHORIZED)?;
-    let user_id: i64 = serde_json::from_value(user_id_val).map_err(|e| StatusCode::NOT_FOUND)?;
+    let user_id: i64 = serde_json::from_value(user_id_val).map_err(|_| StatusCode::NOT_FOUND)?;
     let user = User::from_id(&state.pool, user_id.into())
         .await
-        .map_err(|e| StatusCode::NOT_FOUND)?;
+        .map_err(|_| StatusCode::NOT_FOUND)?;
     let groups = user
         .groups(&state.pool)
         .await
-        .map_err(|e| StatusCode::NOT_FOUND)?;
+        .map_err(|_| StatusCode::NOT_FOUND)?;
     Ok(Json(groups))
 }
 

@@ -1,12 +1,11 @@
 use anyhow::{Context, Result};
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, Pool, Sqlite};
+use sqlx::FromRow;
 use std::collections::HashMap;
 
-use crate::types::Group;
+use crate::types::{DBPool, Group};
 
 /// Users
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+#[derive(Debug, sqlx::FromRow)]
 pub(crate) struct User {
     /// the id in the database
     id: i64,
@@ -29,7 +28,7 @@ struct GroupQueryResult {
 }
 
 impl User {
-    pub(crate) async fn from_id(pool: &Pool<Sqlite>, id: i64) -> Result<User> {
+    pub(crate) async fn from_id(pool: &DBPool, id: i64) -> Result<User> {
         sqlx::query_as::<_, User>("SELECT * FROM user where id=?")
             .bind(id)
             .fetch_one(pool)
@@ -37,7 +36,7 @@ impl User {
             .context("Could not find user in db")
     }
 
-    pub(crate) async fn groups(&self, pool: &Pool<Sqlite>) -> Result<Vec<Group>> {
+    pub(crate) async fn groups(&self, pool: &DBPool) -> Result<Vec<Group>> {
         let user_id = self.id;
 
         let groups: Vec<GroupQueryResult> =
@@ -66,12 +65,10 @@ impl User {
 
 #[cfg(test)]
 mod test {
-    use sqlx::{Pool, Sqlite};
-
-    use crate::users::User;
+    use crate::{types::DBPool, users::User};
 
     #[sqlx::test(migrations = "./migrations/", fixtures("../fixtures/all.sql"))]
-    async fn get_user(pool: Pool<Sqlite>) {
+    async fn get_user(pool: DBPool) {
         //let pool = setup_db_connection().await.expect("NO DB");
         let user = User::from_id(&pool, 1).await.expect("NO USER");
 
@@ -79,7 +76,7 @@ mod test {
     }
 
     #[sqlx::test(migrations = "./migrations/", fixtures("../fixtures/all.sql"))]
-    async fn get_users_groups(pool: Pool<Sqlite>) {
+    async fn get_users_groups(pool: DBPool) {
         let user = User::from_id(&pool, 1).await.expect("NO USER");
         let mut groups = user.groups(&pool).await.expect("NO GROUPS");
         groups.sort();

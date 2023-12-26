@@ -1,16 +1,11 @@
-use crate::types::{AppState, Expense};
+use crate::types::AppState;
 use axum::debug_handler;
 use axum::{body::Body, http::Request};
-use axum::{
-    extract::{self, Path, State},
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
+use axum::{extract::State, response::IntoResponse, Json};
 use password_auth::verify_password;
 use serde::Deserialize;
 use serde_json::json;
-use sqlx::{query, query_as, Pool, Sqlite};
+use sqlx::{query_as, Pool, Sqlite};
 use tower_sessions::Session;
 use tracing::info;
 

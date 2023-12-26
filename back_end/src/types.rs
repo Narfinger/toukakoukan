@@ -1,18 +1,16 @@
-use std::collections::HashMap;
-
 use serde::{Deserialize, Serialize};
 use sqlx::{
     database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
     Decode, Encode,
 };
-use sqlx::{FromRow, Pool, Sqlite};
+use sqlx::{Pool, Sqlite};
 use time::OffsetDateTime;
 
-use crate::users::User;
+pub(crate) type DBPool = Pool<Sqlite>;
 
 #[derive(Debug, Clone)]
 pub(crate) struct AppState {
-    pub(crate) pool: Pool<Sqlite>,
+    pub(crate) pool: DBPool,
 }
 
 impl<'q> Decode<'q, Sqlite> for PayedType {
