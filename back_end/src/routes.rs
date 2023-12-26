@@ -29,6 +29,7 @@ pub(crate) async fn login(
     Json(login): Json<Login>,
 ) -> Result<(), StatusCode> {
     tracing::info!("Logging in user: {}", login.username);
+    /*
     let user = check_password(&state.pool, &login.username, &login.password)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
@@ -36,7 +37,7 @@ pub(crate) async fn login(
         .insert("user_id", user.id)
         .context("Error inserting into session")
         .map_err(|_| StatusCode::NOT_FOUND)?;
-
+    */
     tracing::info!("We are only looking at user_id 1 and hardcoding it");
     session.insert("user_id", 1);
     Ok(())
