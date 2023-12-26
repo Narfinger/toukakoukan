@@ -1,5 +1,8 @@
 use crate::types::AppState;
+use crate::users::User;
+use anyhow::{anyhow, Context, Result};
 use axum::debug_handler;
+use axum::http::StatusCode;
 use axum::{body::Body, http::Request};
 use axum::{extract::State, response::IntoResponse, Json};
 use password_auth::verify_password;
@@ -24,16 +27,19 @@ pub(crate) async fn login(
     session: Session,
     State(state): State<AppState>,
     Json(login): Json<Login>,
-) -> impl IntoResponse {
+) -> Result<(), StatusCode> {
     tracing::info!("Logging in user: {}", login.username);
+    let user = check_password(&state.pool, &login.username, &login.password)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+    session
+        .insert("user_id", user.id)
+        .context("Error inserting into session")
+        .map_err(|_| StatusCode::NOT_FOUND)?;
 
-    if check_password(&state.pool, &login.username, &login.password).await {
-        session.insert("user_id", login.username).unwrap();
-        todo!("add a random session token here and check it (probably)");
-        Json(json!({"result": "ok"}))
-    } else {
-        Json(json!({"result": "error"}))
-    }
+    tracing::info!("We are only looking at user_id 1 and hardcoding it");
+    session.insert("user_id", 1);
+    Ok(())
 }
 
 /// route to handle log out
@@ -47,18 +53,20 @@ pub async fn logout(session: Session) -> impl IntoResponse {
 }
 
 /// password checking with database
-async fn check_password(pool: &Pool<Sqlite>, username: &str, password: &str) -> bool {
-    return true;
-    /// working login thing
-    let pw_hash: Result<(String,), _> = query_as("select password_hash from users where name = ?")
-        .bind(username)
-        .fetch_one(pool)
-        .await;
-    if let Ok((pw_hash,)) = pw_hash {
-        verify_password(password, &pw_hash).is_ok()
+async fn check_password(
+    pool: &Pool<Sqlite>,
+    username: &str,
+    password: &str,
+) -> anyhow::Result<User> {
+    //return true;
+
+    let user = User::get_user_from_username(pool, username)
+        .await
+        .context("Could not find user")?;
+    if user.check_password(password) {
+        Ok(user)
     } else {
-        info!("Somethign is wrong with the db connection");
-        false
+        Err(anyhow!("password missmatch"))
     }
 }
 

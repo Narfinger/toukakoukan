@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use password_auth::verify_password;
 use sqlx::FromRow;
 use std::collections::HashMap;
 
@@ -8,8 +9,8 @@ use crate::types::{DBPool, Group};
 #[derive(Debug, sqlx::FromRow)]
 pub(crate) struct User {
     /// the id in the database
-    id: i64,
-    /// name of the user
+    pub(crate) id: i64,
+    /// name of the user and login
     name: String,
     /// password hash of the user
     password_hash: String,
@@ -28,6 +29,14 @@ struct GroupQueryResult {
 }
 
 impl User {
+    pub(crate) async fn get_user_from_username(pool: &DBPool, name: &str) -> Result<Self> {
+        sqlx::query_as::<_, User>("SELECT * FROM user where name=?")
+            .bind(name)
+            .fetch_one(pool)
+            .await
+            .context("Could not find user")
+    }
+
     pub(crate) async fn from_id(pool: &DBPool, id: i64) -> Result<User> {
         sqlx::query_as::<_, User>("SELECT * FROM user where id=?")
             .bind(id)
@@ -60,6 +69,10 @@ impl User {
                 users,
             })
             .collect::<Vec<Group>>())
+    }
+
+    pub(crate) fn check_password(&self, given_password: &str) -> bool {
+        verify_password(given_password, &self.password_hash).is_ok()
     }
 }
 

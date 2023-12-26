@@ -1,4 +1,9 @@
 -- Add migration script here
+DROP TABLE expense;
+DROP TABLE expense_group_people;
+DROP TABLE expense_group;
+DROP TABLE user;
+
 CREATE TABLE expense_group (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL
