@@ -1,8 +1,8 @@
 -- Add migration script here
-DROP TABLE expense;
-DROP TABLE expense_group_people;
-DROP TABLE expense_group;
-DROP TABLE user;
+DROP TABLE IF EXISTS gexpense;
+DROP TABLE IF EXISTS expense_group_people;
+DROP TABLE IF EXISTS expense_group;
+DROP TABLE IF EXISTS user;
 
 CREATE TABLE expense_group (
     id INTEGER PRIMARY KEY,
