@@ -7,7 +7,7 @@ use tower_sessions::Session;
 use crate::types::{DBPool, Group};
 
 /// Users
-#[derive(Debug, sqlx::FromRow)]
+#[derive(Debug, sqlx::FromRow, Clone)]
 pub(crate) struct User {
     /// the id in the database
     pub(crate) id: i64,

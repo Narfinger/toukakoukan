@@ -1,14 +1,16 @@
 use axum::{
     debug_handler,
-    extract::{self, Path, State},
+    extract::{self, Path, Request, State},
     http::StatusCode,
+    middleware::{self, Next},
+    response::Response,
     routing::{get, post},
-    Json, Router,
+    Extension, Json, Router,
 };
 
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
-use tower_sessions::Session;
+use tower_sessions::{session, Session};
 use tracing::info;
 
 use crate::{
@@ -18,12 +20,9 @@ use crate::{
 
 /// returns all groups fro the user_id in the session
 async fn groups(
-    session: Session,
+    Extension(user): Extension<User>,
     State(state): State<AppState>,
 ) -> Result<Json<Vec<Group>>, StatusCode> {
-    let user = User::get_user_from_session(&state.pool, &session)
-        .await
-        .map_err(|_| StatusCode::UNAUTHORIZED)?;
     let groups = user
         .groups(&state.pool)
         .await
@@ -33,14 +32,11 @@ async fn groups(
 
 /// returns all expenses for the user_id in session and the expense_group_id in path
 async fn get_expenses(
-    session: Session,
+    Extension(user): Extension<User>,
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
 ) -> Result<Json<Vec<Expense>>, StatusCode> {
     info!("Doing {}", expense_group_id);
-    let user = User::get_user_from_session(&state.pool, &session)
-        .await
-        .map_err(|_| StatusCode::UNAUTHORIZED)?;
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
@@ -58,14 +54,11 @@ async fn get_expenses(
 
 /// inserts a expense into the database with the expense_group_id in the path
 async fn post_expense(
-    session: Session,
+    Extension(user): Extension<User>,
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
     Json(payload): extract::Json<Expense>,
 ) -> Result<(), StatusCode> {
-    let user = User::get_user_from_session(&state.pool, &session)
-        .await
-        .map_err(|_| StatusCode::UNAUTHORIZED)?;
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
@@ -92,13 +85,10 @@ struct GroupResponse {
 
 /// gets a group for the group_id given in the path
 async fn get_group(
-    session: Session,
+    Extension(user): Extension<User>,
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
 ) -> Result<Json<GroupResponse>, StatusCode> {
-    let user = User::get_user_from_session(&state.pool, &session)
-        .await
-        .map_err(|_| StatusCode::UNAUTHORIZED)?;
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
@@ -128,5 +118,22 @@ pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
         .route("/expense/:id/", get(get_expenses))
         .route("/expense/:id/", post(post_expense))
         .route("/group/:id/", get(get_group))
+        .route_layer(middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state)
+}
+
+/// Authenticate and give the user to all the routes
+async fn auth(
+    session: Session,
+    State(state): State<AppState>,
+    mut request: Request,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let user = User::get_user_from_session(&state.pool, &session).await;
+    if let Ok(user) = user {
+        request.extensions_mut().insert(user);
+        Ok(next.run(request).await)
+    } else {
+        Err(StatusCode::UNAUTHORIZED)
+    }
 }
