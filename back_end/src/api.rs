@@ -10,7 +10,7 @@ use axum::{
 
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
-use tower_sessions::{session, Session};
+use tower_sessions::Session;
 use tracing::info;
 
 use crate::{
@@ -67,7 +67,7 @@ async fn post_expense(
 ",
         )
         .bind(payload.payed_type)
-        .bind(payload.amount as i64)
+        .bind(payload.amount)
         .bind(expense_group_id as i64)
         .execute(&state.pool)
         .await

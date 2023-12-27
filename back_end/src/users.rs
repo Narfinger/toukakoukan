@@ -18,6 +18,7 @@ pub(crate) struct User {
 }
 
 #[derive(Debug, FromRow)]
+/// The result of the group queries. This needs to now have the complete user in because we don't want to leak passwords. Only used as an intermediary FromRow Type
 struct GroupQueryResult {
     #[sqlx(rename = "uid")]
     user_id: i64,
@@ -30,13 +31,15 @@ struct GroupQueryResult {
 }
 
 impl User {
+    /// Gets a user from the current session
     pub(crate) async fn get_user_from_session(pool: &DBPool, session: &Session) -> Result<User> {
         let user_id_val = session.get_value("user_id").await.unwrap();
         let user_id: i64 = serde_json::from_value(user_id_val.unwrap())?;
-        let user = User::from_id(&pool, user_id.into()).await?;
+        let user = User::from_id(pool, user_id).await?;
         Ok(user)
     }
 
+    /// Checks if a user is in a group, i.e., is allowed to modify it
     pub(crate) async fn in_group(&self, pool: &DBPool, group_id: u32) -> bool {
         let q = sqlx::query(
             "SELECT user_id FROM expense_group_people WHERE user_id=? AND expense_group_id = ?",
@@ -48,6 +51,7 @@ impl User {
         q.is_ok()
     }
 
+    /// gets a user from a username (to login)
     pub(crate) async fn get_user_from_username(pool: &DBPool, name: &str) -> Result<Self> {
         sqlx::query_as::<_, User>("SELECT * FROM user where name=?")
             .bind(name)
@@ -56,7 +60,8 @@ impl User {
             .context("Could not find user")
     }
 
-    pub(crate) async fn from_id(pool: &DBPool, id: i64) -> Result<User> {
+    /// creates the user from a given id (used for session)
+    async fn from_id(pool: &DBPool, id: i64) -> Result<User> {
         sqlx::query_as::<_, User>("SELECT * FROM user where id=?")
             .bind(id)
             .fetch_one(pool)
@@ -64,6 +69,7 @@ impl User {
             .context("Could not find user in db")
     }
 
+    /// Gets the groups a user is in and returns the vector
     pub(crate) async fn groups(&self, pool: &DBPool) -> Result<Vec<Group>> {
         let user_id = self.id;
 
@@ -90,6 +96,7 @@ impl User {
             .collect::<Vec<Group>>())
     }
 
+    /// check if a password matches for the user
     pub(crate) fn check_password(&self, given_password: &str) -> bool {
         verify_password(given_password, &self.password_hash).is_ok()
     }
