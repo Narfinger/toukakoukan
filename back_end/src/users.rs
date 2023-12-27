@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use password_auth::verify_password;
 use sqlx::FromRow;
 use std::collections::HashMap;
+use tower_sessions::Session;
 
 use crate::types::{DBPool, Group};
 
@@ -29,6 +30,24 @@ struct GroupQueryResult {
 }
 
 impl User {
+    pub(crate) async fn get_user_from_session(pool: &DBPool, session: &Session) -> Result<User> {
+        let user_id_val = session.get_value("user_id").await.unwrap();
+        let user_id: i64 = serde_json::from_value(user_id_val.unwrap())?;
+        let user = User::from_id(&pool, user_id.into()).await?;
+        Ok(user)
+    }
+
+    pub(crate) async fn in_group(&self, pool: &DBPool, group_id: u32) -> bool {
+        let q = sqlx::query(
+            "SELECT user_id FROM expense_group_people WHERE user_id=? AND expense_group_id = ?",
+        )
+        .bind(self.id)
+        .bind(group_id)
+        .fetch_optional(pool)
+        .await;
+        q.is_ok()
+    }
+
     pub(crate) async fn get_user_from_username(pool: &DBPool, name: &str) -> Result<Self> {
         sqlx::query_as::<_, User>("SELECT * FROM user where name=?")
             .bind(name)

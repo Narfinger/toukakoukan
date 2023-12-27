@@ -7,7 +7,7 @@ use axum::{body::Body, http::Request};
 use axum::{extract::State, response::IntoResponse, Json};
 use password_auth::verify_password;
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, Value};
 use sqlx::{query_as, Pool, Sqlite};
 use tower_sessions::Session;
 use tracing::info;
@@ -39,17 +39,20 @@ pub(crate) async fn login(
         .map_err(|_| StatusCode::NOT_FOUND)?;
     */
     tracing::info!("We are only looking at user_id 1 and hardcoding it");
-    session.insert("user_id", 1);
+    session
+        .insert("user_id", 1)
+        .await
+        .expect("Could not insert into session");
     Json(json!({"result": "ok"}))
 }
 
 /// route to handle log out
 #[allow(clippy::unused_async)]
-pub async fn logout(session: Session) -> impl IntoResponse {
-    let user = session.get_value("user_id").unwrap_or_default();
-    tracing::info!("Logging out user: {}", user);
+pub(crate) async fn logout(session: Session) -> impl IntoResponse {
+    let user = session.get_value("user_id").await.unwrap_or_default();
+    tracing::info!("Logging out user: {}", user.unwrap());
     // drop session
-    session.flush();
+    session.flush().await.expect("Error in flushing session");
     Json(json!({"result": "ok"}))
 }
 
@@ -78,21 +81,13 @@ pub struct Login {
 }
 
 #[allow(clippy::unused_async)]
-pub async fn not_implemented_route(req: Request<Body>) -> impl IntoResponse {
+pub(crate) async fn not_implemented_route(req: Request<Body>) -> impl IntoResponse {
     // add which route is requesting this?
     format!("Route is planned but not yet implemented for {}", req.uri())
 }
-/// output entire session object
-#[allow(clippy::unused_async)]
-pub async fn session_handler(session: Session) -> impl IntoResponse {
-    tracing::info!("Seeking session info");
-    Json(json!({ "session": format!("{:?}", session) }))
-}
 
-/// output session data in json
-#[allow(clippy::unused_async)]
-pub async fn data_handler(session: Session) -> impl IntoResponse {
+pub(crate) async fn session(session: Session) -> Result<Json<Value>, StatusCode> {
     tracing::info!("Seeking session data");
-    let user_id = session.get_value("user_id").unwrap_or_else(|| "".into());
-    Json(json!({ "user_id": user_id }))
+    let user_id = session.get_value("user_id").await.unwrap_or(None);
+    Ok(Json(json!({ "user_id": user_id })))
 }
