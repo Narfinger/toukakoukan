@@ -13,6 +13,19 @@
         users: Array<String>;
     };
 
+    type PayedType = {
+        t: String;
+        c: Number;
+    };
+
+    type Expense = {
+        id: Number;
+        payed_type: PayedType;
+        amount: Number;
+        name: String;
+        time: String;
+    };
+
     let isProduction = import.meta.env.MODE === "production";
     async function getGroups(): Promise<Array<Group>> {
         if (!isProduction) {
@@ -38,21 +51,21 @@
         return group;
     }
 
-    async function getExpenses(group_id) {
+    async function getExpenses(group_id): Promise<Array<Expense>> {
         if (!isProduction) {
             return Promise.resolve([
                 {
                     id: 1,
+                    payed_type: { t: "EvenSplit", c: 0 },
                     amount: 250,
-                    time: "2023-01-01 10:01",
-                    payed: 0,
                     name: "Test1",
+                    time: "2023-01-01 10:01",
                 },
                 {
                     id: 2,
+                    payed_type: { t: "EvenSplit", c: 1 },
                     amount: 250,
                     time: "2023-01-02 10:00",
-                    payed: 1,
                     name: "Test2",
                 },
             ]);
@@ -64,10 +77,10 @@
     const groups = getGroups().then((groups) => groups);
     let active_tab = 0;
     $: expense = groups.then((groups) => {
-        return getExpenses(active_tab);
+        return getExpenses(groups[active_tab].id);
     });
     $: group = groups.then((groups) => {
-        return getExpenses(active_tab);
+        return getExpenses(groups[active_tab].id);
     });
 </script>
 

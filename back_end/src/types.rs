@@ -32,6 +32,7 @@ impl<'q> Decode<'q, Sqlite> for PayedType {
 
 /// What type of payment we have
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "t", content = "c")]
 pub(crate) enum PayedType {
     /// the split is even and `usize` payed
     EvenSplit(usize),
