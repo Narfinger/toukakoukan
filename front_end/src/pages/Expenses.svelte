@@ -17,8 +17,8 @@
     async function getGroups(): Promise<Array<Group>> {
         if (!isProduction) {
             return Promise.resolve([
-                { id: 1, name: "Testgroup1", users: [] },
-                { id: 2, name: "Testgroup2", users: [] },
+                { id: 1, name: "Testgroup1", users: ["N1", "N2"] },
+                { id: 2, name: "Testgroup2", users: ["N1", "N2"] },
             ]);
         } else {
             let response = await fetch("/api/groups/");
@@ -61,21 +61,14 @@
         let expenses = await response.json();
         return expenses;
     }
-    const groups = getGroups().then((groups) => groups.entries());
+    const groups = getGroups().then((groups) => groups);
     let active_tab = 0;
-    $: group_id = groups.then((groups) => {
-        groups[active_tab].id;
-    });
-
     $: expense = groups.then((groups) => {
-        return getExpenses(group_id);
+        return getExpenses(active_tab);
     });
     $: group = groups.then((groups) => {
-        return getExpenses(group_id);
+        return getExpenses(active_tab);
     });
-    function switchTab(index) {
-        active_tab = index;
-    }
 </script>
 
 <div class="flex flex-col p-8 justify-center">
@@ -83,24 +76,14 @@
 
     <div role="tablist" class="tabs tabs-bordered">
         {#await groups then groups}
-            {#each groups as g}
-                {#if g.id == active_tab}
-                    <a
-                        role="tab"
-                        class="tab tab-active"
-                        tabindex={0}
-                        on:click={() => {
-                            switchTab(0);
-                        }}>{g.name}</a
-                    >
-                {:else}
-                    <a
-                        role="tab"
-                        class="tab"
-                        tabindex={1}
-                        on:click={() => switchTab(1)}>{g.name}</a
-                    >
-                {/if}
+            {#each groups as g, index}
+                <a
+                    role="tab"
+                    class="tab tab-active"
+                    tabindex={index}
+                    class:tab-active={active_tab == index}
+                    on:click={() => (active_tab = index)}>{g.name}</a
+                >
             {/each}
         {/await}
     </div>
@@ -111,11 +94,13 @@
         >
     </div>
     <div>
-        {#await group then group}
-            <h2>Group: {group.name}</h2>
-            {#each group.people as p}
-                <div>{p}</div>
-            {/each}
+        {#await groups then g}
+            <div class="flex">
+                <h2 class="w-14 h-14">Group:</h2>
+                {#each g[active_tab].users as u}
+                    <div class="shrink w-14 h-14">{u}</div>
+                {/each}
+            </div>
         {/await}
     </div>
     <div>
