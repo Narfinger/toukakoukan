@@ -27,7 +27,7 @@ pub(crate) async fn login(
     session: Session,
     State(state): State<AppState>,
     Json(login): Json<Login>,
-) -> Result<(), StatusCode> {
+) -> impl IntoResponse {
     tracing::info!("Logging in user: {}", login.username);
     /*
     let user = check_password(&state.pool, &login.username, &login.password)
@@ -40,7 +40,7 @@ pub(crate) async fn login(
     */
     tracing::info!("We are only looking at user_id 1 and hardcoding it");
     session.insert("user_id", 1);
-    Ok(())
+    Json(json!({"result": "ok"}))
 }
 
 /// route to handle log out

@@ -2,12 +2,23 @@
     import { createEventDispatcher } from "svelte";
     import { route_addexpense } from "../js/consts";
 
+    type GroupResponse = {
+        name: String;
+        people: Array<String>;
+    };
+
+    type Group = {
+        id: number;
+        name: String;
+        users: Array<String>;
+    };
+
     let isProduction = import.meta.env.MODE === "production";
-    async function getGroups(): Promise<Array<any>> {
+    async function getGroups(): Promise<Array<Group>> {
         if (!isProduction) {
             return Promise.resolve([
-                { id: 1, name: "Testgroup1" },
-                { id: 2, name: "Testgroup2" },
+                { id: 1, name: "Testgroup1", users: [] },
+                { id: 2, name: "Testgroup2", users: [] },
             ]);
         } else {
             let response = await fetch("/api/groups/");
@@ -15,7 +26,7 @@
             return groups;
         }
     }
-    async function getGroup(group_id) {
+    async function getGroup(group_id): Promise<GroupResponse> {
         if (!isProduction) {
             return Promise.resolve({
                 name: "Test1",
@@ -50,7 +61,7 @@
         let expenses = await response.json();
         return expenses;
     }
-    const groups = getGroups().then((groups) => groups.enumerate());
+    const groups = getGroups().then((groups) => groups.entries());
     let active_tab = 0;
     $: group_id = groups.then((groups) => {
         groups[active_tab].id;
