@@ -13,6 +13,8 @@ use sqlx::Row;
 use tower_sessions::Session;
 use tracing::info;
 
+const EXPENSE_REQUEST_LIMIT: i64 = 25;
+
 use crate::{
     types::{AppState, Expense, Group},
     users::User,
@@ -44,7 +46,7 @@ async fn get_expenses(
             "SELECT * FROM expense WHERE expense_group_id = ? LIMIT ?",
         )
         .bind(expense_group_id)
-        .bind(25)
+        .bind(EXPENSE_REQUEST_LIMIT)
         .fetch_all(&state.pool)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
@@ -83,31 +85,20 @@ struct GroupResponse {
     people: Vec<String>,
 }
 
-/// gets a group for the group_id given in the path
+/// gets a specific group for the group_id given in the path
 async fn get_group(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
-) -> Result<Json<GroupResponse>, StatusCode> {
+) -> Result<Json<Group>, StatusCode> {
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
-        let people =
-            sqlx::query("SELECT name FROM expense_group_people WHERE expense_group_id = ?")
-                .bind(expense_group_id)
-                .fetch_all(&state.pool)
-                .await
-                .map_err(|_| StatusCode::NOT_FOUND)?;
-        let name_future = sqlx::query("SELECT name FROM expense_group WHERE id=?")
-            .bind(expense_group_id)
-            .fetch_one(&state.pool)
+        let g = user
+            .get_specific_group(&state.pool, expense_group_id as i64)
             .await
             .map_err(|_| StatusCode::NOT_FOUND)?;
-        let name = name_future.get(0);
-        Ok(Json(GroupResponse {
-            people: people.iter().map(|r| r.get(0)).collect(),
-            name,
-        }))
+        Ok(Json(g))
     }
 }
 

@@ -1,10 +1,10 @@
 use anyhow::{Context, Result};
 use password_auth::verify_password;
-use sqlx::FromRow;
+use sqlx::{FromRow, Row};
 use std::collections::HashMap;
 use tower_sessions::Session;
 
-use crate::types::{DBPool, Group};
+use crate::types::{DBPool, Expense, Group};
 
 /// Users
 #[derive(Debug, sqlx::FromRow, Clone)]
@@ -94,6 +94,30 @@ impl User {
                 users,
             })
             .collect::<Vec<Group>>())
+    }
+
+    /// gets a specific group
+    pub(crate) async fn get_specific_group(
+        &self,
+        pool: &DBPool,
+        expense_group_id: i64,
+    ) -> Result<Group> {
+        let people =
+        sqlx::query_as::<_, User>("SELECT user.id, user.name, user.password_hash FROM expense_group_people INNER JOIN user on expense_group_people.user_id = user.id WHERE expense_group_id = ?")
+        .bind(expense_group_id)
+        .fetch_all(pool)
+        .await?;
+
+        let group = sqlx::query_as::<_, Expense>("SELECT * FROM expense_group WHERE id=?")
+            .bind(expense_group_id)
+            .fetch_one(pool)
+            .await?;
+
+        Ok(Group {
+            name: group.name,
+            id: expense_group_id,
+            users: people.iter().map(|u| u.name.clone()).collect(),
+        })
     }
 
     /// check if a password matches for the user

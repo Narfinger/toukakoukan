@@ -79,10 +79,6 @@ pub(crate) struct Expense {
 pub(crate) struct ExpenseGroup {
     /// the id of the expense group
     pub(crate) id: i64,
-    /// the people that are in the expense group
-    pub(crate) people: Vec<String>,
-    /// the list of expenses
-    pub(crate) expenses: Vec<Expense>,
     /// the name of the expense group
     pub(crate) name: String,
 }
