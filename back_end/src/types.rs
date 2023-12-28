@@ -84,8 +84,12 @@ pub(crate) struct ExpenseGroup {
 }
 
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+/// Result for JSON for returning a group
 pub(crate) struct Group {
+    /// the group id
     pub(crate) id: i64,
+    /// the name of the group
     pub(crate) name: String,
+    /// a vector of names of the users in the group
     pub(crate) users: Vec<String>,
 }
