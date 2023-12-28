@@ -72,6 +72,8 @@ pub(crate) struct Expense {
     pub(crate) name: String,
     /// time the expense was created
     pub(crate) time: OffsetDateTime,
+    /// the expense group id
+    pub(crate) expense_group_id: i64,
 }
 
 /// An Expense Group, a collection of people and expenses

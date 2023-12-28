@@ -74,7 +74,7 @@ impl User {
         let user_id = self.id;
 
         let groups: Vec<GroupQueryResult> =
-            sqlx::query_as::<_, GroupQueryResult>("SELECT user.id AS uid, user.name AS uname, expense_group.name AS egname, expense_group_id AS egid FROM ((user join expense_group_people ON expense_group_people.user_id = user.id) join expense_group on expense_group_people.expense_group_id = expense_group.id) WHERE expense_group_people.expense_group_id in (SELECT expense_group_id FROM expense_group_people WHERE user_id=?)")
+            sqlx::query_as::<_, GroupQueryResult>("SELECT user.id AS uid, user.name AS uname, expense_group.name AS egname, expense_group_id AS egid FROM ((user join expense_group_people ON expense_group_people.user_id = user.id) join expense_group on expense_group_people.expense_group_id = expense_group.id) WHERE expense_group_people.expense_group_id in (SELECT expense_group_id FROM expense_group_people WHERE user_id=?) ORDER BY egid")
                 .bind(user_id)
                 .fetch_all(pool)
                 .await
@@ -86,14 +86,16 @@ impl User {
                 .or_default()
                 .push(i.user_name);
         }
-        Ok(map
+        let mut res = map
             .into_iter()
             .map(|((group_id, group_name), users)| Group {
                 id: group_id,
                 name: group_name,
                 users,
             })
-            .collect::<Vec<Group>>())
+            .collect::<Vec<Group>>();
+        res.sort_by_cached_key(|g| g.id);
+        Ok(res)
     }
 
     /// gets a specific group
@@ -108,10 +110,11 @@ impl User {
         .fetch_all(pool)
         .await?;
 
-        let group = sqlx::query_as::<_, Expense>("SELECT * FROM expense_group WHERE id=?")
-            .bind(expense_group_id)
-            .fetch_one(pool)
-            .await?;
+        let group =
+            sqlx::query_as::<_, Expense>("SELECT * FROM expense_group WHERE id=? ORDER BY id")
+                .bind(expense_group_id)
+                .fetch_one(pool)
+                .await?;
 
         Ok(Group {
             name: group.name,

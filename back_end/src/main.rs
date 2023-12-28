@@ -3,6 +3,7 @@ use axum::{error_handling::HandleErrorLayer, http::StatusCode, BoxError, Router}
 use sqlx::{Pool, Sqlite};
 use std::net::SocketAddr;
 use tower::ServiceBuilder;
+use tower_http::trace::TraceLayer;
 use tower_sessions::{MemoryStore, SessionManagerLayer, SqliteStore};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -15,10 +16,10 @@ mod types;
 mod users;
 
 // SETUP Constants
-const SESSION_COOKIE_NAME: &str = "axum_svelte_session";
+const SESSION_COOKIE_NAME: &str = "splittinger";
 const FRONT_PUBLIC: &str = "../front_end/dist";
 const SERVER_PORT: &str = "3000";
-const SERVER_HOST: &str = "0.0.0.0";
+const SERVER_HOST: &str = "127.0.0.1";
 
 /// setup the whole app
 async fn app() -> anyhow::Result<Router> {
@@ -58,19 +59,23 @@ async fn app() -> anyhow::Result<Router> {
     // combine the front and backend into server
     Ok(Router::new()
         .merge(services::front_public_route())
-        .merge(backend))
+        .merge(backend)
+        .layer(TraceLayer::new_for_http()))
 }
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     // start tracing - level set by either RUST_LOG env variable or defaults to debug
     tracing_subscriber::registry()
-        .with(tracing_subscriber::EnvFilter::new(
-            std::env::var("RUST_LOG").unwrap_or_else(|_| "splittingert=debug".into()),
-        ))
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                // axum logs rejections from built-in extractors with the `axum::rejection`
+                // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
+                "example_tracing_aka_logging=debug,tower_http=debug,axum::rejection=trace".into()
+            }),
+        )
         .with(tracing_subscriber::fmt::layer())
         .init();
-
     let addr: SocketAddr = format!("{}:{}", SERVER_HOST, SERVER_PORT)
         .parse()
         .context("Can not parse address and port")?;

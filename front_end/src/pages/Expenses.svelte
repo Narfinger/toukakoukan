@@ -23,7 +23,8 @@
         payed_type: PayedType;
         amount: Number;
         name: String;
-        time: String;
+        time: Date;
+        expense_group_id: Number;
     };
 
     let isProduction = import.meta.env.MODE === "production";
@@ -33,13 +34,12 @@
                 { id: 1, name: "Testgroup1", users: ["N1", "N2"] },
                 { id: 2, name: "Testgroup2", users: ["N1", "N2"] },
             ]);
-        } else {
-            let response = await fetch("/api/groups/");
-            let groups = await response.json();
-            return groups;
         }
+        let response = await fetch("/api/groups/");
+        let groups = await response.json();
+        return groups;
     }
-    async function getGroup(group_id): Promise<GroupResponse> {
+    async function getGroup(group_id: Number): Promise<GroupResponse> {
         if (!isProduction) {
             return Promise.resolve({
                 name: "Test1",
@@ -51,7 +51,7 @@
         return group;
     }
 
-    async function getExpenses(group_id): Promise<Array<Expense>> {
+    async function getExpenses(group_id: Number): Promise<Array<Expense>> {
         if (!isProduction) {
             return Promise.resolve([
                 {
@@ -59,14 +59,16 @@
                     payed_type: { t: "EvenSplit", c: 0 },
                     amount: 250,
                     name: "Test1",
-                    time: "2023-01-01 10:01",
+                    time: new Date("2023-01-01 10:01"),
+                    expense_group_id: 1,
                 },
                 {
                     id: 2,
                     payed_type: { t: "EvenSplit", c: 1 },
                     amount: 250,
-                    time: "2023-01-02 10:00",
+                    time: new Date("2023-01-02 10:00"),
                     name: "Test2",
+                    expense_group_id: 1,
                 },
             ]);
         }
@@ -103,7 +105,8 @@
     <div>
         <button
             class="btn btn-primary"
-            on:click={() => (window.location.hash = "#addexpenses")}>Add</button
+            on:click={() => (window.location.hash = route_addexpense)}
+            >Add</button
         >
     </div>
     <div>
@@ -138,7 +141,7 @@
                                 {/if}
                             </td>
                             <td>{exp["amount"]}</td>
-                            <td>{exp["time"]}</td>
+                            <td>{exp["time"]} {new Date(exp["time"])}</td>
                         </tr>
                     {/each}
                 </tbody>

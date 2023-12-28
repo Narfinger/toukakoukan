@@ -21,6 +21,7 @@ CREATE TABLE expense (
     id INTEGER PRIMARY KEY,
     payed_type TEXT NOT NULL,
     amount INTEGER NOT NULL,
+    name TEXT NOT NULL,
     expense_group_id INTEGER NOT NULL,
     time TEXT NOT NULL,
     FOREIGN KEY (expense_group_id) REFERENCES expense_group (id)
