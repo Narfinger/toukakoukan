@@ -4,6 +4,7 @@ use sqlx::{
     Decode, Encode,
 };
 use sqlx::{Pool, Sqlite};
+use time::serde::iso8601;
 use time::OffsetDateTime;
 
 pub(crate) type DBPool = Pool<Sqlite>;
@@ -71,6 +72,7 @@ pub(crate) struct Expense {
     /// name
     pub(crate) name: String,
     /// time the expense was created
+    #[serde(with = "iso8601")]
     pub(crate) time: OffsetDateTime,
     /// the expense group id
     pub(crate) expense_group_id: i64,

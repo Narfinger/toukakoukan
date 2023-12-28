@@ -42,7 +42,7 @@ async fn get_expenses(
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
-        panic!("the time is weirdly incompatible with the json stuff");
+        //panic!("the time is weirdly incompatible with the json stuff");
         let rows = sqlx::query_as::<_, Expense>(
             "SELECT * FROM expense WHERE expense_group_id = ? LIMIT ?",
         )

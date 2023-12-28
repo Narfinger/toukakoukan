@@ -74,6 +74,8 @@
         }
         let response = await fetch("/api/expense/" + group_id + "/");
         let expenses = await response.json();
+
+        console.log("change time towards objects here");
         return expenses;
     }
     const groups = getGroups().then((groups) => groups);
@@ -141,7 +143,7 @@
                                 {/if}
                             </td>
                             <td>{exp["amount"]}</td>
-                            <td>{exp["time"]} {new Date(exp["time"])}</td>
+                            <td>{exp["time"]}</td>
                         </tr>
                     {/each}
                 </tbody>
