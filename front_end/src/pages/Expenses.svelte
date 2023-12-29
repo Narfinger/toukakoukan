@@ -47,7 +47,7 @@
             });
         }
         let response = await fetch("/api/group/" + group_id + "/");
-        let group = await response.json();
+        let group: GroupResponse = await response.json();
         return group;
     }
 
@@ -73,7 +73,7 @@
             ]);
         }
         let response = await fetch("/api/expense/" + group_id + "/");
-        let expenses = await response.json();
+        let expenses: Array<Expense> = await response.json();
 
         console.log("change time towards objects here");
         return expenses;
@@ -125,7 +125,7 @@
         {#await expense}
             <p>Loading expenses</p>
         {:then expenses}
-            <table class="table-fixed border">
+            <table class="table-fixed border table-zebra">
                 <thead>
                     <th>Name</th>
                     <th>Who Payed</th>
@@ -143,7 +143,11 @@
                                 {/if}
                             </td>
                             <td>{exp["amount"]}</td>
-                            <td>{exp["time"]}</td>
+                            <td
+                                >{new Date(exp["time"]).toLocaleTimeString()} - {new Date(
+                                    exp["time"],
+                                ).toDateString()}</td
+                            >
                         </tr>
                     {/each}
                 </tbody>
