@@ -3,7 +3,7 @@
     import { getSession, postLogin } from "./../js/auth";
     import Expenses from "./Expenses.svelte";
     import { createEventDispatcher } from "svelte";
-    import { route_expense } from "../js/consts.js";
+    import { push, pop, replace } from "svelte-spa-router";
 
     let isProduction = import.meta.env.MODE === "production";
 
@@ -12,8 +12,7 @@
 
     async function handleLogin() {
         if (!isProduction) {
-            getSession();
-            window.location.hash = route_expense;
+            push("/expenses");
             return;
         }
         let loginResponse = await postLogin(username, password);
@@ -21,38 +20,34 @@
             errorMessage = loginResponse.message;
         } else {
             getSession();
-            window.location.hash = route_expense;
+            push("/expenses");
         }
     }
 </script>
 
-{#if !$user}
-    {#if errorMessage}
-        <div>
-            <h2>Error</h2>
-            {errorMessage}
-        </div>
-    {/if}
+{#if errorMessage}
     <div>
-        <h2>please login</h2>
-        <div>
-            <label for="username">Username</label>
-            <input
-                class="input"
-                type="username"
-                placeholder="username"
-                bind:value={username}
-            />
-            <label for="password">Password</label>
-            <input
-                class="input"
-                type="password"
-                placeholder="password"
-                bind:value={password}
-            />
-            <button on:click={handleLogin}> Login </button>
-        </div>
+        <h2>Error</h2>
+        {errorMessage}
     </div>
-{:else}
-    <Expenses />
 {/if}
+<div>
+    <h2>please login</h2>
+    <div>
+        <label for="username">Username</label>
+        <input
+            class="input"
+            type="username"
+            placeholder="username"
+            bind:value={username}
+        />
+        <label for="password">Password</label>
+        <input
+            class="input"
+            type="password"
+            placeholder="password"
+            bind:value={password}
+        />
+        <button on:click={handleLogin}> Login </button>
+    </div>
+</div>

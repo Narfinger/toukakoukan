@@ -1,3 +1,71 @@
+<script lang="ts">
+    import { createEventDispatcher } from "svelte";
+    import { route_addexpense } from "../js/consts";
+    import type { Expense, Group, GroupResponse } from "../js/types";
+
+    export let params = {};
+    let amount, description, who;
+
+    let isProduction = import.meta.env.MODE === "production";
+    async function getGroup(group_id: Number): Promise<GroupResponse> {
+        if (!isProduction) {
+            return Promise.resolve({
+                name: "Test1",
+                people: ["PTest1", "PTest2"],
+            });
+        }
+        let response = await fetch("/api/group/" + group_id + "/");
+        let group: GroupResponse = await response.json();
+        return group;
+    }
+    const group = getGroup(params.id);
+
+    async function handleAdd() {
+        // if we do not enter, the default who is empty which we do not do anything with
+        console.log("Would have payed:" + amount);
+        console.log("would descr:" + description);
+        console.log("Who:" + who);
+        const d = new Date(Date.now());
+        let data = {
+            payed_type: who,
+            amount: amount,
+            name: description,
+            time: d.toISOString(),
+            expense_group_id: params.id,
+        };
+
+        fetch("/expense/" + params.id + "/", {
+            method: "POST",
+            body: data,
+        });
+    }
+</script>
+
 <div class="flex flex-col p-8 justify-center">
     <h1 class="underline">Add an expense</h1>
+    <form class="shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <div class="flex flex-col p8">
+            <label>Amount</label>
+            <input class="input-bordered" type="number" bind:value={amount} />
+            <input
+                class="input-bordered"
+                placeholder="description"
+                bind:value={description}
+            />
+            <select bind:value={who}>
+                {#await group then group}
+                    {#each group.people as p, item}
+                        <option value={"EvenSplit "}
+                            >{p} payed, Split 50/50</option
+                        >
+                        <option value={"OwedTotal " + item}
+                            >{p} is owed the full amount</option
+                        >
+                    {/each}
+                    <option></option>
+                {/await}
+            </select>
+        </div>
+    </form>
+    <button on:click={handleAdd}>Add</button>
 </div>

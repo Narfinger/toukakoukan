@@ -1,32 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { route_addexpense } from "../js/consts";
-
-    type GroupResponse = {
-        name: String;
-        people: Array<String>;
-    };
-
-    type Group = {
-        id: number;
-        name: String;
-        users: Array<String>;
-    };
-
-    type PayedType = {
-        t: String;
-        c: Number;
-    };
-
-    type Expense = {
-        id: Number;
-        payed_type: PayedType;
-        amount: Number;
-        name: String;
-        time: Date;
-        expense_group_id: Number;
-    };
-
+    import { push, pop, replace } from "svelte-spa-router";
+    import type { Expense, Group, GroupResponse } from "../js/types";
     let isProduction = import.meta.env.MODE === "production";
     async function getGroups(): Promise<Array<Group>> {
         if (!isProduction) {
@@ -107,7 +82,7 @@
     <div>
         <button
             class="btn btn-primary"
-            on:click={() => (window.location.hash = route_addexpense)}
+            on:click={() => push("/AddExpense/" + groups[active_tab].id)}
             >Add</button
         >
     </div>
