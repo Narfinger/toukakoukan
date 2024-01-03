@@ -1,9 +1,9 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { route_addexpense } from "../js/consts";
+    import { createPayed } from "../js/types";
     import type { Expense, Group, GroupResponse } from "../js/types";
 
-    export let params = {};
+    export let params: any = {};
     let amount, description, who;
 
     let isProduction = import.meta.env.MODE === "production";
@@ -25,9 +25,10 @@
         console.log("Would have payed:" + amount);
         console.log("would descr:" + description);
         console.log("Who:" + who);
+        let whosplit = who.split(" ");
         const d = new Date(Date.now());
         let data = {
-            payed_type: who,
+            payed_type: createPayed(whosplit[0], whosplit[1]),
             amount: amount,
             name: description,
             time: d.toISOString(),

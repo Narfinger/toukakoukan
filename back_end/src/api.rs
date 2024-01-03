@@ -56,7 +56,7 @@ async fn get_expenses(
     }
 }
 
-/// inserts a expense into the database with the expense_group_id in the path
+/// inserts a expense (without its id) into the database with the expense_group_id in the path
 async fn post_expense(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -67,11 +67,13 @@ async fn post_expense(
         Err(StatusCode::UNAUTHORIZED)
     } else {
         sqlx::query(
-            "INSERT INTO expense (payed_type, amount, expense_group_id) VALUES (?, ?, ?);
+            "INSERT INTO expense (payed_type, amount, name, time, expense_group_id) VALUES (?, ?, ?, ?, ?);
 ",
         )
         .bind(payload.payed_type)
         .bind(payload.amount)
+        .bind(payload.name)
+        .bind(payload.time)
         .bind(expense_group_id as i64)
         .execute(&state.pool)
         .await

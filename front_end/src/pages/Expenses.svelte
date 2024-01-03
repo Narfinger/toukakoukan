@@ -1,7 +1,12 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { push, pop, replace } from "svelte-spa-router";
-    import type { Expense, Group, GroupResponse } from "../js/types";
+    import {
+        createPayed,
+        type Expense,
+        type Group,
+        type GroupResponse,
+    } from "../js/types";
     let isProduction = import.meta.env.MODE === "production";
     async function getGroups(): Promise<Array<Group>> {
         if (!isProduction) {
@@ -31,7 +36,7 @@
             return Promise.resolve([
                 {
                     id: 1,
-                    payed_type: { t: "EvenSplit", c: 0 },
+                    payed_type: createPayed("EvenSplit", 0),
                     amount: 250,
                     name: "Test1",
                     time: new Date("2023-01-01 10:01"),
@@ -39,7 +44,7 @@
                 },
                 {
                     id: 2,
-                    payed_type: { t: "EvenSplit", c: 1 },
+                    payed_type: createPayed("EvenSplit", 1),
                     amount: 250,
                     time: new Date("2023-01-02 10:00"),
                     name: "Test2",
