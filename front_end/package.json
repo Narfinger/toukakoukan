@@ -1,8 +1,8 @@
 {
-  "name": "svelte-axum-project",
-  "description": "svelte front end with axum backend template",
-  "author": "Jas Bertovic",
-  "version": "0.4.2",
+  "name": "splittinger",
+  "description": "splittinger",
+  "author": "Narfinger",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
