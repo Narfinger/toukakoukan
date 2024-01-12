@@ -42,15 +42,9 @@ async fn app() -> anyhow::Result<Router> {
         .await
         .expect("Could not do session store");
 
-    let session_service = ServiceBuilder::new()
-        .layer(HandleErrorLayer::new(|_: BoxError| async {
-            StatusCode::BAD_REQUEST
-        }))
-        .layer(
-            SessionManagerLayer::new(session_store)
-                .with_secure(false)
-                .with_name(SESSION_COOKIE_NAME),
-        );
+    let session_service = SessionManagerLayer::new(session_store)
+        .with_secure(false)
+        .with_name(SESSION_COOKIE_NAME);
     let backend = Router::new()
         .merge(services::back_public_route(state))
         //.merge(back_token_route(state))

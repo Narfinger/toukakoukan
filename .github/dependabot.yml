@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # basic application
+  - package-ecosystem: "cargo"
+    directory: "/back_end"
+    schedule:
+      interval: "weekly"
+  # npm in webgui
+  - package-ecosystem: "npm"
+    directory: "/front_end"
+    schedule:
+      interval: "weekly"
