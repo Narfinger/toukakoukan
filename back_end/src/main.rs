@@ -10,6 +10,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use crate::types::AppState;
 
 mod api;
+mod group;
 mod routes;
 mod services;
 mod types;

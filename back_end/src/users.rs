@@ -4,7 +4,10 @@ use sqlx::{FromRow, Row};
 use std::collections::HashMap;
 use tower_sessions::Session;
 
-use crate::types::{DBPool, Expense, Group};
+use crate::{
+    group::Group,
+    types::{DBPool, Expense},
+};
 
 /// Users
 #[derive(Debug, sqlx::FromRow, Clone)]
@@ -131,7 +134,7 @@ impl User {
 
 #[cfg(test)]
 mod test {
-    use crate::{types::DBPool, users::User};
+    use crate::{group, types::DBPool, users::User};
 
     #[sqlx::test(migrations = "./migrations/", fixtures("../fixtures/all.sql"))]
     async fn get_user(pool: DBPool) {
@@ -156,5 +159,16 @@ mod test {
         assert_eq!(groups[1].users[0], "test1");
         assert_eq!(groups[1].users[1], "test2");
         assert_eq!(groups[1].users.len(), 2);
+    }
+
+    #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]
+    async fn get_total(pool: DBPool) {
+        let user = User::from_id(&pool, 1).await.expect("NO USER");
+        let group = user.get_specific_group(&pool, 2).await.expect("NO GROUP");
+        let total = group.get_total(&pool).await.expect("NO TOTAL");
+        assert_eq!(total, 0);
+
+        // implemnt the other things
+        assert!(false)
     }
 }

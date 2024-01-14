@@ -15,8 +15,9 @@ use tracing::info;
 
 const EXPENSE_REQUEST_LIMIT: i64 = 25;
 
+use crate::group::Group;
 use crate::{
-    types::{AppState, Expense, Group},
+    types::{AppState, Expense},
     users::User,
 };
 
@@ -62,40 +63,14 @@ async fn get_total(
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
 ) -> Result<Json<i64>, StatusCode> {
-    let even0: (i64,) = sqlx::query_as(
-        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
-    )
-    .bind(expense_group_id)
-    .bind("EVEN 0")
-    .fetch_one(&state.pool)
-    .await
-    .map_err(|_| StatusCode::NOT_FOUND)?;
-    let owed0: (i64,) = sqlx::query_as(
-        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
-    )
-    .bind(expense_group_id)
-    .bind("OWED 0")
-    .fetch_one(&state.pool)
-    .await
-    .map_err(|_| StatusCode::NOT_FOUND)?;
-    let even1: (i64,) = sqlx::query_as(
-        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
-    )
-    .bind(expense_group_id)
-    .bind("EVEN 1")
-    .fetch_one(&state.pool)
-    .await
-    .map_err(|_| StatusCode::NOT_FOUND)?;
-    let owed1: (i64,) = sqlx::query_as(
-        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
-    )
-    .bind(expense_group_id)
-    .bind("EVEN 1")
-    .fetch_one(&state.pool)
-    .await
-    .map_err(|_| StatusCode::NOT_FOUND)?;
-
-    let total = even0.0 / 2 + owed0.0 - even1.0 / 2 - owed1.0;
+    let group = user
+        .get_specific_group(&state.pool, expense_group_id as i64)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+    let total = group
+        .get_total(&state.pool)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
     Ok(Json(total))
 }
 
