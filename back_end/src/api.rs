@@ -56,6 +56,49 @@ async fn get_expenses(
     }
 }
 
+/// get total owed
+async fn get_total(
+    Extension(user): Extension<User>,
+    State(state): State<AppState>,
+    Path(expense_group_id): Path<u32>,
+) -> Result<Json<i64>, StatusCode> {
+    let even0: (i64,) = sqlx::query_as(
+        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
+    )
+    .bind(expense_group_id)
+    .bind("EVEN 0")
+    .fetch_one(&state.pool)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND)?;
+    let owed0: (i64,) = sqlx::query_as(
+        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
+    )
+    .bind(expense_group_id)
+    .bind("OWED 0")
+    .fetch_one(&state.pool)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND)?;
+    let even1: (i64,) = sqlx::query_as(
+        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
+    )
+    .bind(expense_group_id)
+    .bind("EVEN 1")
+    .fetch_one(&state.pool)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND)?;
+    let owed1: (i64,) = sqlx::query_as(
+        "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
+    )
+    .bind(expense_group_id)
+    .bind("EVEN 1")
+    .fetch_one(&state.pool)
+    .await
+    .map_err(|_| StatusCode::NOT_FOUND)?;
+
+    let total = even0.0 / 2 + owed0.0 - even1.0 / 2 - owed1.0;
+    Ok(Json(total))
+}
+
 /// inserts a expense (without its id) into the database with the expense_group_id in the path
 async fn post_expense(
     Extension(user): Extension<User>,
@@ -113,6 +156,7 @@ pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
         .route("/expense/:id/", get(get_expenses))
         .route("/expense/:id/", post(post_expense))
         .route("/group/:id/", get(get_group))
+        .route("/total/:id/", get(get_total))
         .route_layer(middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state)
 }

@@ -19,6 +19,7 @@
         let groups = await response.json();
         return groups;
     }
+
     async function getGroup(group_id: Number): Promise<GroupResponse> {
         if (!isProduction) {
             return Promise.resolve({
@@ -58,6 +59,14 @@
         console.log("change time towards objects here");
         return expenses;
     }
+    async function getTotal(group_id: Number): Promise<Number> {
+        if (!isProduction) {
+            return Promise.resolve(500);
+        }
+        let response = await fetch("/api/total/" + group_id + "/");
+        let total = await response.json();
+    }
+
     const groups = getGroups().then((groups) => groups);
     let active_tab = 0;
     $: expense = groups.then((groups) => {
@@ -65,6 +74,9 @@
     });
     $: group = groups.then((groups) => {
         return getExpenses(groups[active_tab].id);
+    });
+    $: total = groups.then((groups) => {
+        return getTotal(groups[active_tab].id);
     });
 </script>
 
@@ -98,6 +110,14 @@
                 {#each g[active_tab].users as u}
                     <div class="shrink w-14 h-14">{u}</div>
                 {/each}
+            </div>
+        {/await}
+    </div>
+    <div>
+        {#await total then t}
+            <div class="flex">
+                <h2 class="w-14 h-14">Total:</h2>
+                <div class="shrink w-14 h-14">{t}</div>
             </div>
         {/await}
     </div>
