@@ -113,14 +113,14 @@ impl User {
         .fetch_all(pool)
         .await?;
 
-        let group =
-            sqlx::query_as::<_, Expense>("SELECT * FROM expense_group WHERE id=? ORDER BY id")
+        let group: (String,) =
+            sqlx::query_as("SELECT name FROM expense_group WHERE id=? ORDER BY id")
                 .bind(expense_group_id)
                 .fetch_one(pool)
                 .await?;
 
         Ok(Group {
-            name: group.name,
+            name: group.0,
             id: expense_group_id,
             users: people.iter().map(|u| u.name.clone()).collect(),
         })
@@ -159,6 +159,15 @@ mod test {
         assert_eq!(groups[1].users[0], "test1");
         assert_eq!(groups[1].users[1], "test2");
         assert_eq!(groups[1].users.len(), 2);
+    }
+
+    #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]
+    async fn get_spcific_group(pool: DBPool) {
+        let user = User::from_id(&pool, 1).await.expect("NO USER");
+        let group_one = user.get_specific_group(&pool, 1).await.expect("NO GROUP 1");
+        assert_eq!(group_one.name, "group1");
+        let group_two = user.get_specific_group(&pool, 2).await.expect("NO GROUP 1");
+        assert_eq!(group_two.name, "group2");
     }
 
     #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]

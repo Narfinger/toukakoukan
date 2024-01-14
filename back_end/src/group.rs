@@ -15,6 +15,9 @@ pub(crate) struct Group {
 
 impl Group {
     pub(crate) async fn get_total(&self, pool: &DBPool) -> Result<i64> {
+        todo!("unimplmntd");
+
+        //this is wrong and dosn't realy work
         let even0: (i64,) = sqlx::query_as(
             "SELECT SUM(amount) FROM expense WHERE expense_group_id = ? AND payed_type = ?",
         )
