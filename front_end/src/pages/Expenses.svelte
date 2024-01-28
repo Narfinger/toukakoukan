@@ -66,6 +66,15 @@
                     on:click={() => (active_tab = index)}>{g.name}</a
                 >
             {/each}
+            <a
+                role="tab"
+                class="tab tab-active"
+                tabindex={groups.length}
+                class:tab-active={active_tab == groups.length}
+                on:click={() => {
+                    push("/addgroup/");
+                }}>Add Group</a
+            >
         {/await}
     </div>
     <div>
@@ -111,9 +120,9 @@
                             <td>{exp["name"]}</td>
                             <td
                                 >{#if exp["payed"] == 0}
-                                    "You are owed"
+                                    "You are owedTHISISWRONG"
                                 {:else}
-                                    "You owe"
+                                    "You oweTHISISWRONG"
                                 {/if}
                             </td>
                             <td>{exp["amount"]}</td>
