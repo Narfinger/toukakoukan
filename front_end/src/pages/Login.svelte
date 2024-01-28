@@ -5,16 +5,10 @@
     import { createEventDispatcher } from "svelte";
     import { push, pop, replace } from "svelte-spa-router";
 
-    let isProduction = import.meta.env.MODE === "production";
-
     let username, password;
     let errorMessage = "";
 
     async function handleLogin() {
-        if (!isProduction) {
-            push("/expenses");
-            return;
-        }
         let loginResponse = await postLogin(username, password);
         if (loginResponse.result == "error") {
             errorMessage = loginResponse.message;

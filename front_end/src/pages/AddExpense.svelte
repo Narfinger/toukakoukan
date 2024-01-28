@@ -2,6 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { createPayed } from "../js/types";
     import type { Expense, Group, GroupResponse } from "../js/types";
+    import { push } from "svelte-spa-router";
 
     export let params: any = {};
     let amount, description, who;
@@ -14,7 +15,9 @@
                 people: ["PTest1", "PTest2"],
             });
         }
-        let response = await fetch("/api/group/" + group_id + "/");
+        let response = await fetch(
+            "http://localhost:3000/api/group/" + group_id + "/",
+        );
         let group: GroupResponse = await response.json();
         return group;
     }
@@ -34,11 +37,13 @@
             time: d.toISOString(),
             expense_group_id: params.id,
         };
+        console.log(data);
 
-        fetch("/expense/" + params.id + "/", {
+        fetch("http://localhost:5173/api/expenses" + params.id + "/", {
             method: "POST",
             body: data,
         });
+        push("/expenses");
     }
 </script>
 
@@ -53,8 +58,8 @@
                 placeholder="description"
                 bind:value={description}
             />
-            <select bind:value={who}>
-                {#await group then group}
+            {#await group then group}
+                <select bind:value={who}>
                     {#each group.people as p, item}
                         <option value={"EvenSplit "}
                             >{p} payed, Split 50/50</option
@@ -63,9 +68,8 @@
                             >{p} is owed the full amount</option
                         >
                     {/each}
-                    <option></option>
-                {/await}
-            </select>
+                </select>
+            {/await}
         </div>
     </form>
     <button on:click={handleAdd}>Add</button>

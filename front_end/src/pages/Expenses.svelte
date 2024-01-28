@@ -7,77 +7,49 @@
         type Group,
         type GroupResponse,
     } from "../js/types";
-    let isProduction = import.meta.env.MODE === "production";
+    import {
+        ENDPOINT_EXPENSES,
+        ENDPOINT_GROUP,
+        ENDPOINT_GROUPS,
+        ENDPOINT_TOTAL,
+    } from "../js/endpoints";
     async function getGroups(): Promise<Array<Group>> {
-        if (!isProduction) {
-            return Promise.resolve([
-                { id: 1, name: "Testgroup1", users: ["N1", "N2"] },
-                { id: 2, name: "Testgroup2", users: ["N1", "N2"] },
-            ]);
-        }
-        let response = await fetch("/api/groups/");
+        let response = await fetch(ENDPOINT_GROUPS);
         let groups = await response.json();
         return groups;
     }
 
     async function getGroup(group_id: Number): Promise<GroupResponse> {
-        if (!isProduction) {
-            return Promise.resolve({
-                name: "Test1",
-                people: ["PTest1", "PTest2"],
-            });
-        }
-        let response = await fetch("/api/group/" + group_id + "/");
+        let response = await fetch(ENDPOINT_GROUP + group_id + "/");
         let group: GroupResponse = await response.json();
         return group;
     }
 
     async function getExpenses(group_id: Number): Promise<Array<Expense>> {
-        if (!isProduction) {
-            return Promise.resolve([
-                {
-                    id: 1,
-                    payed_type: createPayed("EvenSplit", 0),
-                    amount: 250,
-                    name: "Test1",
-                    time: new Date("2023-01-01 10:01"),
-                    expense_group_id: 1,
-                },
-                {
-                    id: 2,
-                    payed_type: createPayed("EvenSplit", 1),
-                    amount: 250,
-                    time: new Date("2023-01-02 10:00"),
-                    name: "Test2",
-                    expense_group_id: 1,
-                },
-            ]);
-        }
-        let response = await fetch("/api/expense/" + group_id + "/");
+        let response = await fetch(ENDPOINT_EXPENSES + group_id + "/");
         let expenses: Array<Expense> = await response.json();
 
         console.log("change time towards objects here");
         return expenses;
     }
     async function getTotal(group_id: Number): Promise<Number> {
-        if (!isProduction) {
-            return Promise.resolve(500);
-        }
-        let response = await fetch("/api/total/" + group_id + "/");
+        let response = await fetch(ENDPOINT_TOTAL + group_id + "/");
         let total = await response.json();
+        return total;
     }
 
     const groups = getGroups().then((groups) => groups);
     let active_tab = 0;
-    $: expense = groups.then((groups) => {
-        return getExpenses(groups[active_tab].id);
+    $: expense = groups.then((gs) => {
+        return getExpenses(gs[active_tab].id);
     });
-    $: group = groups.then((groups) => {
-        return getExpenses(groups[active_tab].id);
+    $: group = groups.then((gs) => {
+        return getExpenses(gs[active_tab].id);
     });
-    $: total = groups.then((groups) => {
-        return getTotal(groups[active_tab].id);
+    $: total = groups.then((gs) => {
+        return getTotal(gs[active_tab].id);
     });
+    $: group_id = groups.then((g) => g[active_tab].id);
 </script>
 
 <div class="flex flex-col p-8 justify-center">
@@ -99,8 +71,10 @@
     <div>
         <button
             class="btn btn-primary"
-            on:click={() => push("/AddExpense/" + groups[active_tab].id)}
-            >Add</button
+            on:click={async () => {
+                const gid = await group_id;
+                push("/AddExpense/" + gid);
+            }}>Add</button
         >
     </div>
     <div>
