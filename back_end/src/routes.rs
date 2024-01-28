@@ -12,14 +12,7 @@ use sqlx::{query_as, Pool, Sqlite};
 use tower_sessions::Session;
 use tracing::info;
 
-/// imitating an API response
-#[allow(clippy::unused_async)]
-pub async fn api_handler() -> impl IntoResponse {
-    tracing::info!("Seeking api data");
-    Json(
-        json!({"result": "ok", "message": "You've reached the backend API by using a valid token."}),
-    )
-}
+const ALLOW_USER_CREATION: bool = true;
 
 /// route to handle log in
 #[debug_handler]
@@ -47,13 +40,33 @@ pub(crate) async fn login(
 }
 
 /// route to handle log out
-#[allow(clippy::unused_async)]
 pub(crate) async fn logout(session: Session) -> impl IntoResponse {
     let user = session.get_value("user_id").await.unwrap_or_default();
     tracing::info!("Logging out user: {}", user.unwrap());
     // drop session
     session.flush().await.expect("Error in flushing session");
     Json(json!({"result": "ok"}))
+}
+
+pub(crate) async fn create_user(
+    _: Session,
+    State(state): State<AppState>,
+    Json(login): Json<Login>,
+) -> Result<Json<Value>, StatusCode> {
+    if ALLOW_USER_CREATION {
+        let pass = password_auth::generate_hash(login.password);
+
+        sqlx::query("INSERT INTO user (name, password_hash) VALUES (?,?)")
+            .bind(login.username)
+            .bind(pass)
+            .execute(&state.pool)
+            .await
+            .map_err(|_| StatusCode::UNAUTHORIZED)?;
+
+        Ok(Json(json!({"result": "ok"})))
+    } else {
+        Err(StatusCode::UNAUTHORIZED)
+    }
 }
 
 /// password checking with database

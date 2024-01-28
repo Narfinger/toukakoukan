@@ -33,6 +33,7 @@ pub(crate) fn back_public_route(state: AppState) -> Router {
         .route("/auth/session", get(routes::session))
         .route("/auth/login", post(routes::login)) // sets username in session
         .route("/auth/logout", get(routes::logout)) // deletes username in session
+        .route("/auth/createuser", post(routes::create_user))
         .route("/test", get(routes::not_implemented_route))
         .with_state(state.clone())
         .nest("/api", api_endpoints(state))
