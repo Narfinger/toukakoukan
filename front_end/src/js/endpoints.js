@@ -1,6 +1,7 @@
 export const ENDPOINT_SESSION_AUTH = "http://localhost:3000/auth/session";
 export const ENDPOINT_SESSION_LOGIN = "http://localhost:3000/auth/login";
 export const ENDPOINT_SESSION_LOGOUT = "http://localhost:3000/auth/logout";
+export const ENDPOINT_CREATE_USER = "http://localhost:3000/auth/create";
 
 export const ENDPOINT_GROUPS = "http://localhost:3000/api/groups/";
 export const ENDPOINT_GROUP = "http://localhost:3000/api/group/";

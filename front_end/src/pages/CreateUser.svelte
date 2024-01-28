@@ -4,35 +4,28 @@
     import Expenses from "./Expenses.svelte";
     import { createEventDispatcher } from "svelte";
     import { push, pop, replace } from "svelte-spa-router";
+    import { ENDPOINT_CREATE_USER } from "../js/endpoints.js";
 
     let username, password;
     let errorMessage = "";
 
-    async function handleLogin() {
-        let loginResponse = await postLogin(username, password);
-        if (loginResponse.result == "error") {
-            errorMessage = loginResponse.message;
-        } else {
-            getSession();
-            push("/expenses");
-        }
+    async function handleCreate() {
+        const res = await fetch(ENDPOINT_CREATE_USER, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: username, password: password }),
+        });
+
+        await res;
+        push("/");
     }
 </script>
 
-{#if errorMessage}
-    <div>
-        <h2>Error</h2>
-        {errorMessage}
-    </div>
-{/if}
 <div>
-    <h2>
-        please login or <button
-            on:click={() => {
-                push("/createuser/");
-            }}>Create a User</button
-        >
-    </h2>
+    <h2>please create your user</h2>
     <div>
         <label for="username">Username</label>
         <input
@@ -48,6 +41,6 @@
             placeholder="password"
             bind:value={password}
         />
-        <button on:click={handleLogin}>Submit</button>
+        <button on:click={handleCreate}> Login </button>
     </div>
 </div>

@@ -6,6 +6,7 @@
 	import Login from "./pages/Login.svelte";
 	import AddExpense from "./pages/AddExpense.svelte";
 	import AddGroup from "./pages/AddGroup.svelte";
+	import CreateUser from "./pages/CreateUser.svelte";
 	import { onMount } from "svelte";
 	import Router from "svelte-spa-router";
 	import NotFound from "./pages/NotFound.svelte";
@@ -16,6 +17,7 @@
 		"/expenses": Expenses,
 		"/addexpense/:id": AddExpense,
 		"/addgroup/": AddGroup,
+		"/createuser/": CreateUser,
 		"*": NotFound,
 	};
 
