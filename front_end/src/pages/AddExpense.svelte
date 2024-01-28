@@ -6,7 +6,7 @@
     import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";
 
     export let params: any = {};
-    let amount, description, who;
+    let amount: Number, description: String, who: String;
 
     async function getGroup(group_id: Number): Promise<GroupResponse> {
         let response = await fetch(ENDPOINT_GROUP + group_id + "/");
@@ -23,13 +23,14 @@
         let whosplit = who.split(" ");
         const d = new Date(Date.now());
         let data = {
-            payed_type: createPayed(whosplit[0], whosplit[1]),
+            id: -1,
+            payed_type: createPayed(whosplit[0], Number(whosplit[1])),
             amount: amount,
             name: description,
             time: d.toISOString(),
-            expense_group_id: params.id,
+            expense_group_id: Number(params.id),
         };
-        console.log(data);
+        console.log(JSON.stringify(data));
 
         await fetch(ENDPOINT_EXPENSES + params.id + "/", {
             method: "POST",
@@ -57,7 +58,7 @@
             {#await group then group}
                 <select bind:value={who}>
                     {#each group.users as p, item}
-                        <option value={"EvenSplit "}
+                        <option value={"EvenSplit " + item}
                             >{p} payed, Split 50/50</option
                         >
                         <option value={"OwedTotal " + item}
