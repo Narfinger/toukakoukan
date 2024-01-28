@@ -3,21 +3,13 @@
     import { createPayed } from "../js/types";
     import type { Expense, Group, GroupResponse } from "../js/types";
     import { push } from "svelte-spa-router";
+    import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";
 
     export let params: any = {};
     let amount, description, who;
 
-    let isProduction = import.meta.env.MODE === "production";
     async function getGroup(group_id: Number): Promise<GroupResponse> {
-        if (!isProduction) {
-            return Promise.resolve({
-                name: "Test1",
-                people: ["PTest1", "PTest2"],
-            });
-        }
-        let response = await fetch(
-            "http://localhost:3000/api/group/" + group_id + "/",
-        );
+        let response = await fetch(ENDPOINT_GROUP + group_id + "/");
         let group: GroupResponse = await response.json();
         return group;
     }
@@ -39,10 +31,14 @@
         };
         console.log(data);
 
-        fetch("http://localhost:5173/api/expenses" + params.id + "/", {
+        await fetch(ENDPOINT_EXPENSES + params.id + "/", {
             method: "POST",
-            body: data,
+            body: JSON.stringify(data),
+            headers: {
+                "content-type": "application/json",
+            },
         });
+
         push("/expenses");
     }
 </script>
@@ -60,7 +56,7 @@
             />
             {#await group then group}
                 <select bind:value={who}>
-                    {#each group.people as p, item}
+                    {#each group.users as p, item}
                         <option value={"EvenSplit "}
                             >{p} payed, Split 50/50</option
                         >
