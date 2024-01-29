@@ -58,22 +58,22 @@
     <div role="tablist" class="tabs tabs-bordered">
         {#await groups then groups}
             {#each groups as g, index}
-                <a
+                <button
                     role="tab"
                     class="tab tab-active"
                     tabindex={index}
                     class:tab-active={active_tab == index}
-                    on:click={() => (active_tab = index)}>{g.name}</a
+                    on:click={() => (active_tab = index)}>{g.name}</button
                 >
             {/each}
-            <a
+            <button
                 role="tab"
                 class="tab tab-active"
                 tabindex={groups.length}
                 class:tab-active={active_tab == groups.length}
                 on:click={() => {
                     push("/addgroup/");
-                }}>Add Group</a
+                }}>Add Group</button
             >
         {/await}
     </div>

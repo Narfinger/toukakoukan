@@ -1,9 +1,11 @@
-export const ENDPOINT_SESSION_AUTH = "http://localhost:3000/auth/session";
-export const ENDPOINT_SESSION_LOGIN = "http://localhost:3000/auth/login";
-export const ENDPOINT_SESSION_LOGOUT = "http://localhost:3000/auth/logout";
-export const ENDPOINT_CREATE_USER = "http://localhost:3000/auth/create";
+const MAIN_ENDPOINT = "http://localhost:3000";
 
-export const ENDPOINT_GROUPS = "http://localhost:3000/api/groups/";
-export const ENDPOINT_GROUP = "http://localhost:3000/api/group/";
-export const ENDPOINT_EXPENSES = "http://localhost:3000/api/expense/";
-export const ENDPOINT_TOTAL = "http://localhost:3000/api/total/";
+export const ENDPOINT_SESSION_AUTH = MAIN_ENDPOINT + "/auth/session";
+export const ENDPOINT_SESSION_LOGIN = MAIN_ENDPOINT + "/auth/login";
+export const ENDPOINT_SESSION_LOGOUT = MAIN_ENDPOINT + "/auth/logout";
+export const ENDPOINT_CREATE_USER = MAIN_ENDPOINT + "/auth/create";
+
+export const ENDPOINT_GROUPS = MAIN_ENDPOINT + "/api/groups/";
+export const ENDPOINT_GROUP = MAIN_ENDPOINT + "/api/group/";
+export const ENDPOINT_EXPENSES = MAIN_ENDPOINT + "/api/expense/";
+export const ENDPOINT_TOTAL = MAIN_ENDPOINT + "/api/total/";

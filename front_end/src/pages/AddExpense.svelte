@@ -5,7 +5,7 @@
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";
 
-    export let params: any = {};
+    export const params: any = {};
     let amount: Number, description: String, who: String;
 
     async function getGroup(group_id: Number): Promise<GroupResponse> {
@@ -48,8 +48,13 @@
     <h1 class="underline">Add an expense</h1>
     <form class="shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <div class="flex flex-col p8">
-            <label>Amount</label>
-            <input class="input-bordered" type="number" bind:value={amount} />
+            <label for="amount-field">Amount</label>
+            <input
+                id="amount-field"
+                class="input-bordered"
+                type="number"
+                bind:value={amount}
+            />
             <input
                 class="input-bordered"
                 placeholder="description"
