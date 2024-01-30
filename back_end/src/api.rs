@@ -15,7 +15,7 @@ use tracing::info;
 
 const EXPENSE_REQUEST_LIMIT: i64 = 25;
 
-use crate::{group::Group, users::SafeUser};
+use crate::group::Group;
 use crate::{
     types::{AppState, Expense},
     users::User,
@@ -129,12 +129,11 @@ async fn get_users(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
     Path(expense_group_id): Path<u32>,
-) -> Result<Json<Vec<SafeUser>>, StatusCode> {
+) -> Result<Json<Vec<User>>, StatusCode> {
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
-        let users: Vec<SafeUser> = sqlx::query_as("SELECT id,name FROM user")
-            .fetch_all(&state.pool)
+        let users = User::get_all_users(&state.pool)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
         Ok(Json(users))

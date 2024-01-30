@@ -1,6 +1,6 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use password_auth::verify_password;
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 use sqlx::{FromRow, Row};
 use std::collections::HashMap;
 use tower_sessions::Session;
@@ -11,7 +11,7 @@ use crate::{
 };
 
 /// Users
-#[derive(Debug, sqlx::FromRow, Clone)]
+#[derive(Debug, sqlx::FromRow, Clone, PartialEq, Eq)]
 pub(crate) struct User {
     /// the id in the database
     pub(crate) id: i64,
@@ -21,11 +21,17 @@ pub(crate) struct User {
     password_hash: String,
 }
 
-/// Save User that does not have the password hash
-#[derive(Debug, sqlx::FromRow, Clone, Serialize, Deserialize)]
-pub(crate) struct SafeUser {
-    pub(crate) id: i64,
-    name: String,
+/// when we serialize the user we do NOT want to include the password
+impl Serialize for User {
+    fn serialize<S>(&self, serializer: S) -> std::prelude::v1::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("User", 3)?;
+        state.serialize_field("id", &self.id)?;
+        state.serialize_field("name", &self.name)?;
+        state.end()
+    }
 }
 
 #[derive(Debug, FromRow)]
@@ -140,6 +146,14 @@ impl User {
     pub(crate) fn check_password(&self, given_password: &str) -> bool {
         verify_password(given_password, &self.password_hash).is_ok()
     }
+
+    /// gets all users
+    pub(crate) async fn get_all_users(pool: &DBPool) -> Result<Vec<User>> {
+        sqlx::query_as("SELECT * FROM user")
+            .fetch_all(pool)
+            .await
+            .map_err(|_| anyhow!("Error in Sql"))
+    }
 }
 
 #[cfg(test)]
@@ -189,5 +203,34 @@ mod test {
 
         // implemnt the other things
         assert!(false)
+    }
+
+    #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]
+    async fn get_users(pool: DBPool) {
+        let users = User::get_all_users(&pool).await.expect("NO USER");
+        let check_users = vec![
+            User {
+                id: 1,
+                name: String::from("test1"),
+                password_hash: String::from("xx"),
+            },
+            User {
+                id: 2,
+                name: String::from("test2"),
+                password_hash: String::from("xx"),
+            },
+            User {
+                id: 3,
+                name: String::from("test3"),
+                password_hash: String::from("xx"),
+            },
+            User {
+                id: 4,
+                name: String::from("test4"),
+                password_hash: String::from("xx"),
+            },
+        ];
+
+        assert_eq!(users, check_users);
     }
 }
