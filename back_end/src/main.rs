@@ -1,3 +1,4 @@
+use ansi_term::Colour::{Green, Red};
 use anyhow::Context;
 use axum::Router;
 use clap::Parser;
@@ -64,6 +65,18 @@ async fn app(args: Args) -> anyhow::Result<Router> {
 async fn main() -> Result<(), anyhow::Error> {
     let cli = Args::parse();
 
+    if cli.release {
+        println!("{}", Green.paint("In release mode!"));
+    } else {
+        println!(
+            "{}",
+            Red.paint("WARNING: IN DEBUG MODE, EVERYTHING IS INSECURE!")
+        );
+    }
+    if cli.user_creation {
+        println!("{}", Red.paint("User creation is enabled!"));
+    }
+
     // start tracing - level set by either RUST_LOG env variable or defaults to debug
     tracing_subscriber::registry()
         .with(
@@ -80,7 +93,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .context("Can not parse address and port")?;
 
     let app = app(cli).await?;
-    tracing::info!("listening on http://{}", addr);
+    println!("listening on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app)
