@@ -4,7 +4,8 @@ use sqlx::{Pool, Sqlite};
 use std::net::SocketAddr;
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
-use tower_sessions::{MemoryStore, SessionManagerLayer, SqliteStore};
+use tower_sessions::{MemoryStore, SessionManagerLayer};
+use tower_sessions_sqlx_store::SqliteStore;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::types::AppState;
