@@ -1,12 +1,13 @@
 use anyhow::Context;
-use axum::{error_handling::HandleErrorLayer, http::StatusCode, BoxError, Router};
+use axum::Router;
+use clap::Parser;
 use sqlx::{Pool, Sqlite};
 use std::net::SocketAddr;
-use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
-use tower_sessions::{MemoryStore, SessionManagerLayer};
+use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::SqliteStore;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use types::Args;
 
 use crate::types::AppState;
 
@@ -24,18 +25,18 @@ const SERVER_PORT: &str = "3000";
 const SERVER_HOST: &str = "127.0.0.1";
 
 /// setup the whole app
-async fn app() -> anyhow::Result<Router> {
+async fn app(args: Args) -> anyhow::Result<Router> {
     // create store for backend.  Stores an api_token.
     let state = {
         let pool = Pool::<Sqlite>::connect("test.db")
             .await
             .context("Error in db")?;
         //sqlx::migrate!().run(&pool).await?;
-        AppState { pool: pool }
+        AppState { pool: pool, args }
     };
 
     // setup up sessions and store to keep track of session information
-    let session_store = MemoryStore::default();
+    //let session_store = MemoryStore::default();
     let session_store = SqliteStore::new(state.pool.clone())
         .with_table_name("sessions")
         .expect("error in store");
@@ -61,6 +62,8 @@ async fn app() -> anyhow::Result<Router> {
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
+    let cli = Args::parse();
+
     // start tracing - level set by either RUST_LOG env variable or defaults to debug
     tracing_subscriber::registry()
         .with(
@@ -76,7 +79,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .parse()
         .context("Can not parse address and port")?;
 
-    let app = app().await?;
+    let app = app(cli).await?;
     tracing::info!("listening on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
@@ -84,13 +87,4 @@ async fn main() -> Result<(), anyhow::Error> {
         .await
         .context("Could not bind server")?;
     Ok(())
-}
-
-/// Tokio signal handler that will wait for a user to press CTRL+C.
-/// We use this in our `Server` method `with_graceful_shutdown`.
-async fn shutdown_signal() {
-    tokio::signal::ctrl_c()
-        .await
-        .expect("Expect shutdown signal handler");
-    println!("signal shutdown");
 }

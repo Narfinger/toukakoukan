@@ -1,3 +1,4 @@
+use clap::Parser;
 use serde::{Deserialize, Serialize};
 use sqlx::{
     database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
@@ -9,9 +10,27 @@ use time::OffsetDateTime;
 
 pub(crate) type DBPool = Pool<Sqlite>;
 
+/// Splittinger backend
+#[derive(Parser, Debug, Clone)]
+#[command(author, version, about, long_about = None)]
+pub(crate) struct Args {
+    /// enable release version
+    #[arg(short, long)]
+    pub(crate) release: bool,
+
+    /// allow user creation
+    #[arg(short, long)]
+    pub(crate) user_creation: bool,
+}
+
 #[derive(Debug, Clone)]
+/// the global app state
 pub(crate) struct AppState {
+    /// the database
     pub(crate) pool: DBPool,
+
+    /// the arguments
+    pub(crate) args: Args,
 }
 
 impl<'q> Decode<'q, Sqlite> for PayedType {

@@ -1,42 +1,38 @@
 use crate::types::AppState;
 use crate::users::User;
 use anyhow::{anyhow, Context, Result};
-use axum::debug_handler;
 use axum::http::StatusCode;
 use axum::{body::Body, http::Request};
 use axum::{extract::State, response::IntoResponse, Json};
-use password_auth::verify_password;
 use serde::Deserialize;
 use serde_json::{json, Value};
-use sqlx::{query_as, Pool, Sqlite};
+use sqlx::{Pool, Sqlite};
 use tower_sessions::Session;
-use tracing::info;
-
-const ALLOW_USER_CREATION: bool = true;
 
 /// route to handle log in
-#[debug_handler]
 pub(crate) async fn login(
     session: Session,
     State(state): State<AppState>,
     Json(login): Json<Login>,
-) -> impl IntoResponse {
+) -> Result<Json<Value>, StatusCode> {
     tracing::info!("Logging in user: {}", login.username);
-    /*
-    let user = check_password(&state.pool, &login.username, &login.password)
-        .await
-        .map_err(|_| StatusCode::NOT_FOUND)?;
-    session
-        .insert("user_id", user.id)
-        .context("Error inserting into session")
-        .map_err(|_| StatusCode::NOT_FOUND)?;
-    */
-    tracing::info!("We are only looking at user_id 1 and hardcoding it");
-    session
-        .insert("user_id", 1)
-        .await
-        .expect("Could not insert into session");
-    Json(json!({"result": "ok"}))
+    if state.args.release {
+        let user = check_password(&state.pool, &login.username, &login.password)
+            .await
+            .map_err(|_| StatusCode::NOT_FOUND)?;
+        session
+            .insert("user_id", user.id)
+            .await
+            .context("Error inserting into session")
+            .map_err(|_| StatusCode::NOT_FOUND)?;
+    } else {
+        tracing::info!("We are only looking at user_id 1 and hardcoding it");
+        session
+            .insert("user_id", 1)
+            .await
+            .map_err(|_| StatusCode::NOT_FOUND)?;
+    }
+    Ok(Json(json!({"result": "ok"})))
 }
 
 /// route to handle log out
@@ -48,12 +44,13 @@ pub(crate) async fn logout(session: Session) -> impl IntoResponse {
     Json(json!({"result": "ok"}))
 }
 
+/// Route to create a user
 pub(crate) async fn create_user(
     _: Session,
     State(state): State<AppState>,
     Json(login): Json<Login>,
 ) -> Result<Json<Value>, StatusCode> {
-    if ALLOW_USER_CREATION {
+    if state.args.user_creation {
         let pass = password_auth::generate_hash(login.password);
 
         sqlx::query("INSERT INTO user (name, password_hash) VALUES (?,?)")
@@ -75,8 +72,6 @@ async fn check_password(
     username: &str,
     password: &str,
 ) -> anyhow::Result<User> {
-    //return true;
-
     let user = User::get_user_from_username(pool, username)
         .await
         .context("Could not find user")?;
@@ -88,6 +83,7 @@ async fn check_password(
 }
 
 #[derive(Deserialize)]
+/// The login datastructure
 pub struct Login {
     username: String,
     password: String,

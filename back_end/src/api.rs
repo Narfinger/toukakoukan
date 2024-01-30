@@ -9,7 +9,6 @@ use axum::{
 };
 
 use serde::{Deserialize, Serialize};
-use sqlx::Row;
 use tower_sessions::Session;
 use tracing::info;
 
@@ -43,7 +42,6 @@ async fn get_expenses(
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
-        //panic!("the time is weirdly incompatible with the json stuff");
         let rows = sqlx::query_as::<_, Expense>(
             "SELECT * FROM expense WHERE expense_group_id = ? LIMIT ?",
         )
@@ -51,8 +49,6 @@ async fn get_expenses(
         .bind(EXPENSE_REQUEST_LIMIT)
         .fetch_all(&state.pool)
         .await;
-        info!("we got {:?}", rows);
-        //.map_err(|_| StatusCode::NOT_FOUND)?;
         Ok(Json(rows.unwrap()))
     }
 }
@@ -160,7 +156,7 @@ async fn auth(
     mut request: Request,
     next: Next,
 ) -> Result<Response, StatusCode> {
-    let user = User::get_user_from_session(&state.pool, &session).await;
+    let user = User::get_user_from_session(&state, &session).await;
     if let Ok(user) = user {
         request.extensions_mut().insert(user);
         Ok(next.run(request).await)

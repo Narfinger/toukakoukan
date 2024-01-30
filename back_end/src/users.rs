@@ -1,13 +1,13 @@
 use anyhow::{anyhow, Context, Result};
 use password_auth::verify_password;
-use serde::{ser::SerializeStruct, Deserialize, Serialize};
-use sqlx::{FromRow, Row};
+use serde::{ser::SerializeStruct, Serialize};
+use sqlx::FromRow;
 use std::collections::HashMap;
 use tower_sessions::Session;
 
 use crate::{
     group::Group,
-    types::{DBPool, Expense},
+    types::{AppState, DBPool},
 };
 
 /// Users
@@ -49,13 +49,15 @@ struct GroupQueryResult {
 
 impl User {
     /// Gets a user from the current session
-    pub(crate) async fn get_user_from_session(pool: &DBPool, session: &Session) -> Result<User> {
-        return Ok(User::from_id(pool, 1).await?);
-
-        let user_id_val = session.get_value("user_id").await.unwrap();
-        let user_id: i64 = serde_json::from_value(user_id_val.unwrap())?;
-        let user = User::from_id(pool, user_id).await?;
-        Ok(user)
+    pub(crate) async fn get_user_from_session(state: &AppState, session: &Session) -> Result<User> {
+        if state.args.release {
+            let user_id_val = session.get_value("user_id").await.unwrap();
+            let user_id: i64 = serde_json::from_value(user_id_val.unwrap())?;
+            let user = User::from_id(&state.pool, user_id).await?;
+            Ok(user)
+        } else {
+            Ok(User::from_id(&state.pool, 1).await?)
+        }
     }
 
     /// Checks if a user is in a group, i.e., is allowed to modify it
