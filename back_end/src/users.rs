@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use password_auth::verify_password;
+use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, Row};
 use std::collections::HashMap;
 use tower_sessions::Session;
@@ -18,6 +19,13 @@ pub(crate) struct User {
     name: String,
     /// password hash of the user
     password_hash: String,
+}
+
+/// Save User that does not have the password hash
+#[derive(Debug, sqlx::FromRow, Clone, Serialize, Deserialize)]
+pub(crate) struct SafeUser {
+    pub(crate) id: i64,
+    name: String,
 }
 
 #[derive(Debug, FromRow)]

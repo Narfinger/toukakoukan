@@ -15,7 +15,7 @@ use tracing::info;
 
 const EXPENSE_REQUEST_LIMIT: i64 = 25;
 
-use crate::group::Group;
+use crate::{group::Group, users::SafeUser};
 use crate::{
     types::{AppState, Expense},
     users::User,
@@ -124,6 +124,23 @@ async fn get_group(
     }
 }
 
+/// returns all known users
+async fn get_users(
+    Extension(user): Extension<User>,
+    State(state): State<AppState>,
+    Path(expense_group_id): Path<u32>,
+) -> Result<Json<Vec<SafeUser>>, StatusCode> {
+    if !user.in_group(&state.pool, expense_group_id).await {
+        Err(StatusCode::UNAUTHORIZED)
+    } else {
+        let users: Vec<SafeUser> = sqlx::query_as("SELECT id,name FROM user")
+            .fetch_all(&state.pool)
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        Ok(Json(users))
+    }
+}
+
 /// collecting all api endpoints
 pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
     Router::new()
@@ -132,6 +149,7 @@ pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
         .route("/expense/:id/", post(post_expense))
         .route("/group/:id/", get(get_group))
         .route("/total/:id/", get(get_total))
+        .route("/users/", get(get_users))
         .route_layer(middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state)
 }
