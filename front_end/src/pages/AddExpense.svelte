@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import { createPayed } from "../js/types";
+    import { createPayed } from "../js/utils";
     import type { Expense, Group, GroupResponse } from "../js/types";
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";

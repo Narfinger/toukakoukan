@@ -23,6 +23,12 @@ export type Expense = {
     expense_group_id: Number;
 };
 
-export function createPayed(type: String, who: Number): PayedType {
-    return { "t": type, "c": who }
-}
+export type ExpenseAdjusted = {
+    id: Number;
+    payed_type: PayedType;
+    amount: Number;
+    name: String;
+    time: Date;
+    expense_group_id: Number;
+    amount_adjusted: String;
+};

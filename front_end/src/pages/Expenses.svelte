@@ -2,11 +2,12 @@
     import { createEventDispatcher } from "svelte";
     import { push, pop, replace } from "svelte-spa-router";
     import {
-        createPayed,
         type Expense,
+        type ExpenseAdjusted,
         type Group,
         type GroupResponse,
     } from "../js/types";
+    import { adjusted_expense, createPayed } from "../js/utils";
     import {
         ENDPOINT_EXPENSES,
         ENDPOINT_GROUP,
@@ -25,12 +26,18 @@
         return group;
     }
 
-    async function getExpenses(group_id: Number): Promise<Array<Expense>> {
+    async function getExpenses(
+        group_id: Number,
+    ): Promise<Array<ExpenseAdjusted>> {
         let response = await fetch(ENDPOINT_EXPENSES + group_id + "/");
         let expenses: Array<Expense> = await response.json();
 
-        console.log("change time towards objects here");
-        return expenses;
+        expenses.map((val) => {
+            let expense: Expense = val;
+            (val as ExpenseAdjusted).amount_adjusted = adjusted_expense(val);
+            expense;
+        });
+        return expenses as Array<ExpenseAdjusted>;
     }
     async function getTotal(group_id: Number): Promise<Number> {
         let response = await fetch(ENDPOINT_TOTAL + group_id + "/");
@@ -108,24 +115,17 @@
         {#await expense}
             <p>Loading expenses</p>
         {:then expenses}
-            <table class="table-fixed border table-zebra">
+            <table class="table-auto border table-zebra border-separate p-2">
                 <thead>
                     <th>Name</th>
-                    <th>Who Payed</th>
                     <th>Amount</th>
+                    <th>Date</th>
                 </thead>
                 <tbody>
                     {#each expenses as exp}
                         <tr>
                             <td>{exp["name"]}</td>
-                            <td
-                                >{#if exp["payed"] == 0}
-                                    "You are owedTHISISWRONG"
-                                {:else}
-                                    "You oweTHISISWRONG"
-                                {/if}
-                            </td>
-                            <td>{exp["amount"]}</td>
+                            <td>{exp["amount_adjusted"]}</td>
                             <td
                                 >{new Date(exp["time"]).toLocaleTimeString()} - {new Date(
                                     exp["time"],
