@@ -32,3 +32,8 @@ export type ExpenseAdjusted = {
     expense_group_id: Number;
     amount_adjusted: String;
 };
+
+export type User = {
+    id: Number;
+    name: String;
+};

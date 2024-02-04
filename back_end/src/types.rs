@@ -105,3 +105,8 @@ pub(crate) struct ExpenseGroup {
     /// the name of the expense group
     pub(crate) name: String,
 }
+
+pub(crate) struct CreateGroupJson {
+    pub(crate) name: String,
+    pub(crate) users: Vec<i64>,
+}

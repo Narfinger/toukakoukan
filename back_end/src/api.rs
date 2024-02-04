@@ -9,12 +9,13 @@ use axum::{
 };
 
 use serde::{Deserialize, Serialize};
+use sqlx::query;
 use tower_sessions::Session;
 use tracing::info;
 
 const EXPENSE_REQUEST_LIMIT: i64 = 25;
 
-use crate::group::Group;
+use crate::{group::Group, types::CreateGroupJson};
 use crate::{
     types::{AppState, Expense},
     users::User,
@@ -124,16 +125,21 @@ async fn get_group(
 async fn get_users(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
-    Path(expense_group_id): Path<u32>,
 ) -> Result<Json<Vec<User>>, StatusCode> {
-    if !user.in_group(&state.pool, expense_group_id).await {
-        Err(StatusCode::UNAUTHORIZED)
-    } else {
-        let users = User::get_all_users(&state.pool)
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-        Ok(Json(users))
-    }
+    let users = User::get_all_users(&state.pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(users))
+}
+
+async fn create_group(
+    Extension(user): Extension<User>,
+    State(state): State<AppState>,
+    Json(group): extract::Json<CreateGroupJson>,
+) -> Result<(), StatusCode> {
+    Group::createGroup(group, &state.pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 /// collecting all api endpoints
@@ -145,6 +151,7 @@ pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
         .route("/group/:id/", get(get_group))
         .route("/total/:id/", get(get_total))
         .route("/users/", get(get_users))
+        .route("/creategroup/", post(create_group))
         .route_layer(middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state)
 }

@@ -1,4 +1,4 @@
-use crate::types::DBPool;
+use crate::types::{CreateGroupJson, DBPool};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
@@ -53,5 +53,9 @@ impl Group {
         .await
         .context("EVEN 1")?;
         Ok(even0.0 / 2 + owed0.0 - even1.0 / 2 - owed1.0)
+    }
+
+    pub(crate) async fn createGroup(group: CreateGroupJson, pool: &DBPool) -> Result<()> {
+        todo!("STUFF");
     }
 }

@@ -9,3 +9,5 @@ export const ENDPOINT_GROUPS = MAIN_ENDPOINT + "/api/groups/";
 export const ENDPOINT_GROUP = MAIN_ENDPOINT + "/api/group/";
 export const ENDPOINT_EXPENSES = MAIN_ENDPOINT + "/api/expense/";
 export const ENDPOINT_TOTAL = MAIN_ENDPOINT + "/api/total/";
+export const ENDPOINT_GET_USERS = MAIN_ENDPOINT + "/api/users/";
+export const ENDPOINT_CREATE_GROUP = MAIN_ENDPOINT + "/api/creategroup";

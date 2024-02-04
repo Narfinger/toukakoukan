@@ -12,18 +12,8 @@ use crate::{routes, FRONT_PUBLIC};
 /// Frontend routes
 pub(crate) fn front_public_route() -> Router {
     Router::new()
-        .fallback_service(
-            ServeDir::new(FRONT_PUBLIC).not_found_service(handle_error.into_service()),
-        )
+        .fallback_service(ServeDir::new(FRONT_PUBLIC))
         .layer(TraceLayer::new_for_http())
-}
-
-#[allow(clippy::unused_async)]
-async fn handle_error() -> (StatusCode, &'static str) {
-    (
-        StatusCode::INTERNAL_SERVER_ERROR,
-        "Something went wrong accessing static files...",
-    )
 }
 
 /// backend routes
