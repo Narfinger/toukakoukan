@@ -132,12 +132,13 @@ async fn get_users(
     Ok(Json(users))
 }
 
+#[debug_handler]
 async fn create_group(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
     Json(group): extract::Json<CreateGroupJson>,
 ) -> Result<(), StatusCode> {
-    Group::createGroup(group, &state.pool)
+    Group::create_group(group, &state.pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }

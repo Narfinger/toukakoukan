@@ -1,6 +1,7 @@
 use crate::types::{CreateGroupJson, DBPool};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use sqlx::{query, query_as};
 
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 /// Result for JSON for returning a group
@@ -55,7 +56,18 @@ impl Group {
         Ok(even0.0 / 2 + owed0.0 - even1.0 / 2 - owed1.0)
     }
 
-    pub(crate) async fn createGroup(group: CreateGroupJson, pool: &DBPool) -> Result<()> {
-        todo!("STUFF");
+    pub(crate) async fn create_group(group: CreateGroupJson, pool: &DBPool) -> Result<()> {
+        let group_id: (i64,) = query_as("INSERT INTO expense_group (name) VALUES (?) RETURNING id")
+            .bind(group.name)
+            .fetch_one(pool)
+            .await?;
+        for i in group.users {
+            query("INSERT INTO expense_group_people (expense_group_id, user_id) VALUES (?,?)")
+                .bind(group_id.0)
+                .bind(i)
+                .execute(pool)
+                .await?;
+        }
+        Ok(())
     }
 }

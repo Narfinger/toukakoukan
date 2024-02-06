@@ -106,7 +106,11 @@ pub(crate) struct ExpenseGroup {
     pub(crate) name: String,
 }
 
+/// Json that creates a group
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct CreateGroupJson {
+    /// the name of the new group
     pub(crate) name: String,
+    /// the user ids in the group
     pub(crate) users: Vec<i64>,
 }
