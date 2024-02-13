@@ -42,6 +42,8 @@
                 "content-type": "application/json",
             },
         });
+        console.log(data);
+        push("/expenses");
     }
 </script>
 
@@ -66,4 +68,9 @@
         {/await}
     </form>
     <button on:click={handleAdd}>Add</button>
+    <button
+        on:click={() => {
+            push("/expenses");
+        }}>Cancel</button
+    >
 </div>

@@ -2,6 +2,7 @@ use crate::types::{CreateGroupJson, DBPool};
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as};
+use tracing::info;
 
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 /// Result for JSON for returning a group
@@ -57,6 +58,7 @@ impl Group {
     }
 
     pub(crate) async fn create_group(group: CreateGroupJson, pool: &DBPool) -> Result<()> {
+        info!("Trying to insert group {:?}", group);
         let group_id: (i64,) = query_as("INSERT INTO expense_group (name) VALUES (?) RETURNING id")
             .bind(group.name)
             .fetch_one(pool)

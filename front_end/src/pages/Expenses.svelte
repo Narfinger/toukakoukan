@@ -88,8 +88,7 @@
         <button
             class="btn btn-primary"
             on:click={async () => {
-                const gid = await group_id;
-                push("/AddExpense/" + gid);
+                group_id.then((gid) => push("/AddExpense/" + gid));
             }}>Add</button
         >
     </div>

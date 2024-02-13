@@ -75,4 +75,9 @@
         </div>
     </form>
     <button on:click={handleAdd}>Add</button>
+    <button
+        on:click={() => {
+            push("/expenses");
+        }}>Cancel</button
+    >
 </div>
