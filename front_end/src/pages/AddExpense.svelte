@@ -5,7 +5,7 @@
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";
 
-    export const params: any = {};
+    export let params: any = {};
     let amount: Number, description: String, who: String;
 
     async function getGroup(group_id: Number): Promise<GroupResponse> {
@@ -60,9 +60,9 @@
                 placeholder="description"
                 bind:value={description}
             />
-            {#await group then group}
+            {#await group then g}
                 <select bind:value={who}>
-                    {#each group.users as p, item}
+                    {#each g.users as p, item}
                         <option value={"EvenSplit " + item}
                             >{p} payed, Split 50/50</option
                         >

@@ -1,6 +1,6 @@
 export type GroupResponse = {
     name: String;
-    users: Array<String>;
+    users: Array<User>;
 };
 
 export type Group = {

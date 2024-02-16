@@ -85,12 +85,14 @@
         {/await}
     </div>
     <div>
-        <button
-            class="btn btn-primary"
-            on:click={async () => {
-                group_id.then((gid) => push("/AddExpense/" + gid));
-            }}>Add</button
-        >
+        {#await group_id then gid}
+            <button
+                class="btn btn-primary"
+                on:click={async () => {
+                    push("/AddExpense/" + gid);
+                }}>Add</button
+            >
+        {/await}
     </div>
     <div>
         {#await groups then g}
