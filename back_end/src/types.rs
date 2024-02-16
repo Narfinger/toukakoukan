@@ -114,3 +114,9 @@ pub(crate) struct CreateGroupJson {
     /// the user ids in the group
     pub(crate) users: Vec<i64>,
 }
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct SafeUser {
+    pub(crate) id: i64,
+    pub(crate) name: String,
+}

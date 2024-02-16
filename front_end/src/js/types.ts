@@ -6,7 +6,7 @@ export type GroupResponse = {
 export type Group = {
     id: number;
     name: String;
-    users: Array<String>;
+    users: Array<User>;
 };
 
 export type PayedType = {

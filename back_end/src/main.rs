@@ -2,11 +2,12 @@ use ansi_term::Colour::{Green, Red};
 use anyhow::Context;
 use axum::Router;
 use clap::Parser;
-use sqlx::{Pool, Sqlite};
-use std::net::SocketAddr;
+use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions, Pool, Sqlite};
+use std::{net::SocketAddr, str::FromStr};
 use tower_http::trace::TraceLayer;
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::SqliteStore;
+use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use types::Args;
 
@@ -29,9 +30,20 @@ const SERVER_HOST: &str = "127.0.0.1";
 async fn app(args: Args) -> anyhow::Result<Router> {
     // create store for backend.  Stores an api_token.
     let state = {
+        let pool = Pool::connect_with(
+            SqliteConnectOptions::from_str("test.db")
+                .context("Could not parse db location")?
+                .log_statements(log::LevelFilter::Error),
+        )
+        .await
+        .context("Error in DB")?;
+
+        /*
         let pool = Pool::<Sqlite>::connect("test.db")
-            .await
-            .context("Error in db")?;
+        .await
+        .context("Error in db")?;
+        */
+
         //sqlx::migrate!().run(&pool).await?;
         AppState { pool: pool, args }
     };

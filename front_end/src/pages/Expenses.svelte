@@ -97,7 +97,7 @@
             <div class="flex">
                 <h2 class="w-14 h-14">Group:</h2>
                 {#each g[active_tab].users as u}
-                    <div class="shrink w-14 h-14">{u}</div>
+                    <div class="shrink w-14 h-14">{u.name}</div>
                 {/each}
             </div>
         {/await}

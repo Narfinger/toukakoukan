@@ -7,7 +7,7 @@ use tower_sessions::Session;
 
 use crate::{
     group::Group,
-    types::{AppState, DBPool},
+    types::{AppState, DBPool, SafeUser},
 };
 
 /// Users
@@ -16,7 +16,7 @@ pub(crate) struct User {
     /// the id in the database
     pub(crate) id: i64,
     /// name of the user and login
-    name: String,
+    pub(crate) name: String,
     /// password hash of the user
     password_hash: String,
 }
@@ -101,11 +101,14 @@ impl User {
                 .await
                 .context("Could not find groups")?;
 
-        let mut map: HashMap<(i64, String), Vec<String>> = HashMap::new();
+        let mut map: HashMap<(i64, String), Vec<SafeUser>> = HashMap::new();
         for i in groups {
             map.entry((i.group_id, i.group_name))
                 .or_default()
-                .push(i.user_name);
+                .push(SafeUser {
+                    id: i.user_id,
+                    name: i.user_name,
+                });
         }
         let mut res = map
             .into_iter()
@@ -140,7 +143,13 @@ impl User {
         Ok(Group {
             name: group.0,
             id: expense_group_id,
-            users: people.iter().map(|u| u.name.clone()).collect(),
+            users: people
+                .iter()
+                .map(|u| SafeUser {
+                    id: u.id,
+                    name: u.name.clone(),
+                })
+                .collect(),
         })
     }
 
@@ -178,12 +187,12 @@ mod test {
         println!("groups {:?}", groups);
         assert_eq!(groups[0].name, "group1");
         assert_eq!(groups.len(), 2);
-        assert_eq!(groups[0].users[0], "test1");
-        assert_eq!(groups[0].users[1], "test2");
+        assert_eq!(groups[0].users[0].name, "test1");
+        assert_eq!(groups[0].users[1].name, "test2");
         assert_eq!(groups[0].users.len(), 2);
         assert_eq!(groups[1].name, "group2");
-        assert_eq!(groups[1].users[0], "test1");
-        assert_eq!(groups[1].users[1], "test2");
+        assert_eq!(groups[1].users[0].name, "test1");
+        assert_eq!(groups[1].users[1].name, "test2");
         assert_eq!(groups[1].users.len(), 2);
     }
 
@@ -200,7 +209,7 @@ mod test {
     async fn get_total(pool: DBPool) {
         let user = User::from_id(&pool, 1).await.expect("NO USER");
         let group = user.get_specific_group(&pool, 2).await.expect("NO GROUP");
-        let total = group.get_total(&pool).await.expect("NO TOTAL");
+        let total = group.get_total(&pool).await.expect("NO TOTAL").find_id(1);
         assert_eq!(total, 0);
 
         // implemnt the other things

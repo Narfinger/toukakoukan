@@ -67,7 +67,9 @@ async fn get_total(
     let total = group
         .get_total(&state.pool)
         .await
+        .map(|s| s.find_id(user.id))
         .map_err(|_| StatusCode::NOT_FOUND)?;
+
     Ok(Json(total))
 }
 

@@ -10,3 +10,4 @@ Cargo.lock
 /front_end/dist/
 test.db
 back_end/target/
+front_end/dev-dist
