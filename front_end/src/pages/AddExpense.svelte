@@ -74,8 +74,9 @@
             {/await}
         </div>
     </form>
-    <button on:click={handleAdd}>Add</button>
+    <button class="btn btn-primary" on:click={handleAdd}>Add</button>
     <button
+        class="btn btn-warning"
         on:click={() => {
             push("/expenses");
         }}>Cancel</button

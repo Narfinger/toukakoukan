@@ -25,29 +25,30 @@
         {errorMessage}
     </div>
 {/if}
-<div>
-    <h2>
-        please login or <button
+<div class="p-8 container mx-auto">
+    <h1>Login</h1>
+    <div class="p-8">
+        <input
+            class="input input-bordered input-primary"
+            type="username"
+            placeholder="Username"
+            bind:value={username}
+        />
+        <input
+            class="input input-bordered input-secondary"
+            type="password"
+            placeholder="Password"
+            bind:value={password}
+        />
+        <button class="btn btn-primary w-64" on:click={handleLogin}
+            >Login</button
+        >
+    </div>
+    <div>
+        or <button
             on:click={() => {
                 push("/createuser/");
             }}>Create a User</button
         >
-    </h2>
-    <div>
-        <label for="username">Username</label>
-        <input
-            class="input"
-            type="username"
-            placeholder="username"
-            bind:value={username}
-        />
-        <label for="password">Password</label>
-        <input
-            class="input"
-            type="password"
-            placeholder="password"
-            bind:value={password}
-        />
-        <button on:click={handleLogin}>Submit</button>
     </div>
 </div>
