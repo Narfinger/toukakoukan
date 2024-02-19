@@ -1,19 +1,7 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { push, pop, replace } from "svelte-spa-router";
-    import {
-        type Expense,
-        type ExpenseAdjusted,
-        type Group,
-        type GroupResponse,
-    } from "../js/types";
-    import { adjusted_expense, createPayed } from "../js/utils";
-    import {
-        ENDPOINT_EXPENSES,
-        ENDPOINT_GROUP,
-        ENDPOINT_GROUPS,
-        ENDPOINT_TOTAL,
-    } from "../js/endpoints";
+    import { push } from "svelte-spa-router";
+    import { type Group, type GroupResponse } from "../js/types";
+    import { ENDPOINT_GROUP, ENDPOINT_GROUPS } from "../js/endpoints";
     import Expenses from "../widgets/ExpensesWidget.svelte";
     import ExpensesWidget from "../widgets/ExpensesWidget.svelte";
     import ExpensesInfoWidget from "../widgets/ExpensesInfoWidget.svelte";
