@@ -14,6 +14,9 @@
         ENDPOINT_GROUPS,
         ENDPOINT_TOTAL,
     } from "../js/endpoints";
+    import Expenses from "../widgets/ExpensesWidget.svelte";
+    import ExpensesWidget from "../widgets/ExpensesWidget.svelte";
+    import ExpensesInfoWidget from "../widgets/ExpensesInfoWidget.svelte";
     async function getGroups(): Promise<Array<Group>> {
         let response = await fetch(ENDPOINT_GROUPS);
         let groups = await response.json();
@@ -26,36 +29,9 @@
         return group;
     }
 
-    async function getExpenses(
-        group_id: Number,
-    ): Promise<Array<ExpenseAdjusted>> {
-        let response = await fetch(ENDPOINT_EXPENSES + group_id + "/");
-        let expenses: Array<Expense> = await response.json();
-
-        expenses.map((val) => {
-            let expense: Expense = val;
-            (val as ExpenseAdjusted).amount_adjusted = adjusted_expense(val);
-            expense;
-        });
-        return expenses as Array<ExpenseAdjusted>;
-    }
-    async function getTotal(group_id: Number): Promise<Number> {
-        let response = await fetch(ENDPOINT_TOTAL + group_id + "/");
-        let total = await response.json();
-        return total;
-    }
-
     const groups = getGroups().then((groups) => groups);
     let active_tab = 0;
-    $: expense = groups.then((gs) => {
-        return getExpenses(gs[active_tab].id);
-    });
-    $: group = groups.then((gs) => {
-        return getExpenses(gs[active_tab].id);
-    });
-    $: total = groups.then((gs) => {
-        return getTotal(gs[active_tab].id);
-    });
+
     $: group_id = groups.then((g) => g[active_tab].id);
 </script>
 
@@ -84,55 +60,8 @@
             >
         {/await}
     </div>
-
-    <div class="row-span-4 pb-2">
-        {#await group_id then gid}
-            <button
-                class="btn btn-primary w-64"
-                on:click={async () => {
-                    push("/AddExpense/" + gid);
-                }}>Add</button
-            >
-        {/await}
-        {#await groups then g}
-            <div class="flex">
-                <h2 class="w-14 h-14">Group:</h2>
-                {#each g[active_tab].users as u}
-                    <div class="shrink w-14 h-14">{u.name}</div>
-                {/each}
-            </div>
-        {/await}
-        {#await total then t}
-            <div class="flex">
-                <h2 class="w-14 h-14">Total:</h2>
-                <div class="shrink w-14 h-14">{t}</div>
-            </div>
-        {/await}
-    </div>
+    <ExpensesInfoWidget {group_id} group={groups.then((g) => g[active_tab])} />
     <div class="col-start-2 col-span-3">
-        {#await expense}
-            <span class="loading loading-dots loading-lg"></span>
-        {:then expenses}
-            <table class="table-auto border table-zebra border-separate p-2">
-                <thead>
-                    <th>Name</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                </thead>
-                <tbody>
-                    {#each expenses as exp}
-                        <tr>
-                            <td>{exp["name"]}</td>
-                            <td>{exp["amount_adjusted"]}</td>
-                            <td
-                                >{new Date(exp["time"]).toLocaleTimeString()} - {new Date(
-                                    exp["time"],
-                                ).toDateString()}</td
-                            >
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-        {/await}
+        <ExpensesWidget {group_id} />
     </div>
 </div>
