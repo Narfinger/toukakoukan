@@ -1,7 +1,5 @@
 use crate::{api::api_endpoints, types::AppState};
 use axum::{
-    handler::HandlerWithoutStateExt,
-    http::StatusCode,
     routing::{get, post},
     Router,
 };

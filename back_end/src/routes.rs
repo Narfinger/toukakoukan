@@ -2,7 +2,6 @@ use crate::types::AppState;
 use crate::users::User;
 use anyhow::{anyhow, Context, Result};
 use axum::http::StatusCode;
-use axum::{body::Body, http::Request};
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -87,12 +86,6 @@ async fn check_password(
 pub struct Login {
     username: String,
     password: String,
-}
-
-#[allow(clippy::unused_async)]
-pub(crate) async fn not_implemented_route(req: Request<Body>) -> impl IntoResponse {
-    // add which route is requesting this?
-    format!("Route is planned but not yet implemented for {}", req.uri())
 }
 
 pub(crate) async fn session(session: Session) -> Result<Json<Value>, StatusCode> {

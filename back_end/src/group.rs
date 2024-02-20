@@ -1,9 +1,8 @@
 use crate::types::{CreateGroupJson, DBPool, PayedType, SafeUser};
-use anyhow::{Context, Result};
-use futures::{future::join_all, stream::iter, StreamExt};
+use anyhow::Result;
+use futures::future::join_all;
 use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as};
-use tokio::stream;
 use tracing::info;
 
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -50,7 +49,7 @@ impl GetTotalResult {
         let user_payed = self
             .users
             .iter()
-            .find(|(id, total)| id == &user_id)
+            .find(|(id, _total)| id == &user_id)
             .unwrap_or(&(0, 0));
 
         self.total - user_payed.0

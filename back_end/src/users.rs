@@ -169,7 +169,7 @@ impl User {
 
 #[cfg(test)]
 mod test {
-    use crate::{group, types::DBPool, users::User};
+    use crate::{types::DBPool, users::User};
 
     #[sqlx::test(migrations = "./migrations/", fixtures("../fixtures/all.sql"))]
     async fn get_user(pool: DBPool) {

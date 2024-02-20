@@ -2,7 +2,7 @@ use ansi_term::Colour::{Green, Red};
 use anyhow::Context;
 use axum::{http::Method, Router};
 use clap::Parser;
-use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions, Pool, Sqlite};
+use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions, Pool};
 use std::{net::SocketAddr, str::FromStr};
 use tower_http::{
     cors::{Any, CorsLayer},
@@ -10,7 +10,6 @@ use tower_http::{
 };
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::SqliteStore;
-use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use types::Args;
 
@@ -48,7 +47,7 @@ async fn app(args: Args) -> anyhow::Result<Router> {
         */
 
         //sqlx::migrate!().run(&pool).await?;
-        AppState { pool: pool, args }
+        AppState { pool, args }
     };
 
     // setup up sessions and store to keep track of session information

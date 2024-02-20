@@ -9,7 +9,6 @@ use axum::{
 };
 
 use serde::{Deserialize, Serialize};
-use sqlx::query;
 use tower_sessions::Session;
 use tracing::info;
 
@@ -125,7 +124,7 @@ async fn get_group(
 
 /// returns all known users
 async fn get_users(
-    Extension(user): Extension<User>,
+    Extension(_): Extension<User>,
     State(state): State<AppState>,
 ) -> Result<Json<Vec<User>>, StatusCode> {
     let users = User::get_all_users(&state.pool)
@@ -136,7 +135,7 @@ async fn get_users(
 
 #[debug_handler]
 async fn create_group(
-    Extension(user): Extension<User>,
+    Extension(_): Extension<User>,
     State(state): State<AppState>,
     Json(group): extract::Json<CreateGroupJson>,
 ) -> Result<(), StatusCode> {
