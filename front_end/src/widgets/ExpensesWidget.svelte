@@ -2,6 +2,7 @@
     import { ENDPOINT_EXPENSES } from "../js/endpoints";
     import type { Expense, ExpenseAdjusted } from "../js/types";
     import { adjusted_expense } from "../js/utils";
+    import { formatDistance } from "date-fns";
 
     export let group_id: Promise<Number>;
 
@@ -37,11 +38,7 @@
                 <tr>
                     <td>{exp["name"]}</td>
                     <td>{exp["amount_adjusted"]}</td>
-                    <td
-                        >{new Date(exp["time"]).toLocaleTimeString()} - {new Date(
-                            exp["time"],
-                        ).toDateString()}</td
-                    >
+                    <td>{formatDistance(new Date(exp["time"]), Date.now())}</td>
                 </tr>
             {/each}
         </tbody>

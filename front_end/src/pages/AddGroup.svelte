@@ -56,7 +56,7 @@
         {#await users then users}
             {#each users as u}
                 <div class="row">
-                    <label>{u.name}</label>
+                    <label for={u.id.toString()}>{u.name}</label>
                     <input
                         id={u.id.toString()}
                         on:click={() =>

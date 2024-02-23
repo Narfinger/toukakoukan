@@ -17,15 +17,7 @@
     });
 </script>
 
-<div class="row-span-4 pb-2">
-    {#await group_id then gid}
-        <button
-            class="btn btn-primary w-64"
-            on:click={async () => {
-                push("/AddExpense/" + gid);
-            }}>Add</button
-        >
-    {/await}
+<div class="row-span-4">
     {#await group then g}
         <div class="flex">
             <h2 class="w-14 h-14">Group:</h2>

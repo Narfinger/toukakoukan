@@ -23,10 +23,10 @@
     $: group_id = groups.then((g) => g[active_tab].id);
 </script>
 
-<div class="grid grid-cols-4 p-4">
-    <p class="text-6xl pb-8 col-span-4">Main Expense Overview</p>
+<div class="grid lg:grid-cols-4 md:grid-cols-2 p-4">
+    <p class="text-6xl pb-8 lg:col-span-4">Main Expense Overview</p>
 
-    <div role="tablist" class="tabs tabs-bordered col-span-4 pb-8">
+    <div role="tablist" class="tabs tabs-bordered lg:col-span-4 pb-8">
         {#await groups then groups}
             {#each groups as g, index}
                 <button
@@ -48,8 +48,23 @@
             >
         {/await}
     </div>
-    <ExpensesInfoWidget {group_id} group={groups.then((g) => g[active_tab])} />
-    <div class="col-start-2 col-span-3">
+    <div class="pb-2">
+        {#await group_id then gid}
+            <button
+                class="btn btn-primary w-64"
+                on:click={async () => {
+                    push("/AddExpense/" + gid);
+                }}>Add</button
+            >
+        {/await}
+    </div>
+    <div>
+        <ExpensesInfoWidget
+            {group_id}
+            group={groups.then((g) => g[active_tab])}
+        />
+    </div>
+    <div class="lg:col-start-2 lg:col-span-3">
         <ExpensesWidget {group_id} />
     </div>
 </div>

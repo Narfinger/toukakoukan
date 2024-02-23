@@ -40,7 +40,7 @@
             placeholder="Password"
             bind:value={password}
         />
-        <button class="btn btn-primary w-64" on:click={handleLogin}
+        <button class="btn btn-primary lg:w-64 md:w-16" on:click={handleLogin}
             >Login</button
         >
     </div>

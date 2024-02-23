@@ -36,8 +36,20 @@ export default defineConfig({
               statuses: [0, 200],
             },
           },
-        },
-      ],
+        }, {
+          handler: 'NetworkOnly',
+          urlPattern: ({ url, sameOrigin }) => url.pathname.match(/^\/api/),
+          method: 'POST',
+          options: {
+            backgroundSync: {
+              name: 'api-queue',
+              options: {
+                maxRetentionTime: 24 * 60
+              }
+            }
+          }
+        }
+      ]
     }
   }),
   svelte()
