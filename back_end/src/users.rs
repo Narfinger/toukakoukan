@@ -62,11 +62,11 @@ impl User {
 
     /// Checks if a user is in a group, i.e., is allowed to modify it
     pub(crate) async fn in_group(&self, pool: &DBPool, group_id: u32) -> bool {
-        let q = sqlx::query(
+        let q = sqlx::query!(
             "SELECT user_id FROM expense_group_people WHERE user_id=? AND expense_group_id = ?",
+            self.id,
+            group_id
         )
-        .bind(self.id)
-        .bind(group_id)
         .fetch_optional(pool)
         .await;
         q.is_ok()
@@ -74,8 +74,7 @@ impl User {
 
     /// gets a user from a username (to login)
     pub(crate) async fn get_user_from_username(pool: &DBPool, name: &str) -> Result<Self> {
-        sqlx::query_as::<_, User>("SELECT * FROM user where name=?")
-            .bind(name)
+        sqlx::query_as!(User, "SELECT * FROM user where name=?", name)
             .fetch_one(pool)
             .await
             .context("Could not find user")
@@ -83,8 +82,7 @@ impl User {
 
     /// creates the user from a given id (used for session)
     async fn from_id(pool: &DBPool, id: i64) -> Result<User> {
-        sqlx::query_as::<_, User>("SELECT * FROM user where id=?")
-            .bind(id)
+        sqlx::query_as!(User, "SELECT * FROM user where id=?", id)
             .fetch_one(pool)
             .await
             .context("Could not find user in db")
@@ -129,8 +127,7 @@ impl User {
         expense_group_id: i64,
     ) -> Result<Group> {
         let people =
-        sqlx::query_as::<_, User>("SELECT user.id, user.name, user.password_hash FROM expense_group_people INNER JOIN user on expense_group_people.user_id = user.id WHERE expense_group_id = ?")
-        .bind(expense_group_id)
+        sqlx::query_as!(User, "SELECT user.id, user.name, user.password_hash FROM expense_group_people INNER JOIN user on expense_group_people.user_id = user.id WHERE expense_group_id = ?", expense_group_id)
         .fetch_all(pool)
         .await?;
 
@@ -160,7 +157,7 @@ impl User {
 
     /// gets all users
     pub(crate) async fn get_all_users(pool: &DBPool) -> Result<Vec<User>> {
-        sqlx::query_as("SELECT * FROM user")
+        sqlx::query_as!(User, "SELECT * FROM user")
             .fetch_all(pool)
             .await
             .map_err(|_| anyhow!("Error in Sql"))

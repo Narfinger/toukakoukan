@@ -82,15 +82,10 @@ async fn post_expense(
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
-        sqlx::query(
+        sqlx::query!(
             "INSERT INTO expense (payed_type, amount, name, time, expense_group_id) VALUES (?, ?, ?, ?, ?);
-",
+", payload.payed_type, payload.amount, payload.name, payload.time, expense_group_id
         )
-        .bind(payload.payed_type)
-        .bind(payload.amount)
-        .bind(payload.name)
-        .bind(payload.time)
-        .bind(expense_group_id as i64)
         .execute(&state.pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;

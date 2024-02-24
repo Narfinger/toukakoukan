@@ -75,11 +75,13 @@ impl Group {
             .fetch_one(pool)
             .await?;
         for i in group.users {
-            query("INSERT INTO expense_group_people (expense_group_id, user_id) VALUES (?,?)")
-                .bind(group_id.0)
-                .bind(i)
-                .execute(pool)
-                .await?;
+            query!(
+                "INSERT INTO expense_group_people (expense_group_id, user_id) VALUES (?,?)",
+                group_id.0,
+                i
+            )
+            .execute(pool)
+            .await?;
         }
         Ok(())
     }
