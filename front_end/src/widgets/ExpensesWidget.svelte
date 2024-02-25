@@ -27,15 +27,15 @@
 {#await expense}
     <span class="loading loading-dots loading-lg"></span>
 {:then expenses}
-    <table class="table-auto border table-zebra border-separate p-2">
+    <table class="table-auto border table-zebra p-2">
         <thead>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Date</th>
+            <th class="p-2">Name</th>
+            <th class="p-2">Amount</th>
+            <th class="p-2">Date</th>
         </thead>
         <tbody>
             {#each expenses as exp}
-                <tr>
+                <tr class="p-2">
                     <td>{exp["name"]}</td>
                     <td>{exp["amount_adjusted"]}</td>
                     <td>{formatDistance(new Date(exp["time"]), Date.now())}</td>

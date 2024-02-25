@@ -24,7 +24,7 @@
 </script>
 
 <div class="grid lg:grid-cols-4 md:grid-cols-2 p-4">
-    <p class="text-6xl pb-8 lg:col-span-4">Main Expense Overview</p>
+    <p class="text-2xl lg:text-6xl pb-4 lg:col-span-4">Main Expense Overview</p>
 
     <div role="tablist" class="tabs tabs-bordered lg:col-span-4 pb-8">
         {#await groups then groups}
@@ -48,7 +48,7 @@
             >
         {/await}
     </div>
-    <div class="pb-2">
+    <div class="pb-2 lg:col-span-4">
         {#await group_id then gid}
             <button
                 class="btn btn-primary w-64"
@@ -64,7 +64,7 @@
             group={groups.then((g) => g[active_tab])}
         />
     </div>
-    <div class="lg:col-start-2 lg:col-span-3">
+    <div class="lg:col-start-2 lg:col-span-2">
         <ExpensesWidget {group_id} />
     </div>
 </div>

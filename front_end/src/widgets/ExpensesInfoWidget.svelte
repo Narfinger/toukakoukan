@@ -17,19 +17,21 @@
     });
 </script>
 
-<div class="row-span-4">
-    {#await group then g}
-        <div class="flex">
-            <h2 class="w-14 h-14">Group:</h2>
-            {#each g.users as u}
-                <div class="shrink w-14 h-14">{u.name}</div>
-            {/each}
-        </div>
-    {/await}
-    {#await total then t}
-        <div class="flex">
-            <h2 class="w-14 h-14">Total:</h2>
-            <div class="shrink w-14 h-14">{t}</div>
-        </div>
-    {/await}
-</div>
+{#await group}
+    <span class="loading loading-dots loading-lg"></span>
+{:then g}
+    <div class="flex flex-row">
+        <p class="pr-2">Group:</p>
+        {#each g.users as u}
+            <p class="pr-2">{u.name}</p>
+        {/each}
+    </div>
+{/await}
+{#await total}
+    <span class="loading loading-dots loading-lg"></span>
+{:then t}
+    <div class="flex flex-row">
+        <p class="pr-2">Total:</p>
+        <p>{t}</p>
+    </div>
+{/await}
