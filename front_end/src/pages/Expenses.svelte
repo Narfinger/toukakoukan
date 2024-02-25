@@ -1,7 +1,11 @@
 <script lang="ts">
     import { push } from "svelte-spa-router";
     import { type Group, type GroupResponse } from "../js/types";
-    import { ENDPOINT_GROUP, ENDPOINT_GROUPS } from "../js/endpoints";
+    import {
+        ENDPOINT_EXPENSES,
+        ENDPOINT_GROUP,
+        ENDPOINT_GROUPS,
+    } from "../js/endpoints";
     import Expenses from "../widgets/ExpensesWidget.svelte";
     import ExpensesWidget from "../widgets/ExpensesWidget.svelte";
     import ExpensesInfoWidget from "../widgets/ExpensesInfoWidget.svelte";
@@ -17,10 +21,18 @@
         return group;
     }
 
+    async function prefetchGroups(g: Array<Group>) {
+        for (const i of g) {
+            await fetch(ENDPOINT_EXPENSES + i.id + "/");
+        }
+    }
+
     const groups = getGroups().then((groups) => groups);
     let active_tab = 0;
 
     $: group_id = groups.then((g) => g[active_tab].id);
+
+    groups.then((g) => prefetchGroups(g));
 </script>
 
 <div class="grid lg:grid-cols-4 md:grid-cols-2 p-4">

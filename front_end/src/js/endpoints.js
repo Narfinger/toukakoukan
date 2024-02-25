@@ -1,4 +1,5 @@
 const MAIN_ENDPOINT = "http://localhost:3000";
+//const MAIN_ENDPOINT = "";
 
 export const ENDPOINT_SESSION_AUTH = MAIN_ENDPOINT + "/auth/session";
 export const ENDPOINT_SESSION_LOGIN = MAIN_ENDPOINT + "/auth/login";

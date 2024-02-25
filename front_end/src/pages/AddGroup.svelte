@@ -48,30 +48,50 @@
 </script>
 
 <div class="flex flex-col p-8 justify-center">
-    <h1 class="underline">Add an expense</h1>
-    <form class="shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <div class="flex flex-col p8">FIX THIS TO ADD A GROUP!!!</div>
-        <label for="name-field">Name</label>
-        <input id="name-field" class="input-bordered" bind:value={name} />
-        {#await users then users}
-            {#each users as u}
-                <div class="row">
-                    <label for={u.id.toString()}>{u.name}</label>
-                    <input
-                        id={u.id.toString()}
-                        on:click={() =>
-                            user_checked.set(u.id, !user_checked.get(u.id))}
-                        type="checkbox"
-                    />
-                </div>
-            {/each}
-        {/await}
+    <p class="text-2xl lg:text-6xl pb-4">Add an expense</p>
+    <form>
+        <div class="flex flex-col">
+            <div class="p-2">
+                <input
+                    id="name-field"
+                    class="input-bordered"
+                    bind:value={name}
+                    placeholder="name"
+                />
+                {#await users}
+                    <span class="loading loading-dots loading-lg"></span>
+                {:then users}
+                    {#each users as u}
+                        <div class="row">
+                            <label for={u.id.toString()}>{u.name}</label>
+                            <input
+                                id={u.id.toString()}
+                                on:click={() =>
+                                    user_checked.set(
+                                        u.id,
+                                        !user_checked.get(u.id),
+                                    )}
+                                type="checkbox"
+                            />
+                        </div>
+                    {/each}
+                {/await}
+            </div>
+        </div>
     </form>
-    <button class="btn btn-primary" on:click={handleAdd}>Add</button>
-    <button
-        class="btn btn-warning"
-        on:click={() => {
-            push("/expenses");
-        }}>Cancel</button
-    >
+    <div class="flex flex-col">
+        <div class="p-2">
+            <button class="btn btn-primary w-full" on:click={handleAdd}
+                >Add</button
+            >
+        </div>
+        <div class="p-2 grow">
+            <button
+                class="btn btn-warning w-full"
+                on:click={() => {
+                    push("/expenses");
+                }}>Cancel</button
+            >
+        </div>
+    </div>
 </div>

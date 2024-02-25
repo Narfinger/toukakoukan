@@ -7,6 +7,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   plugins: [VitePWA({
     manifest: {
+      theme_color: '#ffffff',
       icons: [
         {
           src: "/512.png",
@@ -29,8 +30,8 @@ export default defineConfig({
           options: {
             cacheName: 'api-cache',
             expiration: {
-              maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+              maxEntries: 20,
+              maxAgeSeconds: 60 * 60 * 24 * 7, // <== 365 days
             },
             cacheableResponse: {
               statuses: [0, 200],

@@ -45,40 +45,56 @@
 </script>
 
 <div class="flex flex-col p-8 justify-center">
-    <h1 class="underline">Add an expense</h1>
-    <form class="shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <div class="flex flex-col p8">
-            <label for="amount-field">Amount</label>
-            <input
-                id="amount-field"
-                class="input-bordered"
-                type="number"
-                bind:value={amount}
-            />
-            <input
-                class="input-bordered"
-                placeholder="description"
-                bind:value={description}
-            />
-            {#await group then g}
-                <select bind:value={who}>
-                    {#each g.users as p, item}
-                        <option value={"EvenSplit " + item}
-                            >{p} payed, Split 50/50</option
-                        >
-                        <option value={"OwedTotal " + item}
-                            >{p} is owed the full amount</option
-                        >
-                    {/each}
-                </select>
+    <p class="text-2xl lg:text-6xl pb-4">Add an expense</p>
+    <form>
+        <div class="flex flex-col">
+            <div class="p-2">
+                <input
+                    id="amount-field"
+                    class="input-bordered"
+                    type="number"
+                    placeholder="amount"
+                    bind:value={amount}
+                />
+            </div>
+            <div class="p-2">
+                <input
+                    class="input-bordered"
+                    placeholder="description"
+                    bind:value={description}
+                />
+            </div>
+            {#await group}
+                <span class="loading loading-dots loading-lg"></span>
+            {:then g}
+                <div class="p-2">
+                    <select bind:value={who}>
+                        {#each g.users as p, item}
+                            <option value={"EvenSplit " + item}
+                                >{p.name} payed, Split 50/50</option
+                            >
+                            <option value={"OwedTotal " + item}
+                                >{p.name} is owed the full amount</option
+                            >
+                        {/each}
+                    </select>
+                </div>
             {/await}
         </div>
     </form>
-    <button class="btn btn-primary" on:click={handleAdd}>Add</button>
-    <button
-        class="btn btn-warning"
-        on:click={() => {
-            push("/expenses");
-        }}>Cancel</button
-    >
+    <div class="flex flex-col">
+        <div class="p-2">
+            <button class="btn btn-primary w-full" on:click={handleAdd}
+                >Add</button
+            >
+        </div>
+        <div class="p-2 grow">
+            <button
+                class="btn btn-warning w-full"
+                on:click={() => {
+                    push("/expenses");
+                }}>Cancel</button
+            >
+        </div>
+    </div>
 </div>
