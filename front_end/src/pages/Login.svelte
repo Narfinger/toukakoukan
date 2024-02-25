@@ -26,8 +26,8 @@
     </div>
 {/if}
 <div class="p-8 container mx-auto">
-    <h1>Login</h1>
-    <div class="p-8">
+    <p class="text-6xl pb-4">Login</p>
+    <div class="grid lg:grid-cols-2 gap-4">
         <input
             class="input input-bordered input-primary"
             type="username"
@@ -35,20 +35,20 @@
             bind:value={username}
         />
         <input
-            class="input input-bordered input-secondary"
+            class="input input-bordered input-secondary pb-2"
             type="password"
             placeholder="Password"
             bind:value={password}
         />
-        <button class="btn btn-primary lg:w-64 md:w-16" on:click={handleLogin}
+        <button class="btn btn-primary lg:w-32 md:w-32" on:click={handleLogin}
             >Login</button
         >
-    </div>
-    <div>
-        or <button
-            on:click={() => {
-                push("/createuser/");
-            }}>Create a User</button
-        >
+        <div class="lg:col-span-2">
+            or <button
+                on:click={() => {
+                    push("/createuser/");
+                }}>Create a User</button
+            >
+        </div>
     </div>
 </div>
