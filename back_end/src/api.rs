@@ -43,7 +43,7 @@ async fn get_expenses(
         Err(StatusCode::UNAUTHORIZED)
     } else {
         let rows = sqlx::query_as::<_, Expense>(
-            "SELECT * FROM expense WHERE expense_group_id = ? ORDER BY time ASC LIMIT ?",
+            "SELECT * FROM expense WHERE expense_group_id = ? ORDER BY time DESC LIMIT ?",
         )
         .bind(expense_group_id)
         .bind(EXPENSE_REQUEST_LIMIT)
