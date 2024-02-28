@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE expense SET payed_type = ?, amount = ?, name = ? WHERE id=?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "1998ce72050eac2d6c7eb28282e75e6f25e15e17e7d617318f97ce9ae18c0eb8"
+}

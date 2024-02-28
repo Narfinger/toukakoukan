@@ -4,7 +4,7 @@ use axum::{
     http::StatusCode,
     middleware::{self, Next},
     response::Response,
-    routing::{get, post},
+    routing::{get, post, put},
     Extension, Json, Router,
 };
 
@@ -93,6 +93,32 @@ async fn post_expense(
     }
 }
 
+/// updates an expense
+async fn put_expense(
+    Extension(user): Extension<User>,
+    State(state): State<AppState>,
+    Json(payload): extract::Json<Expense>,
+) -> Result<(), StatusCode> {
+    if !user
+        .in_group(&state.pool, payload.expense_group_id as u32)
+        .await
+    {
+        Err(StatusCode::UNAUTHORIZED)
+    } else {
+        sqlx::query!(
+            "UPDATE expense SET payed_type = ?, amount = ?, name = ? WHERE id=?",
+            payload.payed_type,
+            payload.amount,
+            payload.name,
+            payload.id
+        )
+        .execute(&state.pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+        Ok(())
+    }
+}
+
 /// gets one expense from the id
 async fn get_expense_details(
     Extension(user): Extension<User>,
@@ -163,6 +189,7 @@ pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
         .route("/groups/", get(groups))
         .route("/expense/:id/", get(get_expenses))
         .route("/expense/:id/", post(post_expense))
+        .route("/expense/", put(put_expense))
         .route("/details/:id/", get(get_expense_details))
         .route("/group/:id/", get(get_group))
         .route("/total/:id/", get(get_total))

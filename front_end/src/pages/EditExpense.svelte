@@ -15,20 +15,35 @@
         let group: GroupResponse = await response.json();
         return group;
     }
-    const group = getGroup(params.id);
 
     async function getExpense(expense_id): Promise<Expense> {
-        let res = await fetch(ENDPOINT_GET_EXPENSE);
+        let res = await fetch(ENDPOINT_GET_EXPENSE + expense_id + "/");
         let exp = res.json();
         return exp;
     }
-    let amount: Promise<Number>,
-        description: Promise<String>,
-        who: Promise<Number>;
-    $: amount = getExpense(params.id).then((e) => e.amount);
-    $: description = getExpense(params.id).then((e) => e.name);
+    let expense: Promise<Expense>;
+    let amount: Number, description: String, who: String, group: GroupResponse;
+    //$: expense = getExpense(params.id);
+    //expense.then((e) => {
+    //    amount = e.amount;
+    //    description = e.name;
+    //});
 
-    async function handleAdd() {}
+    async function handleAdd() {
+        let e = await expense;
+        let whosplit = (await who).split(" ");
+        e.amount = amount;
+        e.name = description;
+        e.payed_type = createPayed(whosplit[0], Number(whosplit[1]));
+        await fetch(ENDPOINT_EXPENSES + params.id + "/", {
+            method: "PUT",
+            body: JSON.stringify(e),
+            headers: {
+                "content-type": "application/json",
+            },
+        });
+        push("/expenses");
+    }
 </script>
 
 <div class="flex flex-col p-8 justify-center">
@@ -72,7 +87,7 @@
     <div class="flex flex-col">
         <div class="p-2">
             <button class="btn btn-primary w-full" on:click={handleAdd}
-                >Add</button
+                >Modify</button
             >
         </div>
         <div class="p-2 grow">
