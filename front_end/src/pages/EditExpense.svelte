@@ -15,28 +15,7 @@
     }
     const group = getGroup(params.id);
 
-    async function handleAdd() {
-        let whosplit = who.split(" ");
-        const d = new Date(Date.now());
-        let data = {
-            id: -1,
-            payed_type: createPayed(whosplit[0], Number(whosplit[1])),
-            amount: amount,
-            name: description,
-            time: d.toISOString(),
-            expense_group_id: Number(params.id),
-        };
-
-        await fetch(ENDPOINT_EXPENSES + params.id + "/", {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "content-type": "application/json",
-            },
-        });
-
-        push("/expenses");
-    }
+    async function handleAdd() {}
 </script>
 
 <div class="flex flex-col p-8 justify-center">

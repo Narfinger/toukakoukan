@@ -10,6 +10,7 @@
 	import { onMount } from "svelte";
 	import Router from "svelte-spa-router";
 	import NotFound from "./pages/NotFound.svelte";
+	import EditExpense from "./pages/EditExpense.svelte";
 	$: loggedin = $user !== "";
 
 	const routes = {
@@ -18,6 +19,7 @@
 		"/addexpense/:id": AddExpense,
 		"/addgroup/": AddGroup,
 		"/createuser/": CreateUser,
+		"/edit/": EditExpense,
 		"*": NotFound,
 	};
 

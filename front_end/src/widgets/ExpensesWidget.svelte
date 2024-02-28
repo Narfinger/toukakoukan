@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES } from "../js/endpoints";
     import type { Expense, ExpenseAdjusted } from "../js/types";
     import { adjusted_expense } from "../js/utils";
@@ -32,6 +33,7 @@
             <th class="p-2">Name</th>
             <th class="p-2">Amount</th>
             <th class="p-2">Date</th>
+            <th class="p-2">Edit</th>
         </thead>
         <tbody>
             {#each expenses as exp}
@@ -39,6 +41,13 @@
                     <td>{exp["name"]}</td>
                     <td>{exp["amount_adjusted"]}</td>
                     <td>{formatDistance(new Date(exp["time"]), Date.now())}</td>
+                    <td
+                        ><button
+                            class="btn"
+                            on:click={() => push("/edit/" + exp["id"])}
+                            >Edit</button
+                        ></td
+                    >
                 </tr>
             {/each}
         </tbody>
