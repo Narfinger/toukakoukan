@@ -93,6 +93,24 @@ async fn post_expense(
     }
 }
 
+/// gets one expense from the id
+async fn get_expense_details(
+    Extension(user): Extension<User>,
+    State(state): State<AppState>,
+    Path(expense_id): Path<u32>,
+) -> Result<Json<Expense>, StatusCode> {
+    let expense = sqlx::query_as::<_, Expense>("SELECT * FROM expense WHERE id=?")
+        .bind(expense_id)
+        .fetch_one(&state.pool)
+        .await
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+    if user.has_expense(&state.pool, &expense).await {
+        Ok(Json(expense))
+    } else {
+        Err(StatusCode::UNAUTHORIZED)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 /// A Group given as a response. This does only show the names of people and not their ids, etc.
 struct GroupResponse {
@@ -145,6 +163,7 @@ pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
         .route("/groups/", get(groups))
         .route("/expense/:id/", get(get_expenses))
         .route("/expense/:id/", post(post_expense))
+        .route("/details/:id/", get(get_expense_details))
         .route("/group/:id/", get(get_group))
         .route("/total/:id/", get(get_total))
         .route("/users/", get(get_users))

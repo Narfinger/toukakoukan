@@ -7,7 +7,7 @@ use tower_sessions::Session;
 
 use crate::{
     group::Group,
-    types::{AppState, DBPool, SafeUser},
+    types::{AppState, DBPool, Expense, SafeUser},
 };
 
 /// Users
@@ -161,6 +161,16 @@ impl User {
             .fetch_all(pool)
             .await
             .map_err(|_| anyhow!("Error in Sql"))
+    }
+
+    /// checks if the expense is in a group that the user is in
+    pub(crate) async fn has_expense(&self, pool: &DBPool, exp: &Expense) -> bool {
+        let group_id = exp.expense_group_id;
+        if let Ok(groups) = self.groups(pool).await {
+            groups.iter().any(|g| g.id == group_id)
+        } else {
+            false
+        }
     }
 }
 

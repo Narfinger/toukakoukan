@@ -43,7 +43,7 @@
                     <td>{formatDistance(new Date(exp["time"]), Date.now())}</td>
                     <td
                         ><button
-                            class="btn"
+                            class="btn btn-neutral"
                             on:click={() => push("/edit/" + exp["id"])}
                             >Edit</button
                         ></td

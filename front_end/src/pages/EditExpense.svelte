@@ -3,17 +3,30 @@
     import { createPayed } from "../js/utils";
     import type { Expense, Group, GroupResponse } from "../js/types";
     import { push } from "svelte-spa-router";
-    import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";
+    import {
+        ENDPOINT_EXPENSES,
+        ENDPOINT_GET_EXPENSE,
+        ENDPOINT_GROUP,
+    } from "../js/endpoints";
 
     export let params: any = {};
-    let amount: Number, description: String, who: String;
-
     async function getGroup(group_id: Number): Promise<GroupResponse> {
         let response = await fetch(ENDPOINT_GROUP + group_id + "/");
         let group: GroupResponse = await response.json();
         return group;
     }
     const group = getGroup(params.id);
+
+    async function getExpense(expense_id): Promise<Expense> {
+        let res = await fetch(ENDPOINT_GET_EXPENSE);
+        let exp = res.json();
+        return exp;
+    }
+    let amount: Promise<Number>,
+        description: Promise<String>,
+        who: Promise<Number>;
+    $: amount = getExpense(params.id).then((e) => e.amount);
+    $: description = getExpense(params.id).then((e) => e.name);
 
     async function handleAdd() {}
 </script>
