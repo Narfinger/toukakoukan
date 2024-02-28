@@ -19,7 +19,7 @@
 		"/addexpense/:id": AddExpense,
 		"/addgroup/": AddGroup,
 		"/createuser/": CreateUser,
-		"/edit/": EditExpense,
+		"/edit/:id": EditExpense,
 		"*": NotFound,
 	};
 
