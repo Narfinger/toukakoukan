@@ -89,7 +89,8 @@ pub struct Login {
 }
 
 pub(crate) async fn session(session: Session) -> Result<Json<Value>, StatusCode> {
-    tracing::info!("Seeking session data");
-    let user_id = session.get_value("user_id").await.unwrap_or(None);
+    let user_id_val = session.get_value("user_id").await.unwrap();
+    let user_id: i64 =
+        serde_json::from_value(user_id_val.unwrap()).map_err(|_| StatusCode::UNAUTHORIZED)?;
     Ok(Json(json!({ "user_id": user_id })))
 }

@@ -25,7 +25,7 @@
     let amount: Number = 0;
     let description: String = "";
     let who: String = "";
-    let group: GroupResponse = { name: "", users: [] };
+    let group: GroupResponse = { name: "", users: [], querying_user_is: 0 };
     async function setDetailsOnLoad() {
         expense = await getExpense(params.id);
         amount = expense.amount;

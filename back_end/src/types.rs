@@ -54,7 +54,7 @@ impl<'q> Decode<'q, Sqlite> for PayedType {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "t", content = "c")]
 pub(crate) enum PayedType {
-    /// the split is even and `usize` payed
+    /// the split is even and `usize` payed where `usize` is the id that payed
     EvenSplit(usize),
     /// `usize' owes the total
     OwedTotal(usize),

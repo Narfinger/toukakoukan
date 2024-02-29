@@ -79,6 +79,7 @@ async fn post_expense(
     Path(expense_group_id): Path<u32>,
     Json(payload): extract::Json<Expense>,
 ) -> Result<(), StatusCode> {
+    panic!("check that the payed type is for the user in the group");
     if !user.in_group(&state.pool, expense_group_id).await {
         Err(StatusCode::UNAUTHORIZED)
     } else {
@@ -99,6 +100,7 @@ async fn put_expense(
     State(state): State<AppState>,
     Json(payload): extract::Json<Expense>,
 ) -> Result<(), StatusCode> {
+    panic!("check that the payed type is for the user in the group");
     if !user
         .in_group(&state.pool, payload.expense_group_id as u32)
         .await

@@ -6,16 +6,24 @@
     import { formatDistance } from "date-fns";
 
     export let group_id: Promise<Number>;
+    export let user_id: Number;
+    export let number_of_group_members: Promise<Number>;
 
     async function getExpenses(
         group_id: Number,
     ): Promise<Array<ExpenseAdjusted>> {
         let response = await fetch(ENDPOINT_EXPENSES + group_id + "/");
         let expenses: Array<Expense> = await response.json();
+        const uig = user_id;
+        const nogm = await number_of_group_members;
 
         expenses.map((val) => {
             let expense: Expense = val;
-            (val as ExpenseAdjusted).amount_adjusted = adjusted_expense(val);
+            (val as ExpenseAdjusted).amount_adjusted = adjusted_expense(
+                uig,
+                nogm,
+                val,
+            );
             expense;
         });
         return expenses as Array<ExpenseAdjusted>;

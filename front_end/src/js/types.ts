@@ -1,12 +1,14 @@
 export type GroupResponse = {
     name: String;
     users: Array<User>;
+    querying_user_is: Number;
 };
 
 export type Group = {
     id: number;
     name: String;
     users: Array<User>;
+    querying_user_is: Number;
 };
 
 export type PayedType = {

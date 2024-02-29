@@ -5,10 +5,13 @@
         ENDPOINT_EXPENSES,
         ENDPOINT_GROUP,
         ENDPOINT_GROUPS,
+        ENDPOINT_SESSION_AUTH,
     } from "../js/endpoints";
     import Expenses from "../widgets/ExpensesWidget.svelte";
     import ExpensesWidget from "../widgets/ExpensesWidget.svelte";
     import ExpensesInfoWidget from "../widgets/ExpensesInfoWidget.svelte";
+    import AddExpense from "./AddExpense.svelte";
+    import { onMount } from "svelte";
     async function getGroups(): Promise<Array<Group>> {
         let response = await fetch(ENDPOINT_GROUPS);
         let groups = await response.json();
@@ -21,6 +24,13 @@
         return group;
     }
 
+    let user_id: Number;
+    async function getUserId() {
+        let response = await fetch(ENDPOINT_SESSION_AUTH);
+        let id = await response.json();
+        user_id = id.user_id;
+    }
+
     async function prefetchGroups(g: Array<Group>) {
         for (const i of g) {
             await fetch(ENDPOINT_EXPENSES + i.id + "/");
@@ -31,13 +41,16 @@
     let active_tab = 0;
 
     $: group_id = groups.then((g) => g[active_tab].id);
-
+    $: number_of_group_members = groups.then((g) => g[active_tab].users.length);
     groups.then((g) => prefetchGroups(g));
+    onMount(() => {
+        getUserId();
+    });
 </script>
 
 <div class="grid lg:grid-cols-4 md:grid-cols-2 p-4">
     <p class="text-2xl lg:text-6xl pb-4 lg:col-span-4">Main Expense Overview</p>
-
+    <p class="text-6xl">USER_ID: {user_id}</p>
     <div role="tablist" class="tabs tabs-bordered lg:col-span-4 pb-8">
         {#await groups then groups}
             {#each groups as g, index}
@@ -77,6 +90,6 @@
         />
     </div>
     <div class="lg:col-start-2 lg:col-span-2">
-        <ExpensesWidget {group_id} />
+        <ExpensesWidget {group_id} {number_of_group_members} {user_id} />
     </div>
 </div>
