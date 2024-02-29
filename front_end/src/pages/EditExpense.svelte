@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { createPayed } from "../js/utils";
+    import { createEventDispatcher, onMount } from "svelte";
+    import { createPayed, fromPayed } from "../js/utils";
     import type { Expense, Group, GroupResponse } from "../js/types";
     import { push } from "svelte-spa-router";
     import {
@@ -21,13 +21,18 @@
         let exp = res.json();
         return exp;
     }
-    let expense: Promise<Expense>;
-    let amount: Number, description: String, who: String, group: GroupResponse;
-    //$: expense = getExpense(params.id);
-    //expense.then((e) => {
-    //    amount = e.amount;
-    //    description = e.name;
-    //});
+    let expense: Expense;
+    let amount: Number = 0;
+    let description: String = "";
+    let who: String = "";
+    let group: GroupResponse = { name: "", users: [] };
+    async function setDetailsOnLoad() {
+        expense = await getExpense(params.id);
+        amount = expense.amount;
+        description = expense.name;
+        who = fromPayed(expense.payed_type);
+        group = await getGroup(expense.expense_group_id);
+    }
 
     async function handleAdd() {
         let e = await expense;
@@ -35,7 +40,7 @@
         e.amount = amount;
         e.name = description;
         e.payed_type = createPayed(whosplit[0], Number(whosplit[1]));
-        await fetch(ENDPOINT_EXPENSES + params.id + "/", {
+        await fetch(ENDPOINT_EXPENSES, {
             method: "PUT",
             body: JSON.stringify(e),
             headers: {
@@ -44,6 +49,9 @@
         });
         push("/expenses");
     }
+    onMount(() => {
+        setDetailsOnLoad();
+    });
 </script>
 
 <div class="flex flex-col p-8 justify-center">
