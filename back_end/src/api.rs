@@ -79,8 +79,15 @@ async fn post_expense(
     Path(expense_group_id): Path<u32>,
     Json(payload): extract::Json<Expense>,
 ) -> Result<(), StatusCode> {
-    panic!("check that the payed type is for the user in the group");
-    if !user.in_group(&state.pool, expense_group_id).await {
+    if !user
+        .in_group(&state.pool, payload.expense_group_id as u32)
+        .await
+        && !user
+            .get_specific_group(&state.pool, payload.expense_group_id)
+            .await
+            .map_err(|_| StatusCode::UNAUTHORIZED)?
+            .has_user_id(payload.payed_type.id() as i64)
+    {
         Err(StatusCode::UNAUTHORIZED)
     } else {
         sqlx::query!(
@@ -100,10 +107,14 @@ async fn put_expense(
     State(state): State<AppState>,
     Json(payload): extract::Json<Expense>,
 ) -> Result<(), StatusCode> {
-    panic!("check that the payed type is for the user in the group");
     if !user
         .in_group(&state.pool, payload.expense_group_id as u32)
         .await
+        && !user
+            .get_specific_group(&state.pool, payload.expense_group_id)
+            .await
+            .map_err(|_| StatusCode::UNAUTHORIZED)?
+            .has_user_id(payload.payed_type.id() as i64)
     {
         Err(StatusCode::UNAUTHORIZED)
     } else {

@@ -40,6 +40,7 @@
         e.amount = amount;
         e.name = description;
         e.payed_type = createPayed(whosplit[0], Number(whosplit[1]));
+        console.log(e);
         await fetch(ENDPOINT_EXPENSES, {
             method: "PUT",
             body: JSON.stringify(e),

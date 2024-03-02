@@ -79,6 +79,15 @@ impl Type<Sqlite> for PayedType {
     }
 }
 
+impl PayedType {
+    pub(crate) fn id(&self) -> usize {
+        match self {
+            PayedType::EvenSplit(i) => *i,
+            PayedType::OwedTotal(i) => *i,
+        }
+    }
+}
+
 /// An expense
 #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub(crate) struct Expense {

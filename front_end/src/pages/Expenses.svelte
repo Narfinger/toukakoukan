@@ -50,7 +50,11 @@
 
 <div class="grid lg:grid-cols-4 md:grid-cols-2 p-4">
     <p class="text-2xl lg:text-6xl pb-4 lg:col-span-4">Main Expense Overview</p>
-    <p class="text-6xl">USER_ID: {user_id}</p>
+    <p class="text-6xl">
+        {#await user_id then}
+            USER_ID: {user_id}
+        {/await}
+    </p>
     <div role="tablist" class="tabs tabs-bordered lg:col-span-4 pb-8">
         {#await groups then groups}
             {#each groups as g, index}

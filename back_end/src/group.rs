@@ -85,4 +85,8 @@ impl Group {
         }
         Ok(())
     }
+
+    pub(crate) fn has_user_id(&self, other_id: i64) -> bool {
+        self.users.iter().any(|u| u.id == other_id)
+    }
 }
