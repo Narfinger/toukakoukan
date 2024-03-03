@@ -1,6 +1,6 @@
 [package]
-name = "splittinger"
-version = "0.4.2"
+name = "BetsuBetsu"
+version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/Narfinger/Splittinger"
 license = ""
