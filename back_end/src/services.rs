@@ -1,16 +1,24 @@
-use crate::{api::api_endpoints, types::AppState};
+use std::path::PathBuf;
+
+use crate::{
+    api::api_endpoints,
+    types::{AppState, Args},
+};
 use axum::{
     routing::{get, post},
     Router,
 };
 use tower_http::{services::ServeDir, trace::TraceLayer};
 
-use crate::{routes, FRONT_PUBLIC};
+use crate::routes;
+
+const FRONT_PUBLIC: &str = "../front_end/dist";
 
 /// Frontend routes
-pub(crate) fn front_public_route() -> Router {
+pub(crate) fn front_public_route(cli: Args) -> Router {
+    let dir = cli.js.unwrap_or(PathBuf::from(FRONT_PUBLIC));
     Router::new()
-        .fallback_service(ServeDir::new(FRONT_PUBLIC))
+        .fallback_service(ServeDir::new(dir))
         .layer(TraceLayer::new_for_http())
 }
 

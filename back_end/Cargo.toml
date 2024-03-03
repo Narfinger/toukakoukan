@@ -1,8 +1,8 @@
 [package]
-name = "BetsuBetsu"
+name = "betsubetsu"
 version = "0.1.0"
 edition = "2021"
-repository = "https://github.com/Narfinger/Splittinger"
+repository = "https://github.com/Narfinger/betsubetsu"
 license = ""
 categories = []
 description = ""
@@ -10,14 +10,14 @@ description = ""
 
 [dependencies]
 ansi_term = "0.12.1"
-anyhow = "1.0.79"
+anyhow = "1.0.80"
 axum = { version = "0.7.4", features = ["macros"] }
-clap = { version = "4.5.0", features = ["derive"] }
+clap = { version = "4.5.1", features = ["derive"] }
 futures = "0.3.30"
-log = "0.4.20"
+log = "0.4.21"
 password-auth = "1.0.0"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.113"
+serde_json = "1.0.114"
 sqlx = { version = "0.7.3", features = [
     "sqlite",
     "time",
@@ -28,7 +28,7 @@ sqlx = { version = "0.7.3", features = [
 time = { version = "0.3.34", features = ["serde"] }
 tokio = { version = "1.36", features = ["full"] }
 tower-http = { version = "0.5", features = ["full"] }
-tower-sessions = { version = "0.10.2" }
+tower-sessions = { version = "0.10.4" }
 tower-sessions-sqlx-store = { version = "0.10.0", features = ["sqlite"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

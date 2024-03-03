@@ -1,0 +1,19 @@
+[tasks.build-backend]
+cwd = "./back_end/"
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.npm-install]
+cwd = "./front_end/"
+command = "npm"
+args = ["install"]
+
+[tasks.build-web]
+cwd = "./front_end/"
+command = "npm"
+args = ["run", "build"]
+dependencies = ["npm-install"]
+
+[tasks.build]
+clear = true
+dependencies = ["build-backend", "build-web"]

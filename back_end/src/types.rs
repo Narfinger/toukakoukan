@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use sqlx::{
@@ -21,6 +23,17 @@ pub(crate) struct Args {
     /// allow user creation
     #[arg(short, long)]
     pub(crate) user_creation: bool,
+
+    /// the path to the web files
+    #[arg(short, long)]
+    pub(crate) js: Option<PathBuf>,
+
+    /// localhost serving only
+    #[arg(short, long)]
+    pub(crate) listen_global: bool,
+
+    #[arg(short, long, default_value_t = 3000)]
+    pub(crate) port: usize,
 }
 
 #[derive(Debug, Clone)]

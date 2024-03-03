@@ -23,9 +23,7 @@ mod types;
 mod users;
 
 // SETUP Constants
-const SESSION_COOKIE_NAME: &str = "splittinger";
-const FRONT_PUBLIC: &str = "../front_end/dist";
-const SERVER_PORT: &str = "3000";
+const SESSION_COOKIE_NAME: &str = "betsubetsu";
 const SERVER_HOST: &str = "127.0.0.1";
 
 /// setup the whole app
@@ -40,14 +38,11 @@ async fn app(args: Args) -> anyhow::Result<Router> {
         .await
         .context("Error in DB")?;
 
-        /*
-        let pool = Pool::<Sqlite>::connect("test.db")
-        .await
-        .context("Error in db")?;
-        */
-
         //sqlx::migrate!().run(&pool).await?;
-        AppState { pool, args }
+        AppState {
+            pool,
+            args: args.clone(),
+        }
     };
 
     // setup up sessions and store to keep track of session information
@@ -76,7 +71,7 @@ async fn app(args: Args) -> anyhow::Result<Router> {
 
     // combine the front and backend into server
     Ok(Router::new()
-        .merge(services::front_public_route())
+        .merge(services::front_public_route(args))
         .merge(backend)
         .layer(TraceLayer::new_for_http()))
 }
@@ -108,7 +103,12 @@ async fn main() -> Result<(), anyhow::Error> {
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
-    let addr: SocketAddr = format!("{}:{}", SERVER_HOST, SERVER_PORT)
+    let host = if cli.listen_global {
+        "0.0.0.0"
+    } else {
+        SERVER_HOST
+    };
+    let addr: SocketAddr = format!("{}:{}", host, cli.port)
         .parse()
         .context("Can not parse address and port")?;
 
