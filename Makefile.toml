@@ -17,3 +17,17 @@ dependencies = ["npm-install"]
 [tasks.build]
 clear = true
 dependencies = ["build-backend", "build-web"]
+
+[tasks.release]
+command = "tar"
+args = [
+    "caf",
+    "release.tar.xz",
+    "-C",
+    "./back_end/target/release/",
+    "betsubetsu",
+    "-C",
+    "../../../front_end",
+    "./dist/",
+]
+dependencies = ["build"]
