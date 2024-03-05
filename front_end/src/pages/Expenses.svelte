@@ -1,11 +1,12 @@
 <script lang="ts">
     import { push } from "svelte-spa-router";
-    import { type Group, type GroupResponse } from "../js/types";
+    import { type Group, type GroupResponse, type User } from "../js/types";
     import {
         ENDPOINT_EXPENSES,
         ENDPOINT_GROUP,
         ENDPOINT_GROUPS,
         ENDPOINT_SESSION_AUTH,
+        ENDPOINT_USER,
     } from "../js/endpoints";
     import Expenses from "../widgets/ExpensesWidget.svelte";
     import ExpensesWidget from "../widgets/ExpensesWidget.svelte";
@@ -24,11 +25,10 @@
         return group;
     }
 
-    let user_id: Number;
-    async function getUserId() {
-        let response = await fetch(ENDPOINT_SESSION_AUTH);
-        let id = await response.json();
-        user_id = id.user_id;
+    async function getUser() {
+        let response = await fetch(ENDPOINT_USER);
+        let user_js = await response.json();
+        return user_js;
     }
 
     async function prefetchGroups(g: Array<Group>) {
@@ -38,21 +38,22 @@
     }
 
     const groups = getGroups().then((groups) => groups);
+    const user = getUser();
     let active_tab = 0;
 
     $: group_id = groups.then((g) => g[active_tab].id);
     $: number_of_group_members = groups.then((g) => g[active_tab].users.length);
     groups.then((g) => prefetchGroups(g));
     onMount(() => {
-        getUserId();
+        getUser();
     });
 </script>
 
 <div class="grid lg:grid-cols-4 md:grid-cols-2 p-4">
     <p class="text-2xl lg:text-6xl pb-4 lg:col-span-4">Main Expense Overview</p>
     <p class="text-6xl">
-        {#await user_id then}
-            USER_ID: {user_id}
+        {#await user then user}
+            Hello: {user.name}
         {/await}
     </p>
     <div role="tablist" class="tabs tabs-bordered lg:col-span-4 pb-8">
@@ -94,6 +95,12 @@
         />
     </div>
     <div class="lg:col-start-2 lg:col-span-2">
-        <ExpensesWidget {group_id} {number_of_group_members} {user_id} />
+        {#await user then user}
+            <ExpensesWidget
+                {group_id}
+                {number_of_group_members}
+                user_id={user.id}
+            />
+        {/await}
     </div>
 </div>

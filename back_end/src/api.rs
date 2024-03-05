@@ -183,6 +183,14 @@ async fn get_users(
     Ok(Json(users))
 }
 
+/// returns yourself
+async fn get_user(
+    Extension(user): Extension<User>,
+    State(_): State<AppState>,
+) -> Result<Json<User>, StatusCode> {
+    Ok(Json(user))
+}
+
 #[debug_handler]
 async fn create_group(
     Extension(_): Extension<User>,
@@ -205,6 +213,7 @@ pub(crate) fn api_endpoints(state: AppState) -> Router<()> {
         .route("/group/:id/", get(get_group))
         .route("/total/:id/", get(get_total))
         .route("/users/", get(get_users))
+        .route("/user/", get(get_user))
         .route("/creategroup/", post(create_group))
         .route_layer(middleware::from_fn_with_state(state.clone(), auth))
         .with_state(state)

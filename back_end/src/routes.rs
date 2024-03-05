@@ -99,5 +99,6 @@ pub(crate) async fn session(session: Session) -> Result<Json<Value>, StatusCode>
     let user_id: i64 = serde_json::from_value(user_id_val)
         .context("Cannot make into json")
         .map_err(|_| StatusCode::UNAUTHORIZED)?;
+
     Ok(Json(json!({ "user_id": user_id })))
 }

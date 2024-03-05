@@ -2,13 +2,16 @@ use ansi_term::Colour::{Green, Red};
 use anyhow::Context;
 use axum::{http::Method, Router};
 use clap::Parser;
+use routes::session;
 use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions, Pool};
 use std::{net::SocketAddr, str::FromStr};
+use time::Duration;
 use tower_http::{
     cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
-use tower_sessions::SessionManagerLayer;
+use tower_sessions::{CachingSessionStore, Expiry, SessionManagerLayer};
+use tower_sessions_moka_store::MokaStore;
 use tower_sessions_sqlx_store::SqliteStore;
 use tracing::Level;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -56,19 +59,17 @@ async fn app(args: Args) -> anyhow::Result<Router> {
         .await
         .expect("Could not do session store");
 
-    let session_service = SessionManagerLayer::new(session_store)
+    let moka_store = MokaStore::new(Some(10_000));
+    let caching_store = CachingSessionStore::new(moka_store, session_store);
+
+    let session_service = SessionManagerLayer::new(caching_store)
         .with_secure(false)
-        .with_name(SESSION_COOKIE_NAME);
-    let cors_layer = CorsLayer::new()
-        // allow `GET` and `POST` when accessing the resource
-        .allow_methods([Method::GET, Method::POST])
-        // allow requests from any origin
-        .allow_origin(Any);
+        .with_name(SESSION_COOKIE_NAME)
+        .with_expiry(Expiry::OnInactivity(Duration::seconds(10)));
     let backend = Router::new()
         .merge(services::back_public_route(state))
         //.merge(back_token_route(state))
-        .layer(session_service)
-        .layer(cors_layer);
+        .layer(session_service);
 
     // combine the front and backend into server
     Ok(Router::new()

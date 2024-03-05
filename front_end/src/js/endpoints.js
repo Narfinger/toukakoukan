@@ -3,6 +3,7 @@ export const ENDPOINT_SESSION_LOGIN = "/auth/login";
 export const ENDPOINT_SESSION_LOGOUT = "/auth/logout";
 export const ENDPOINT_CREATE_USER = "/auth/create";
 
+export const ENDPOINT_USER = "/api/user/";
 export const ENDPOINT_GROUPS = "/api/groups/";
 export const ENDPOINT_GROUP = "/api/group/";
 export const ENDPOINT_EXPENSES = "/api/expense/";
