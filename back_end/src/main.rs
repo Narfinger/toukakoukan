@@ -1,19 +1,18 @@
 use ansi_term::Colour::{Green, Red};
 use anyhow::Context;
-use axum::{http::Method, Router};
+use axum::{Router};
 use clap::Parser;
-use routes::session;
+
 use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions, Pool};
 use std::{net::SocketAddr, str::FromStr};
 use time::Duration;
 use tower_http::{
-    cors::{Any, CorsLayer},
     trace::TraceLayer,
 };
 use tower_sessions::{CachingSessionStore, Expiry, SessionManagerLayer};
 use tower_sessions_moka_store::MokaStore;
 use tower_sessions_sqlx_store::SqliteStore;
-use tracing::Level;
+
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use types::Args;
 
