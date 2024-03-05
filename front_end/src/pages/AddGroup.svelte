@@ -1,22 +1,10 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import type { Expense, Group, GroupResponse, User } from "../js/types";
     import { push } from "svelte-spa-router";
-    import {
-        ENDPOINT_CREATE_GROUP,
-        ENDPOINT_EXPENSES,
-        ENDPOINT_GET_USERS,
-        ENDPOINT_GROUP,
-        ENDPOINT_TOTAL,
-    } from "../js/endpoints";
+    import { ENDPOINT_CREATE_GROUP } from "../js/endpoints";
+    import { getUsers } from "../js/api";
 
     export const params: any = {};
 
-    async function getUsers(): Promise<Array<User>> {
-        let response = await fetch(ENDPOINT_GET_USERS);
-        let users = await response.json();
-        return users;
-    }
     const users = getUsers();
 
     let name = "";

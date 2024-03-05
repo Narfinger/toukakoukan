@@ -1,8 +1,7 @@
 <script>
 	import { user } from "./js/store.js";
 	import { getSession } from "./js/auth.js";
-	import LogIn from "./pages/Login.svelte";
-	import Expenses from "./pages/Expenses.svelte";
+	import MainView from "./pages/MainView.svelte";
 	import Login from "./pages/Login.svelte";
 	import AddExpense from "./pages/AddExpense.svelte";
 	import AddGroup from "./pages/AddGroup.svelte";
@@ -15,7 +14,7 @@
 
 	const routes = {
 		"/": Login,
-		"/expenses": Expenses,
+		"/expenses": MainView,
 		"/addexpense/:id": AddExpense,
 		"/addgroup/": AddGroup,
 		"/createuser/": CreateUser,

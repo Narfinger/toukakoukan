@@ -1,9 +1,6 @@
 <script>
-    import { user } from "./../js/store.js";
     import { getSession, postLogin } from "./../js/auth";
-    import Expenses from "./Expenses.svelte";
-    import { createEventDispatcher } from "svelte";
-    import { push, pop, replace } from "svelte-spa-router";
+    import { push } from "svelte-spa-router";
 
     let username, password;
     let errorMessage = "";

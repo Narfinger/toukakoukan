@@ -1,18 +1,12 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
     import { createPayed } from "../js/utils";
-    import type { Expense, Group, GroupResponse } from "../js/types";
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";
+    import { getGroup } from "../js/api";
 
     export let params: any = {};
     let amount: Number, description: String, who: String;
 
-    async function getGroup(group_id: Number): Promise<GroupResponse> {
-        let response = await fetch(ENDPOINT_GROUP + group_id + "/");
-        let group: GroupResponse = await response.json();
-        return group;
-    }
     const group = getGroup(params.id);
 
     async function handleAdd() {

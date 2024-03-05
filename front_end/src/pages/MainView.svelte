@@ -1,41 +1,9 @@
 <script lang="ts">
     import { push } from "svelte-spa-router";
-    import { type Group, type GroupResponse, type User } from "../js/types";
-    import {
-        ENDPOINT_EXPENSES,
-        ENDPOINT_GROUP,
-        ENDPOINT_GROUPS,
-        ENDPOINT_SESSION_AUTH,
-        ENDPOINT_USER,
-    } from "../js/endpoints";
-    import Expenses from "../widgets/ExpensesWidget.svelte";
     import ExpensesWidget from "../widgets/ExpensesWidget.svelte";
     import ExpensesInfoWidget from "../widgets/ExpensesInfoWidget.svelte";
-    import AddExpense from "./AddExpense.svelte";
     import { onMount } from "svelte";
-    async function getGroups(): Promise<Array<Group>> {
-        let response = await fetch(ENDPOINT_GROUPS);
-        let groups = await response.json();
-        return groups;
-    }
-
-    async function getGroup(group_id: Number): Promise<GroupResponse> {
-        let response = await fetch(ENDPOINT_GROUP + group_id + "/");
-        let group: GroupResponse = await response.json();
-        return group;
-    }
-
-    async function getUser() {
-        let response = await fetch(ENDPOINT_USER);
-        let user_js = await response.json();
-        return user_js;
-    }
-
-    async function prefetchGroups(g: Array<Group>) {
-        for (const i of g) {
-            await fetch(ENDPOINT_EXPENSES + i.id + "/");
-        }
-    }
+    import { getUser, getGroups, prefetchGroups, logout } from "../js/api";
 
     const groups = getGroups().then((groups) => groups);
     const user = getUser();
@@ -49,14 +17,19 @@
     });
 </script>
 
-<div class="grid lg:grid-cols-4 md:grid-cols-2 p-4">
-    <p class="text-2xl lg:text-6xl pb-4 lg:col-span-4">Main Expense Overview</p>
-    <p class="text-6xl">
+<div class="grid lg:grid-cols-4 md:grid-cols-2 gap-4 p-4">
+    <p class="lg:col-span-3 text-2xl pb-4">
+        Main Expense Overview for
         {#await user then user}
-            Hello: {user.name}
+            {user.name}
         {/await}
     </p>
-    <div role="tablist" class="tabs tabs-bordered lg:col-span-4 pb-8">
+    <div>
+        <button class="btn btn-neutral w-64" on:click={() => logout()}
+            >Logout</button
+        >
+    </div>
+    <div role="tablist" class="tabs tabs-bordered lg:col-span-4 pb-6">
         {#await groups then groups}
             {#each groups as g, index}
                 <button
