@@ -1,15 +1,12 @@
-const MAIN_ENDPOINT = "http://localhost:3000";
-//const MAIN_ENDPOINT = "";
+export const ENDPOINT_SESSION_AUTH = "/auth/session";
+export const ENDPOINT_SESSION_LOGIN = "/auth/login";
+export const ENDPOINT_SESSION_LOGOUT = "/auth/logout";
+export const ENDPOINT_CREATE_USER = "/auth/create";
 
-export const ENDPOINT_SESSION_AUTH = MAIN_ENDPOINT + "/auth/session";
-export const ENDPOINT_SESSION_LOGIN = MAIN_ENDPOINT + "/auth/login";
-export const ENDPOINT_SESSION_LOGOUT = MAIN_ENDPOINT + "/auth/logout";
-export const ENDPOINT_CREATE_USER = MAIN_ENDPOINT + "/auth/create";
-
-export const ENDPOINT_GROUPS = MAIN_ENDPOINT + "/api/groups/";
-export const ENDPOINT_GROUP = MAIN_ENDPOINT + "/api/group/";
-export const ENDPOINT_EXPENSES = MAIN_ENDPOINT + "/api/expense/";
-export const ENDPOINT_TOTAL = MAIN_ENDPOINT + "/api/total/";
-export const ENDPOINT_GET_USERS = MAIN_ENDPOINT + "/api/users/";
-export const ENDPOINT_CREATE_GROUP = MAIN_ENDPOINT + "/api/creategroup/";
-export const ENDPOINT_GET_EXPENSE = MAIN_ENDPOINT + "/api/details/";
+export const ENDPOINT_GROUPS = "/api/groups/";
+export const ENDPOINT_GROUP = "/api/group/";
+export const ENDPOINT_EXPENSES = "/api/expense/";
+export const ENDPOINT_TOTAL = "/api/total/";
+export const ENDPOINT_GET_USERS = "/api/users/";
+export const ENDPOINT_CREATE_GROUP = "/api/creategroup/";
+export const ENDPOINT_GET_EXPENSE = "/api/details/";

@@ -89,8 +89,15 @@ pub struct Login {
 }
 
 pub(crate) async fn session(session: Session) -> Result<Json<Value>, StatusCode> {
-    let user_id_val = session.get_value("user_id").await.unwrap();
-    let user_id: i64 =
-        serde_json::from_value(user_id_val.unwrap()).map_err(|_| StatusCode::UNAUTHORIZED)?;
+    let user_id_val = session
+        .get_value("user_id")
+        .await
+        .ok()
+        .flatten()
+        .context("Cannot find user_id in session")
+        .map_err(|_| StatusCode::UNAUTHORIZED)?;
+    let user_id: i64 = serde_json::from_value(user_id_val)
+        .context("Cannot make into json")
+        .map_err(|_| StatusCode::UNAUTHORIZED)?;
     Ok(Json(json!({ "user_id": user_id })))
 }

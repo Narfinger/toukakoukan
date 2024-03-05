@@ -56,7 +56,7 @@ impl User {
             let user = User::from_id(&state.pool, user_id).await?;
             Ok(user)
         } else {
-            Ok(User::from_id(&state.pool, 1).await?)
+            User::from_id(&state.pool, 1).await
         }
     }
 

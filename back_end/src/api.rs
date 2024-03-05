@@ -1,9 +1,10 @@
+use anyhow::Context;
 use axum::{
     debug_handler,
     extract::{self, Path, Request, State},
     http::StatusCode,
     middleware::{self, Next},
-    response::Response,
+    response::{IntoResponse, Response},
     routing::{get, post, put},
     Extension, Json, Router,
 };
@@ -24,11 +25,8 @@ use crate::{
 async fn groups(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
-) -> Result<Json<Vec<Group>>, StatusCode> {
-    let groups = user
-        .groups(&state.pool)
-        .await
-        .map_err(|_| StatusCode::NOT_FOUND)?;
+) -> Result<Json<Vec<Group>>, AppError> {
+    let groups = user.groups(&state.pool).await.context("In groups")?;
     Ok(Json(groups))
 }
 
@@ -221,10 +219,36 @@ async fn auth(
 ) -> Result<Response, StatusCode> {
     let user = User::get_user_from_session(&state, &session).await;
     if let Ok(user) = user {
+        info!("user authenticated");
         request.extensions_mut().insert(user);
         Ok(next.run(request).await)
     } else {
         info!("Unauthorized");
         Err(StatusCode::UNAUTHORIZED)
+    }
+}
+
+struct AppError(anyhow::Error);
+
+// Tell axum how to convert `AppError` into a response.
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        tracing::info!("stacktrace: {}", self.0.backtrace());
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Something went wrong: {}", self.0),
+        )
+            .into_response()
+    }
+}
+
+// This enables using `?` on functions that return `Result<_, anyhow::Error>` to turn them into
+// `Result<_, AppError>`. That way you don't need to do that manually.
+impl<E> From<E> for AppError
+where
+    E: Into<anyhow::Error>,
+{
+    fn from(err: E) -> Self {
+        Self(err.into())
     }
 }

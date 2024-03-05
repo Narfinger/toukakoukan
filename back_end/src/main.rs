@@ -10,6 +10,7 @@ use tower_http::{
 };
 use tower_sessions::SessionManagerLayer;
 use tower_sessions_sqlx_store::SqliteStore;
+use tracing::Level;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use types::Args;
 
@@ -98,7 +99,7 @@ async fn main() -> Result<(), anyhow::Error> {
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
                 // axum logs rejections from built-in extractors with the `axum::rejection`
                 // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
-                "example_tracing_aka_logging=debug,tower_http=debug,axum::rejection=trace".into()
+                "tower_http=debug,axum::rejection=trace".into()
             }),
         )
         .with(tracing_subscriber::fmt::layer())
