@@ -8,6 +8,6 @@ Cargo.lock
 # from svelte
 /front_end/node_modules
 /front_end/dist/
-test.db
+*.db
 back_end/target/
 front_end/dev-dist

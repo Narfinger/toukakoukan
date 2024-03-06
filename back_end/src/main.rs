@@ -1,14 +1,12 @@
 use ansi_term::Colour::{Green, Red};
 use anyhow::Context;
-use axum::{Router};
+use axum::Router;
 use clap::Parser;
 
-use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions, Pool};
+use sqlx::{migrate::Migrator, sqlite::SqliteConnectOptions, ConnectOptions, Pool};
 use std::{net::SocketAddr, str::FromStr};
 use time::Duration;
-use tower_http::{
-    trace::TraceLayer,
-};
+use tower_http::trace::TraceLayer;
 use tower_sessions::{CachingSessionStore, Expiry, SessionManagerLayer};
 use tower_sessions_moka_store::MokaStore;
 use tower_sessions_sqlx_store::SqliteStore;
@@ -27,6 +25,7 @@ mod users;
 
 // SETUP Constants
 const SESSION_COOKIE_NAME: &str = "betsubetsu";
+static MIGRATOR: Migrator = sqlx::migrate!();
 const SERVER_HOST: &str = "127.0.0.1";
 
 /// setup the whole app
@@ -34,12 +33,14 @@ async fn app(args: Args) -> anyhow::Result<Router> {
     // create store for backend.  Stores an api_token.
     let state = {
         let pool = Pool::connect_with(
-            SqliteConnectOptions::from_str("test.db")
+            SqliteConnectOptions::from_str("splittinger.db")
                 .context("Could not parse db location")?
-                .log_statements(log::LevelFilter::Error),
+                .log_statements(log::LevelFilter::Error)
+                .create_if_missing(true),
         )
         .await
         .context("Error in DB")?;
+        MIGRATOR.run(&pool).await?;
 
         //sqlx::migrate!().run(&pool).await?;
         AppState {
