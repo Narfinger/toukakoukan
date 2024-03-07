@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createPayed, fromPayed } from "../js/utils";
-    import type { Expense, Group, GroupResponse } from "../js/types";
+    import type { Expense, Group, GroupResponse, PayedType } from "../js/types";
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GET_EXPENSE } from "../js/endpoints";
     import { getGroup } from "../js/api";
@@ -13,24 +13,25 @@
         return exp;
     }
     let expense: Expense;
-    let amount: Number = 0;
-    let description: String = "";
-    let who: String = "";
+    let amount: number = 0;
+    let description: string = "";
+    let who: PayedType;
+    let payed_type_list = [];
     let group: GroupResponse = { name: "", users: [], querying_user_is: 0 };
     async function setDetailsOnLoad() {
         expense = await getExpense(params.id);
         amount = expense.amount;
         description = expense.name;
-        who = fromPayed(expense.payed_type);
+        who = expense.payed_type;
         group = await getGroup(expense.expense_group_id);
+        payed_type_list;
     }
 
     async function handleAdd() {
         let e = await expense;
-        let whosplit = (await who).split(" ");
         e.amount = amount;
         e.name = description;
-        e.payed_type = createPayed(whosplit[0], Number(whosplit[1]));
+        e.payed_type = who;
         console.log(e);
         await fetch(ENDPOINT_EXPENSES, {
             method: "PUT",

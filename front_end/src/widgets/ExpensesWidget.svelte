@@ -4,13 +4,14 @@
     import type { Expense, ExpenseAdjusted } from "../js/types";
     import { adjusted_expense } from "../js/utils";
     import { formatDistance } from "date-fns";
+    import { onMount } from "svelte";
 
-    export let group_id: Promise<Number>;
-    export let user_id: Number;
-    export let number_of_group_members: Promise<Number>;
+    export let group_id: Promise<number>;
+    export let user_id: number;
+    export let number_of_group_members: Promise<number>;
 
     async function getExpenses(
-        group_id: Number,
+        group_id: number,
     ): Promise<Array<ExpenseAdjusted>> {
         let response = await fetch(ENDPOINT_EXPENSES + group_id + "/");
         let expenses: Array<Expense> = await response.json();
@@ -41,7 +42,7 @@
     >
         <thead>
             <th class="p-2 w-52">Name</th>
-            <th class="p-2 w-52">Amount</th>
+            <th class="p-2 w-52">Amount Owed</th>
             <th class="p-2 w-52">Date</th>
         </thead>
         <tbody>

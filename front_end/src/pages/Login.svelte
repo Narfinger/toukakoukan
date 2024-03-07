@@ -10,7 +10,7 @@
         if (loginResponse.result == "error") {
             errorMessage = loginResponse.message;
         } else {
-            getSession();
+            //getSession();
             push("/expenses");
         }
     }

@@ -1,41 +1,41 @@
 export type GroupResponse = {
-    name: String;
+    name: string;
     users: Array<User>;
-    querying_user_is: Number;
+    querying_user_is: number;
 };
 
 export type Group = {
     id: number;
-    name: String;
+    name: string;
     users: Array<User>;
-    querying_user_is: Number;
+    querying_user_is: number;
 };
 
 export type PayedType = {
-    t: String;
-    c: Number;
+    t: string;
+    c: number;
 };
 
 export type Expense = {
-    id: Number;
+    id: number;
     payed_type: PayedType;
-    amount: Number;
-    name: String;
+    amount: number;
+    name: string;
     time: Date;
-    expense_group_id: Number;
+    expense_group_id: number;
 };
 
 export type ExpenseAdjusted = {
-    id: Number;
+    id: number;
     payed_type: PayedType;
-    amount: Number;
-    name: String;
+    amount: number;
+    name: string;
     time: Date;
-    expense_group_id: Number;
-    amount_adjusted: String;
+    expense_group_id: number;
+    amount_adjusted: string;
 };
 
 export type User = {
-    id: Number;
-    name: String;
+    id: number;
+    name: string;
 };

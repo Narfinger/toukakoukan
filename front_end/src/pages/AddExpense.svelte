@@ -28,7 +28,7 @@
                 "content-type": "application/json",
             },
         });
-
+        
         push("/expenses");
     }
 </script>
