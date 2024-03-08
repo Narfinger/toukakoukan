@@ -1,5 +1,5 @@
 <script>
-    import { getSession, postLogin } from "./../js/auth";
+    import { postLogin } from "./../js/auth";
     import { push } from "svelte-spa-router";
 
     let username, password;
