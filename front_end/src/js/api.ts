@@ -5,36 +5,34 @@ import {
     ENDPOINT_GET_USERS,
     ENDPOINT_GROUP,
     ENDPOINT_GROUPS,
-    ENDPOINT_SESSION_AUTH,
     ENDPOINT_SESSION_LOGOUT,
     ENDPOINT_USER,
 } from "./endpoints";
-import { onMount } from "svelte";
 
 /// get all the groups
 export async function getGroups(): Promise<Array<Group>> {
-    let response = await fetch(ENDPOINT_GROUPS);
-    let groups = await response.json();
+    const response = await fetch(ENDPOINT_GROUPS);
+    const groups = await response.json();
     return groups;
 }
 
 /// get a group for a specific group_id
-export async function getGroup(group_id: Number): Promise<GroupResponse> {
-    let response = await fetch(ENDPOINT_GROUP + group_id + "/");
-    let group: GroupResponse = await response.json();
+export async function getGroup(group_id: number): Promise<GroupResponse> {
+    const response = await fetch(ENDPOINT_GROUP + group_id + "/");
+    const group: GroupResponse = await response.json();
     return group;
 }
 
 /// gets the current user
 export async function getUser() {
-    let response = await fetch(ENDPOINT_USER);
-    let user_js = await response.json();
+    const response = await fetch(ENDPOINT_USER);
+    const user_js = await response.json();
     return user_js;
 }
 /// get all users
 export async function getUsers(): Promise<Array<User>> {
-    let response = await fetch(ENDPOINT_GET_USERS);
-    let users = await response.json();
+    const response = await fetch(ENDPOINT_GET_USERS);
+    const users = await response.json();
     return users;
 }
 

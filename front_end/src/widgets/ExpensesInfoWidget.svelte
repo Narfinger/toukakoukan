@@ -1,8 +1,6 @@
 <script lang="ts">
-    import { push } from "svelte-spa-router";
-    import { ENDPOINT_EXPENSES, ENDPOINT_TOTAL } from "../js/endpoints";
-    import type { Expense, ExpenseAdjusted, Group } from "../js/types";
-    import { adjusted_expense } from "../js/utils";
+    import { ENDPOINT_TOTAL } from "../js/endpoints";
+    import type { Group } from "../js/types";
 
     export let group_id: Promise<Number>;
     export let group: Promise<Group>;

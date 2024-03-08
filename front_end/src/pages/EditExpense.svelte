@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { createPayed, fromPayed } from "../js/utils";
     import type { Expense, Group, GroupResponse, PayedType } from "../js/types";
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GET_EXPENSE } from "../js/endpoints";

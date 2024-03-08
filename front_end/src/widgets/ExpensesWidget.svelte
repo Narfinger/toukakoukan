@@ -4,7 +4,6 @@
     import type { Expense, ExpenseAdjusted } from "../js/types";
     import { adjusted_expense } from "../js/utils";
     import { formatDistance } from "date-fns";
-    import { onMount } from "svelte";
 
     export let group_id: Promise<number>;
     export let user_id: number;

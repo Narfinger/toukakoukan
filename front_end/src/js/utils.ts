@@ -1,9 +1,6 @@
 import {
     type Expense,
-    type ExpenseAdjusted,
-    type Group,
     type PayedType,
-    type GroupResponse,
 } from "../js/types";
 
 export function createPayed(type: string, who: number): PayedType {

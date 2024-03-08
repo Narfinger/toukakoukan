@@ -24,7 +24,7 @@ export async function postLogin(username, password) {
     return await res.json();
 }
 
-export async function getLogout(username, password) {
+export async function getLogout() {
     const res = await fetch(ENDPOINT_SESSION_LOGOUT, { credentials: 'same-origin' });
 
     let logoutResponse = await res.json();
