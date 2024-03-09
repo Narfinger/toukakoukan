@@ -39,3 +39,5 @@ export type User = {
     id: number;
     name: string;
 };
+
+export type PayedTypeSelect = Array<[number, PayedType]>;

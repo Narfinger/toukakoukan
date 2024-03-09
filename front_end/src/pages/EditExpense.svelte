@@ -4,6 +4,7 @@
     import { ENDPOINT_EXPENSES, ENDPOINT_GET_EXPENSE } from "../js/endpoints";
     import { getGroup } from "../js/api";
     import { onMount } from "svelte";
+    import { EvenSplit, payed_type_list } from "../js/utils";
 
     export let params: any = {};
     async function getExpense(expense_id): Promise<Expense> {
@@ -14,23 +15,27 @@
     let expense: Expense;
     let amount: number = 0;
     let description: string = "";
-    let who: PayedType;
-    let payed_type_list = [];
+    let who: number;
+    let expense_types = [];
     let group: GroupResponse = { name: "", users: [], querying_user_is: 0 };
     async function setDetailsOnLoad() {
         expense = await getExpense(params.id);
         amount = expense.amount;
         description = expense.name;
-        who = expense.payed_type;
         group = await getGroup(expense.expense_group_id);
-        payed_type_list;
+        expense_types = payed_type_list(group.users);
+        who = expense_types.findIndex(
+            (val) =>
+                val[1].c == expense.payed_type.c &&
+                val[1].t == expense.payed_type.t,
+        );
     }
 
     async function handleAdd() {
         let e = await expense;
         e.amount = amount;
         e.name = description;
-        e.payed_type = who;
+        e.payed_type = expense_types[who];
         console.log(e);
         await fetch(ENDPOINT_EXPENSES, {
             method: "PUT",
@@ -71,14 +76,21 @@
             {:then g}
                 <div class="p-2">
                     <select bind:value={who}>
-                        {#each g.users as p, item}
-                            <option value={"EvenSplit " + item}
-                                >{p.name} payed, Split 50/50</option
-                            >
-                            <option value={"OwedTotal " + item}
-                                >{p.name} is owed the full amount</option
-                            >
-                        {/each}
+                        {#await expense_types}
+                            <span class="loading loading-dots loading-lg"
+                            ></span>
+                        {:then exp_type}
+                            {#each exp_type as e}
+                                <option value={e[0]}>
+                                    {g.users[e[1].c].name} payed
+                                    {#if e[1].t == EvenSplit}
+                                        Split 50/50
+                                    {:else}
+                                        owed in full
+                                    {/if}</option
+                                >
+                            {/each}
+                        {/await}
                     </select>
                 </div>
             {/await}
