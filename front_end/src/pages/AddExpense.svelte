@@ -42,7 +42,7 @@
             <div class="p-2">
                 <input
                     id="amount-field"
-                    class="input-bordered"
+                    class="input input-primary input-bordered"
                     type="number"
                     placeholder="amount"
                     bind:value={amount}
@@ -50,7 +50,7 @@
             </div>
             <div class="p-2">
                 <input
-                    class="input-bordered"
+                    class="input input-secondary input-bordered"
                     placeholder="description"
                     bind:value={description}
                 />
@@ -59,7 +59,7 @@
                 <span class="loading loading-dots loading-lg"></span>
             {:then g}
                 <div class="p-2">
-                    <select bind:value={who}>
+                    <select class="select select-primary" bind:value={who}>
                         {#await expense_types}
                             <span class="loading loading-dots loading-lg"
                             ></span>

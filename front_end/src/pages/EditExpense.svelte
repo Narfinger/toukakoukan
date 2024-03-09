@@ -58,7 +58,7 @@
             <div class="p-2">
                 <input
                     id="amount-field"
-                    class="input-bordered"
+                    class="input input-primary input-bordered"
                     type="number"
                     placeholder="amount"
                     bind:value={amount}
@@ -66,7 +66,7 @@
             </div>
             <div class="p-2">
                 <input
-                    class="input-bordered"
+                    class="input input-secondary input-bordered"
                     placeholder="description"
                     bind:value={description}
                 />
@@ -81,7 +81,10 @@
                             ></span>
                         {:then exp_type}
                             {#each exp_type as e}
-                                <option value={e[0]}>
+                                <option
+                                    class="select select-primary"
+                                    value={e[0]}
+                                >
                                     {g.users[e[1].c].name} payed
                                     {#if e[1].t == EvenSplit}
                                         Split 50/50
