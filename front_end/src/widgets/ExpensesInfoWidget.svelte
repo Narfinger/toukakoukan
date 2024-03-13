@@ -29,7 +29,11 @@
     <span class="loading loading-dots loading-lg"></span>
 {:then t}
     <div class="flex flex-row">
-        <p class="pr-2">Total:</p>
-        <p>{t}</p>
+        <div class="stat">
+            <div class="stat-figure text-primary"></div>
+            <div class="stat-title">Total</div>
+            <div class="stat-value text-primary">{t}</div>
+            <div class="stat-desc">21% more than last month</div>
+        </div>
     </div>
 {/await}

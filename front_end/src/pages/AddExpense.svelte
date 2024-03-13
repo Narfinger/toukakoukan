@@ -46,6 +46,7 @@
                     type="number"
                     placeholder="amount"
                     bind:value={amount}
+                    required
                 />
             </div>
             <div class="p-2">
@@ -53,6 +54,7 @@
                     class="input input-secondary input-bordered"
                     placeholder="description"
                     bind:value={description}
+                    required
                 />
             </div>
             {#await group}
