@@ -33,7 +33,6 @@
             <div class="stat-figure text-primary"></div>
             <div class="stat-title">Total</div>
             <div class="stat-value text-primary">{t}</div>
-            <div class="stat-desc">21% more than last month</div>
         </div>
     </div>
 {/await}

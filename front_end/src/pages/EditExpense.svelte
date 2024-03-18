@@ -35,7 +35,7 @@
         let e = await expense;
         e.amount = amount;
         e.name = description;
-        e.payed_type = expense_types[who];
+        e.payed_type = expense_types[who][1];
         console.log(e);
         await fetch(ENDPOINT_EXPENSES, {
             method: "PUT",
