@@ -213,14 +213,29 @@ mod test {
     }
 
     #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]
-    async fn get_total(pool: DBPool) {
+    async fn get_total_group_1(pool: DBPool) {
+        let user = User::from_id(&pool, 1).await.expect("NO USER");
+        let group = user.get_specific_group(&pool, 1).await.expect("NO GROUP");
+        let user_1_owes = group.get_oweds(&pool).await.expect("NO TOTAL").user_owes(1);
+        assert_eq!(user_1_owes, 0);
+    }
+
+    #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]
+    async fn get_total_group_2(pool: DBPool) {
         let user = User::from_id(&pool, 1).await.expect("NO USER");
         let group = user.get_specific_group(&pool, 2).await.expect("NO GROUP");
-        let total = group.get_total(&pool).await.expect("NO TOTAL").find_id(1);
-        assert_eq!(total, 0);
+        let user_1_owes = group.get_oweds(&pool).await.expect("NO TOTAL").user_owes(1);
+        assert_eq!(user_1_owes, 150);
+    }
 
-        // implemnt the other things
-        assert!(false)
+    #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]
+    async fn get_total_group_3(pool: DBPool) {
+        let user = User::from_id(&pool, 3).await.expect("NO USER");
+        let group = user.get_specific_group(&pool, 3).await.expect("NO GROUP");
+        let user_1_owes = group.get_oweds(&pool).await.expect("NO TOTAL").user_owes(3);
+        assert_eq!(user_1_owes, 0);
+        let user_2_owes = group.get_oweds(&pool).await.expect("NO TOTAL").user_owes(5);
+        assert_eq!(user_2_owes, 300);
     }
 
     #[sqlx::test(migrations = "./migrations", fixtures("../fixtures/all.sql"))]
@@ -245,6 +260,11 @@ mod test {
             User {
                 id: 4,
                 name: String::from("test4"),
+                password_hash: String::from("xx"),
+            },
+            User {
+                id: 5,
+                name: String::from("test5"),
                 password_hash: String::from("xx"),
             },
         ];

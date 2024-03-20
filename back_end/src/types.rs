@@ -63,7 +63,7 @@ impl<'q> Decode<'q, Sqlite> for PayedType {
     }
 }
 
-/// What type of payment we have
+/// What type of payment we have, indexed by zero and the order in the group
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "t", content = "c")]
 pub(crate) enum PayedType {
