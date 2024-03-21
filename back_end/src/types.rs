@@ -69,7 +69,7 @@ impl<'q> Decode<'q, Sqlite> for PayedType {
 pub(crate) enum PayedType {
     /// the split is even and `usize` payed where `usize` is the id that payed
     EvenSplit(usize),
-    /// `usize' owes the total
+    /// `usize' payed and the other person in the group is owed
     OwedTotal(usize),
 }
 
