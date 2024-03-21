@@ -59,9 +59,8 @@ impl Group {
             .fetch_all(pool)
             .await
             .unwrap();
-
+        panic!("build way more testcases")
         let number_of_members: i64 = self.users.len() as i64;
-        let mut how_much_payed = vec![0 as i64; self.users.len()];
         let mut how_much_owed = vec![0 as i64; self.users.len()];
         let mut total = 0;
         for exp in expenses {
@@ -70,7 +69,7 @@ impl Group {
             match exp.payed_type {
                 PayedType::EvenSplit(i) => {
                     total += exp.amount;
-                    how_much_payed[i] += exp.amount;
+                    how_much_owed[i] -= exp.amount / number_of_members;
                     for j in 0..number_of_members {
                         if j != i as i64 {
                             how_much_owed[j as usize] += exp.amount / number_of_members;
@@ -79,7 +78,6 @@ impl Group {
                 }
                 PayedType::OwedTotal(i) => {
                     total += exp.amount;
-                    how_much_payed[i] += exp.amount;
                     how_much_owed[i] += exp.amount;
                 }
             }
