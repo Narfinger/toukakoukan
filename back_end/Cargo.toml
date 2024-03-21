@@ -12,6 +12,7 @@ description = ""
 ansi_term = "0.12.1"
 anyhow = "1.0.80"
 axum = { version = "0.7.4", features = ["macros"] }
+axum-server = { version = "0.6", features = ["tls-rustls"] }
 clap = { version = "4.5.1", features = ["derive"] }
 futures = "0.3.30"
 log = "0.4.21"

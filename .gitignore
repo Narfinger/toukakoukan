@@ -11,3 +11,5 @@ Cargo.lock
 *.db
 back_end/target/
 front_end/dev-dist
+back_end/certs/cert.pem
+back_end/certs/key.pem

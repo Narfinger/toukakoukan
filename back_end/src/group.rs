@@ -59,7 +59,6 @@ impl Group {
             .fetch_all(pool)
             .await
             .unwrap();
-        panic!("build way more testcases");
         let number_of_members: i64 = self.users.len() as i64;
         let mut how_much_owed = vec![0 as i64; self.users.len()];
         let mut total = 0;

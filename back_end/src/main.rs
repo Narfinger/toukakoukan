@@ -1,10 +1,11 @@
 use ansi_term::Colour::{Green, Red};
-use anyhow::Context;
+use anyhow::{anyhow, Context};
 use axum::Router;
+use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
 
 use sqlx::{migrate::Migrator, sqlite::SqliteConnectOptions, ConnectOptions, Pool};
-use std::{net::SocketAddr, str::FromStr};
+use std::{net::SocketAddr, path::PathBuf, str::FromStr};
 use time::Duration;
 use tower_http::trace::TraceLayer;
 use tower_sessions::{CachingSessionStore, Expiry, SessionManagerLayer};
@@ -26,7 +27,7 @@ mod users;
 // SETUP Constants
 const SESSION_COOKIE_NAME: &str = "betsubetsu";
 static MIGRATOR: Migrator = sqlx::migrate!();
-const SERVER_HOST: &str = "127.0.0.1";
+const SERVER_HOST: &str = "0.0.0.0";
 
 /// setup the whole app
 async fn app(args: Args) -> anyhow::Result<Router> {
@@ -117,8 +118,24 @@ async fn main() -> Result<(), anyhow::Error> {
     let app = app(cli).await?;
     println!("listening on http://{}", addr);
 
-    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    axum::serve(listener, app)
+    let cert_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("certs")
+        .join("cert.pem");
+    let key_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("certs")
+        .join("key.pem");
+    if !cert_file.exists() || !key_file.exists() {
+        return Err(anyhow!(
+            "Please create cert and keyfile in certs subdirectory"
+        ));
+    }
+
+    let config = RustlsConfig::from_pem_file(cert_file, key_file)
+        .await
+        .unwrap();
+    //let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    axum_server::bind_rustls(addr, config)
+        .serve(app.into_make_service())
         .await
         .context("Could not bind server")?;
     Ok(())
