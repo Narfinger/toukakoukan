@@ -6,6 +6,9 @@ jobs:
     runs-on: "ubuntu-22.04"
     steps:
       - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
       - uses: actions/checkout@v4
       - run: cargo test
         working-directory: back_end
