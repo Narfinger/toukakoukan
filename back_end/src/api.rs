@@ -61,17 +61,13 @@ async fn get_total(
         .get_specific_group(&state.pool, expense_group_id as i64)
         .await
         .map_err(|_| StatusCode::NOT_FOUND)?;
-    panic!("NYI");
-    /*
-        let total = group
-        .get_total(&state.pool)
+    let total = group
+        .get_oweds(&state.pool)
         .await
-        .map(|s| s.find_id(user.id))
+        .map(|s| s.user_owes(user.id))
         .map_err(|_| StatusCode::NOT_FOUND)?;
 
-    */
-    Ok(Json(-1))
-    //Ok(Json(total))
+    Ok(Json(total))
 }
 
 /// inserts a expense (without its id) into the database with the expense_group_id in the path
