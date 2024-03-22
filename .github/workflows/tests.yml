@@ -1,0 +1,11 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  run-tests:
+    name: "run tests"
+    runs-on: "ubuntu-22.04"
+    steps:
+      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - run: cargo test
+        working-directory: back_end
