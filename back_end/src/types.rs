@@ -32,8 +32,13 @@ pub(crate) struct Args {
     #[arg(short, long)]
     pub(crate) listen_global: bool,
 
+    /// the port we are serving on
     #[arg(short, long, default_value_t = 3000)]
     pub(crate) port: usize,
+
+    /// should we only serve http or https
+    #[arg(short, long)]
+    pub(crate) serve_tls: bool,
 }
 
 #[derive(Debug, Clone)]

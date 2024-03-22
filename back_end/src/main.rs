@@ -27,10 +27,10 @@ mod users;
 // SETUP Constants
 const SESSION_COOKIE_NAME: &str = "betsubetsu";
 static MIGRATOR: Migrator = sqlx::migrate!();
-const SERVER_HOST: &str = "0.0.0.0";
+const SERVER_HOST: &str = "127.0.0.1";
 
 /// setup the whole app
-async fn app(args: Args) -> anyhow::Result<Router> {
+async fn app(args: &Args) -> anyhow::Result<Router> {
     // create store for backend.  Stores an api_token.
     let state = {
         let pool = Pool::connect_with(
@@ -74,7 +74,7 @@ async fn app(args: Args) -> anyhow::Result<Router> {
 
     // combine the front and backend into server
     Ok(Router::new()
-        .merge(services::front_public_route(args))
+        .merge(services::front_public_route(args.clone()))
         .merge(backend)
         .layer(TraceLayer::new_for_http()))
 }
@@ -115,7 +115,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .parse()
         .context("Can not parse address and port")?;
 
-    let app = app(cli).await?;
+    let app = app(&cli).await?;
     println!("listening on http://{}", addr);
 
     let cert_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -124,19 +124,26 @@ async fn main() -> Result<(), anyhow::Error> {
     let key_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("certs")
         .join("key.pem");
-    if !cert_file.exists() || !key_file.exists() {
+    if cli.serve_tls && (!cert_file.exists() || !key_file.exists()) {
         return Err(anyhow!(
             "Please create cert and keyfile in certs subdirectory"
         ));
     }
 
-    let config = RustlsConfig::from_pem_file(cert_file, key_file)
-        .await
-        .unwrap();
-    //let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    axum_server::bind_rustls(addr, config)
-        .serve(app.into_make_service())
-        .await
-        .context("Could not bind server")?;
+    if cli.serve_tls {
+        let config = RustlsConfig::from_pem_file(cert_file, key_file)
+            .await
+            .unwrap();
+        //let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+        axum_server::bind_rustls(addr, config)
+            .serve(app.into_make_service())
+            .await
+            .context("Could not bind server")?;
+    } else {
+        axum_server::bind(addr)
+            .serve(app.into_make_service())
+            .await
+            .context("Could not bind server")?;
+    }
     Ok(())
 }
