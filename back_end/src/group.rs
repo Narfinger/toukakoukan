@@ -60,7 +60,7 @@ impl Group {
             .await
             .unwrap();
         let number_of_members: i64 = self.users.len() as i64;
-        let mut how_much_owed = vec![0 as i64; self.users.len()];
+        let mut how_much_owed = vec![0_i64; self.users.len()];
         let mut total = 0;
         for exp in expenses {
             println!("how_much_owed {:?}", how_much_owed);
