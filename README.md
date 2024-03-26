@@ -12,7 +12,4 @@ Highly beta and not yet usable.
 - Browse the frontend with npm run dev -- --open
 
 ## Uses
-Using temporary icon from:
-<a href="https://www.flaticon.com/free-icons/invoice" title="invoice icons">Invoice icons created by Kiranshastry - Flaticon</a>
-
 Using svelte-axum-project as basis
