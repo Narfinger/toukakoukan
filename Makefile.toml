@@ -25,7 +25,7 @@ args = [
     "release.tar.xz",
     "-C",
     "./back_end/target/release/",
-    "betsubetsu",
+    "toukakoukan",
     "-C",
     "../../../front_end",
     "./dist/",
