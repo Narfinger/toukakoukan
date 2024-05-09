@@ -11,6 +11,7 @@ use tower_http::trace::TraceLayer;
 use tower_sessions::{CachingSessionStore, Expiry, SessionManagerLayer};
 use tower_sessions_moka_store::MokaStore;
 use tower_sessions_sqlx_store::SqliteStore;
+use tracing::info;
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use types::Args;
@@ -29,13 +30,23 @@ const SESSION_COOKIE_NAME: &str = "betsubetsu";
 static MIGRATOR: Migrator = sqlx::migrate!();
 const SERVER_HOST: &str = "127.0.0.1";
 const FRONT_PUBLIC: &str = "../front_end/dist";
+const DEFAULT_DATABASE: &str = "splittinger.db";
 
 /// setup the whole app
 async fn app(args: &Args) -> anyhow::Result<Router> {
     // create store for backend.  Stores an api_token.
     let state = {
+        let pool_path = args
+            .database
+            .clone()
+            .unwrap_or(PathBuf::from(DEFAULT_DATABASE));
+
+        if !pool_path.exists() {
+            info!("Creating new database at {:?}", pool_path);
+        }
+        let p = pool_path.as_os_str().to_str().unwrap();
         let pool = Pool::connect_with(
-            SqliteConnectOptions::from_str("splittinger.db")
+            SqliteConnectOptions::from_str(p)
                 .context("Could not parse db location")?
                 .log_statements(log::LevelFilter::Error)
                 .create_if_missing(true),

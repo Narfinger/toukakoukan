@@ -39,6 +39,10 @@ pub(crate) struct Args {
     /// should we only serve http or https
     #[arg(short, long)]
     pub(crate) serve_tls: bool,
+
+    /// the path to the database
+    #[arg(short, long)]
+    pub(crate) database: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone)]
