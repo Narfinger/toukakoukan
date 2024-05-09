@@ -28,6 +28,7 @@ mod users;
 const SESSION_COOKIE_NAME: &str = "betsubetsu";
 static MIGRATOR: Migrator = sqlx::migrate!();
 const SERVER_HOST: &str = "127.0.0.1";
+const FRONT_PUBLIC: &str = "../front_end/dist";
 
 /// setup the whole app
 async fn app(args: &Args) -> anyhow::Result<Router> {
@@ -49,6 +50,11 @@ async fn app(args: &Args) -> anyhow::Result<Router> {
             args: args.clone(),
         }
     };
+
+    let dir = args.js.to_owned().unwrap_or(PathBuf::from(FRONT_PUBLIC));
+    if !dir.exists() {
+        return Err(anyhow!("The javascript dir does not exist ({:?})", dir));
+    }
 
     // setup up sessions and store to keep track of session information
     //let session_store = MemoryStore::default();
@@ -74,7 +80,7 @@ async fn app(args: &Args) -> anyhow::Result<Router> {
 
     // combine the front and backend into server
     Ok(Router::new()
-        .merge(services::front_public_route(args.clone()))
+        .merge(services::front_public_route(dir))
         .merge(backend)
         .layer(TraceLayer::new_for_http()))
 }

@@ -1,12 +1,5 @@
-use crate::{
-    types::{CreateGroupJson, DBPool, Expense, PayedType, SafeUser},
-    users::User,
-};
+use crate::types::{CreateGroupJson, DBPool, Expense, PayedType, SafeUser};
 use anyhow::Result;
-use futures::{
-    future::{join_all, ready},
-    prelude::*,
-};
 use serde::{Deserialize, Serialize};
 use sqlx::{query, query_as};
 use tracing::info;
@@ -88,7 +81,7 @@ impl Group {
             .enumerate()
             .map(|(index, owed)| OwedAmount {
                 user: &self.users[index],
-                owed: owed,
+                owed,
             })
             .collect();
         println!("owed {:?}", owed);
