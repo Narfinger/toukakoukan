@@ -5,7 +5,7 @@ use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
 
 use sqlx::{migrate::Migrator, sqlite::SqliteConnectOptions, ConnectOptions, Pool};
-use std::{net::SocketAddr, path::PathBuf, str::FromStr};
+use std::{env, net::SocketAddr, path::PathBuf, str::FromStr};
 use time::Duration;
 use tower_http::trace::TraceLayer;
 use tower_sessions::{CachingSessionStore, Expiry, SessionManagerLayer};
@@ -118,12 +118,9 @@ async fn main() -> Result<(), anyhow::Error> {
     let app = app(&cli).await?;
     println!("listening on http://{}", addr);
 
-    let cert_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("certs")
-        .join("cert.pem");
-    let key_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("certs")
-        .join("key.pem");
+    let cwd = env::current_dir()?;
+    let cert_file = cwd.join("certs").join("cert.pem");
+    let key_file = cwd.join("certs").join("key.pem");
     if cli.serve_tls && (!cert_file.exists() || !key_file.exists()) {
         return Err(anyhow!(
             "Please create cert and keyfile in certs subdirectory"
