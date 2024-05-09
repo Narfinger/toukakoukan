@@ -2,6 +2,7 @@ export const ENDPOINT_SESSION_AUTH = "/auth/session";
 export const ENDPOINT_SESSION_LOGIN = "/auth/login";
 export const ENDPOINT_SESSION_LOGOUT = "/auth/logout";
 export const ENDPOINT_CREATE_USER = "/auth/create";
+export const ENDPOINT_USER_CREATION_ENABLED = "/user_creation/";
 
 export const ENDPOINT_USER = "/api/user/";
 export const ENDPOINT_GROUPS = "/api/groups/";

@@ -191,7 +191,6 @@ async fn get_user(
     Ok(Json(user))
 }
 
-#[debug_handler]
 async fn create_group(
     Extension(_): Extension<User>,
     State(state): State<AppState>,

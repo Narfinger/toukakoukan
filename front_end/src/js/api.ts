@@ -7,6 +7,7 @@ import {
     ENDPOINT_GROUPS,
     ENDPOINT_SESSION_LOGOUT,
     ENDPOINT_USER,
+    ENDPOINT_USER_CREATION_ENABLED,
 } from "./endpoints";
 
 /// get all the groups
@@ -46,4 +47,10 @@ export async function prefetchGroups(g: Array<Group>) {
 export async function logout() {
     await fetch(ENDPOINT_SESSION_LOGOUT);
     push("/");
+}
+
+export async function user_creation_enabled(): Promise<boolean> {
+    const res = await fetch(ENDPOINT_USER_CREATION_ENABLED);
+    const r = await res.json();
+    return r;
 }

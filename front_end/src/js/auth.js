@@ -2,14 +2,19 @@ import { ENDPOINT_SESSION_AUTH, ENDPOINT_SESSION_LOGIN, ENDPOINT_SESSION_LOGOUT 
 import { user } from './store.js';
 
 export async function getSession() {
-    const res = await fetch(ENDPOINT_SESSION_AUTH, { credentials: 'same-origin' });
-    let sessionResponse = await res.json();
-    console.log(sessionResponse);
-    if (sessionResponse.user_id !== '') {
-        user.set(sessionResponse.user_id);
-    } else {
-        user.set('');
-    }
+    console.log("Getting session");
+    fetch(ENDPOINT_SESSION_AUTH, { credentials: 'same-origin' }).then(async function (res) {
+        if (res.ok) {
+            let sessionResponse = await res.json();
+            if (sessionResponse.user_id !== '') {
+                user.set(sessionResponse.user_id);
+            } else {
+                user.set('');
+            }
+        }
+    }).catch(function (error) {
+        console.log("some error in getting session, don't worry about it");
+    });
 }
 
 export async function postLogin(username, password) {

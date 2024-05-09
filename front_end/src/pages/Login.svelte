@@ -1,10 +1,12 @@
 <script>
+    import { user_creation_enabled } from "../js/api";
     import { postLogin } from "./../js/auth";
     import { push } from "svelte-spa-router";
 
     let username, password;
     let errorMessage = "";
 
+    const enabled = user_creation_enabled();
     async function handleLogin() {
         let loginResponse = await postLogin(username, password);
         if (loginResponse.result == "error") {
@@ -40,12 +42,16 @@
         <button class="btn btn-primary lg:w-32 md:w-32" on:click={handleLogin}
             >Login</button
         >
-        <div class="lg:col-span-2">
-            or <button
-                on:click={() => {
-                    push("/createuser/");
-                }}>Create a User</button
-            >
-        </div>
+        {#await enabled then show_creation}
+            {#if show_creation}
+                or <button
+                    on:click={() => {
+                        push("/createuser/");
+                    }}>Create a User</button
+                >
+            {:else}
+                User creation not enabled
+            {/if}
+        {/await}
     </div>
 </div>
