@@ -25,11 +25,11 @@ mod types;
 mod users;
 
 // SETUP Constants
-const SESSION_COOKIE_NAME: &str = "betsubetsu";
+const SESSION_COOKIE_NAME: &str = "toukakoukan";
 static MIGRATOR: Migrator = sqlx::migrate!();
 const SERVER_HOST: &str = "127.0.0.1";
 const FRONT_PUBLIC: &str = "../front_end/dist";
-const DEFAULT_DATABASE: &str = "splittinger.db";
+const DEFAULT_DATABASE: &str = "toukakoukan.db";
 
 /// setup the whole app
 async fn app(args: &Args) -> anyhow::Result<Router> {
