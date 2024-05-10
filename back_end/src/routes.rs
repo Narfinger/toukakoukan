@@ -1,15 +1,22 @@
+use std::path::PathBuf;
+
+use crate::api::api_endpoints;
 use crate::types::AppState;
 use crate::users::User;
 use anyhow::{anyhow, Context, Result};
 use axum::http::StatusCode;
+use axum::routing::{get, post};
+use axum::Router;
 use axum::{extract::State, response::IntoResponse, Json};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use sqlx::{Pool, Sqlite};
+use tower_http::services::ServeDir;
+use tower_http::trace::TraceLayer;
 use tower_sessions::Session;
 
 /// route to handle log in
-pub(crate) async fn login(
+async fn login(
     session: Session,
     State(state): State<AppState>,
     Json(login): Json<Login>,
@@ -35,7 +42,7 @@ pub(crate) async fn login(
 }
 
 /// route to handle log out
-pub(crate) async fn logout(session: Session) -> impl IntoResponse {
+async fn logout(session: Session) -> impl IntoResponse {
     let user = session.get_value("user_id").await.unwrap_or_default();
     tracing::info!("Logging out user: {}", user.unwrap());
     // drop session
@@ -44,7 +51,7 @@ pub(crate) async fn logout(session: Session) -> impl IntoResponse {
 }
 
 /// Route to create a user
-pub(crate) async fn create_user(
+async fn create_user(
     _: Session,
     State(state): State<AppState>,
     Json(login): Json<Login>,
@@ -83,12 +90,12 @@ async fn check_password(
 
 #[derive(Deserialize)]
 /// The login datastructure
-pub struct Login {
+struct Login {
     username: String,
     password: String,
 }
 
-pub(crate) async fn session(session: Session) -> Result<Json<Value>, StatusCode> {
+async fn session(session: Session) -> Result<Json<Value>, StatusCode> {
     let user_id_val = session
         .get_value("user_id")
         .await
@@ -101,4 +108,30 @@ pub(crate) async fn session(session: Session) -> Result<Json<Value>, StatusCode>
         .map_err(|_| StatusCode::UNAUTHORIZED)?;
 
     Ok(Json(json!({ "user_id": user_id })))
+}
+
+/// Frontend routes
+pub(crate) fn front_public_route(dir: PathBuf) -> Router {
+    Router::new()
+        .fallback_service(ServeDir::new(dir))
+        .layer(TraceLayer::new_for_http())
+}
+
+/// is the user creation enabled
+async fn user_creation_enabled(
+    _: Session,
+    State(state): State<AppState>,
+) -> Result<Json<bool>, StatusCode> {
+    Ok(Json(state.args.user_creation))
+}
+/// backend routes
+pub(crate) fn back_public_route(state: AppState) -> Router {
+    Router::new()
+        .route("/auth/session", get(session))
+        .route("/auth/login", post(login)) // sets username in session
+        .route("/auth/logout", get(logout)) // deletes username in session
+        .route("/auth/createuser", post(create_user))
+        .route("/user_creation/", get(user_creation_enabled))
+        .with_state(state.clone())
+        .nest("/api", api_endpoints(state))
 }

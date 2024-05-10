@@ -21,7 +21,6 @@ use crate::types::AppState;
 mod api;
 mod group;
 mod routes;
-mod services;
 mod types;
 mod users;
 
@@ -85,13 +84,13 @@ async fn app(args: &Args) -> anyhow::Result<Router> {
         .with_name(SESSION_COOKIE_NAME)
         .with_expiry(Expiry::OnInactivity(Duration::seconds(10)));
     let backend = Router::new()
-        .merge(services::back_public_route(state))
+        .merge(routes::back_public_route(state))
         //.merge(back_token_route(state))
         .layer(session_service);
 
     // combine the front and backend into server
     Ok(Router::new()
-        .merge(services::front_public_route(dir))
+        .merge(routes::front_public_route(dir))
         .merge(backend)
         .layer(TraceLayer::new_for_http()))
 }
