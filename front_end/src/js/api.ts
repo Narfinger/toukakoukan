@@ -23,7 +23,7 @@ export async function getGroup(group_id: number): Promise<GroupResponse> {
 }
 
 /// gets the current user
-export async function getUser() {
+export async function getUser(): Promise<User> {
     const response = await fetch(ENDPOINT_USER);
     const user_js = await response.json();
     return user_js;

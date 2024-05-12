@@ -1,11 +1,10 @@
 <script lang="ts">
     import { push } from "svelte-spa-router";
     import { ENDPOINT_CREATE_GROUP } from "../js/endpoints";
-    import { getUsers } from "../js/api";
-
-    export const params: any = {};
+    import { getUser, getUsers } from "../js/api";
 
     const users = getUsers();
+    const user = getUser();
 
     let name = "";
     let user_checked: Map<Number, boolean> = new Map();
@@ -13,6 +12,7 @@
         users.forEach((u) => {
             user_checked.set(u.id, false);
         });
+        user.then((u) => user_checked.set(u.id, true));
     });
 
     async function handleAdd() {
@@ -30,7 +30,6 @@
                 "content-type": "application/json",
             },
         });
-        console.log(data);
         push("/expenses");
     }
 </script>

@@ -5,12 +5,25 @@
     import { onMount } from "svelte";
     import { getUser, getGroups, prefetchGroups, logout } from "../js/api";
 
-    const groups = getGroups().then((groups) => groups);
+    const groups = getGroups();
     const user = getUser();
     let active_tab = 0;
 
-    $: group_id = groups.then((g) => g[active_tab].id);
-    $: number_of_group_members = groups.then((g) => g[active_tab].users.length);
+    $: group_id = groups.then((g) => {
+        if (g.length == 0) {
+            return -1;
+        } else {
+            return g[active_tab].id;
+        }
+    });
+    $: number_of_group_members = groups.then((g) => {
+        if (g.length == 0) {
+            return 0;
+        } else {
+            return g[active_tab].users.length;
+        }
+    });
+
     groups.then((g) => prefetchGroups(g));
     onMount(() => {
         getUser();
@@ -61,19 +74,25 @@
             >
         {/await}
     </div>
-    <div>
-        <ExpensesInfoWidget
-            {group_id}
-            group={groups.then((g) => g[active_tab])}
-        />
-    </div>
-    <div class="lg:col-start-2 lg:col-span-2">
-        {#await user then user}
-            <ExpensesWidget
-                {group_id}
-                {number_of_group_members}
-                user_id={user.id}
-            />
-        {/await}
-    </div>
+    {#await groups}
+        <div>
+            {#if groups.length != 0}
+                <ExpensesInfoWidget
+                    {group_id}
+                    group={groups.then((g) => g[active_tab])}
+                />
+            {/if}
+        </div>
+        <div class="lg:col-start-2 lg:col-span-2">
+            {#if groups.length != 0}
+                {#await user then user}
+                    <ExpensesWidget
+                        {group_id}
+                        {number_of_group_members}
+                        user_id={user.id}
+                    />
+                {/await}
+            {/if}
+        </div>
+    {/await}
 </div>

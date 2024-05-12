@@ -1,9 +1,10 @@
 INSERT INTO user (id, name, password_hash) VALUES
-    (1, 'test1', 'xx'),
-    (2, 'test2', 'xx'),
-    (3, 'test3', 'xx'),
-    (4, 'test4', 'xx'),
-    (5, 'test5', 'xx');
+--- password is test for all
+    (1, 'test1', '|$argon2id$v=19$m=19456,t=2,p=1$cgAWHsJF4oIOOZAq+2AOhg$DGnKU5GvNqS+G4U1N0ttzVxDdd4l/Edu3JcNUNa9i1Q'),
+    (2, 'test2', '|$argon2id$v=19$m=19456,t=2,p=1$cgAWHsJF4oIOOZAq+2AOhg$DGnKU5GvNqS+G4U1N0ttzVxDdd4l/Edu3JcNUNa9i1Q'),
+    (3, 'test3', '|$argon2id$v=19$m=19456,t=2,p=1$cgAWHsJF4oIOOZAq+2AOhg$DGnKU5GvNqS+G4U1N0ttzVxDdd4l/Edu3JcNUNa9i1Q'),
+    (4, 'test4', '|$argon2id$v=19$m=19456,t=2,p=1$cgAWHsJF4oIOOZAq+2AOhg$DGnKU5GvNqS+G4U1N0ttzVxDdd4l/Edu3JcNUNa9i1Q'),
+    (5, 'test5', '|$argon2id$v=19$m=19456,t=2,p=1$cgAWHsJF4oIOOZAq+2AOhg$DGnKU5GvNqS+G4U1N0ttzVxDdd4l/Edu3JcNUNa9i1Q');
 
 INSERT INTO expense_group (id, name) VALUES
     (1, 'group1'),

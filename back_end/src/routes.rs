@@ -8,6 +8,7 @@ use axum::http::StatusCode;
 use axum::routing::{get, post};
 use axum::Router;
 use axum::{extract::State, response::IntoResponse, Json};
+use futures::TryFutureExt;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use sqlx::{Pool, Sqlite};
@@ -26,6 +27,7 @@ async fn login(
     if state.args.release {
         let user = check_password(&state.pool, &login.username, &login.password)
             .await
+            .context("check password failed")
             .map_err(|_| StatusCode::UNAUTHORIZED)?;
         session
             .insert("user_id", user.id)
@@ -43,12 +45,15 @@ async fn login(
 }
 
 /// route to handle log out
-async fn logout(session: Session) -> impl IntoResponse {
-    let user = session.get_value("user_id").await.unwrap_or_default();
-    tracing::info!("Logging out user: {}", user.unwrap());
-    // drop session
-    session.flush().await.expect("Error in flushing session");
-    Json(json!({"result": "ok"}))
+async fn logout(session: Session) -> Result<Json<Value>, StatusCode> {
+    if let Ok(u) = session.get_value("user_id").await {
+        tracing::info!("Logging out user: {:?}", u);
+        session
+            .flush()
+            .await
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    }
+    Ok(Json(json!({"result": "ok"})))
 }
 
 /// Route to create a user
@@ -66,7 +71,6 @@ async fn create_user(
             .execute(&state.pool)
             .await
             .map_err(|_| StatusCode::UNAUTHORIZED)?;
-        info!("doing tuff");
         Ok(Json(json!({"result": "ok"})))
     } else {
         Err(StatusCode::UNAUTHORIZED)

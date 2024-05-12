@@ -1,9 +1,11 @@
 use anyhow::{anyhow, Context, Result};
 use password_auth::verify_password;
 use serde::{ser::SerializeStruct, Serialize};
+use serde_json::Value;
 use sqlx::FromRow;
 use std::collections::HashMap;
 use tower_sessions::Session;
+use tracing::info;
 
 use crate::{
     group::Group,
@@ -51,8 +53,8 @@ impl User {
     /// Gets a user from the current session
     pub(crate) async fn get_user_from_session(state: &AppState, session: &Session) -> Result<User> {
         if state.args.release {
-            let user_id_val = session.get_value("user_id").await.unwrap();
-            let user_id: i64 = serde_json::from_value(user_id_val.unwrap())?;
+            let user_id_val = session.get_value("user_id").await?.unwrap_or(Value::Null);
+            let user_id: i64 = serde_json::from_value(user_id_val)?;
             let user = User::from_id(&state.pool, user_id).await?;
             Ok(user)
         } else {
@@ -152,7 +154,16 @@ impl User {
 
     /// check if a password matches for the user
     pub(crate) fn check_password(&self, given_password: &str) -> bool {
-        verify_password(given_password, &self.password_hash).is_ok()
+        info!(
+            "checking password, given {}, hash {}",
+            given_password, &self.password_hash
+        );
+        if let Err(a) = verify_password(given_password, &self.password_hash) {
+            info!("login error: {}", a);
+            false
+        } else {
+            true
+        }
     }
 
     /// gets all users

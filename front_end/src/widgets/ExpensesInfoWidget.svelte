@@ -6,9 +6,13 @@
     export let group: Promise<Group>;
 
     async function getTotal(group_id: Number): Promise<Number> {
-        let response = await fetch(ENDPOINT_TOTAL + group_id + "/");
-        let total = await response.json();
-        return total;
+        if (group_id != -1) {
+            let response = await fetch(ENDPOINT_TOTAL + group_id + "/");
+            let total = await response.json();
+            return total;
+        } else {
+            return 0;
+        }
     }
     $: total = group_id.then((gs) => {
         return getTotal(gs);
