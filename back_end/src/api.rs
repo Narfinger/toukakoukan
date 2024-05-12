@@ -1,6 +1,5 @@
 use anyhow::Context;
 use axum::{
-    debug_handler,
     extract::{self, Path, Request, State},
     http::StatusCode,
     middleware::{self, Next},

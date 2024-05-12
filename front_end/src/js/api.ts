@@ -12,9 +12,7 @@ import {
 
 /// get all the groups
 export async function getGroups(): Promise<Array<Group>> {
-    const response = await fetch(ENDPOINT_GROUPS);
-    const groups = await response.json();
-    return groups;
+    return await fetch(ENDPOINT_GROUPS).then((res) => res.json());
 }
 
 /// get a group for a specific group_id

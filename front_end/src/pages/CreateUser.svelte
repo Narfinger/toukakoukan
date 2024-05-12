@@ -6,7 +6,7 @@
     let errorMessage = "";
 
     async function handleCreate() {
-        const res = await fetch(ENDPOINT_CREATE_USER, {
+        await fetch(ENDPOINT_CREATE_USER, {
             method: "POST",
             headers: {
                 Accept: "application/json",
@@ -14,8 +14,6 @@
             },
             body: JSON.stringify({ username: username, password: password }),
         });
-
-        await res;
         push("/");
     }
 </script>

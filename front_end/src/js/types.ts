@@ -4,6 +4,10 @@ export type GroupResponse = {
     querying_user_is: number;
 };
 
+export type LoginResult = {
+    result: string;
+};
+
 export type Group = {
     id: number;
     name: string;

@@ -1,5 +1,6 @@
 import { ENDPOINT_SESSION_AUTH, ENDPOINT_SESSION_LOGIN, ENDPOINT_SESSION_LOGOUT } from './endpoints.js';
 import { user } from './store.js';
+import type { LoginResult } from './types.js';
 
 export async function getSession() {
     console.log("Getting session");
@@ -17,16 +18,15 @@ export async function getSession() {
     });
 }
 
-export async function postLogin(username, password) {
-    const res = await fetch(ENDPOINT_SESSION_LOGIN, {
+export async function postLogin(username: string, password: string): Promise<boolean> {
+    return await fetch(ENDPOINT_SESSION_LOGIN, {
         method: "POST",
         headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
         },
         body: JSON.stringify({ username: username, password: password }),
-    });
-    return await res.json();
+    }).then((r) => r.json()).then((r: LoginResult) => r.result == "ok").catch((r) => false);
 }
 
 export async function getLogout() {

@@ -14,6 +14,7 @@ use sqlx::{Pool, Sqlite};
 use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
 use tower_sessions::Session;
+use tracing::info;
 
 /// route to handle log in
 async fn login(
@@ -25,12 +26,12 @@ async fn login(
     if state.args.release {
         let user = check_password(&state.pool, &login.username, &login.password)
             .await
-            .map_err(|_| StatusCode::NOT_FOUND)?;
+            .map_err(|_| StatusCode::UNAUTHORIZED)?;
         session
             .insert("user_id", user.id)
             .await
             .context("Error inserting into session")
-            .map_err(|_| StatusCode::NOT_FOUND)?;
+            .map_err(|_| StatusCode::UNAUTHORIZED)?;
     } else {
         tracing::info!("We are only looking at user_id 1 and hardcoding it");
         session
@@ -65,7 +66,7 @@ async fn create_user(
             .execute(&state.pool)
             .await
             .map_err(|_| StatusCode::UNAUTHORIZED)?;
-
+        info!("doing tuff");
         Ok(Json(json!({"result": "ok"})))
     } else {
         Err(StatusCode::UNAUTHORIZED)

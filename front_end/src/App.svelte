@@ -1,6 +1,6 @@
 <script>
 	import { user } from "./js/store.js";
-	import { getSession } from "./js/auth.js";
+	import { getSession } from "./js/auth.ts";
 	import MainView from "./pages/MainView.svelte";
 	import Login from "./pages/Login.svelte";
 	import AddExpense from "./pages/AddExpense.svelte";

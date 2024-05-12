@@ -1,6 +1,6 @@
 <script>
     import { user_creation_enabled } from "../js/api";
-    import { postLogin } from "./../js/auth";
+    import { postLogin } from "../js/auth";
     import { push } from "svelte-spa-router";
 
     let username, password;
@@ -9,8 +9,8 @@
     const enabled = user_creation_enabled();
     async function handleLogin() {
         let loginResponse = await postLogin(username, password);
-        if (loginResponse.result == "error") {
-            errorMessage = loginResponse.message;
+        if (!loginResponse) {
+            errorMessage = "Login Denied";
         } else {
             //getSession();
             push("/expenses");
