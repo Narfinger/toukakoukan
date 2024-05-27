@@ -8,7 +8,9 @@
 
     export let params: any = {};
     async function getExpense(expense_id): Promise<Expense> {
-        let res = await fetch(ENDPOINT_GET_EXPENSE + expense_id + "/");
+        let res = await fetch(ENDPOINT_GET_EXPENSE + expense_id + "/", {
+            credentials: "include",
+        });
         let exp = res.json();
         return exp;
     }
@@ -43,6 +45,7 @@
             headers: {
                 "content-type": "application/json",
             },
+            credentials: "include",
         });
         push("/expenses");
     }

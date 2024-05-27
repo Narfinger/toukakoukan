@@ -4,7 +4,7 @@ import type { LoginResult } from './types.js';
 
 export async function getSession() {
     console.log("Getting session");
-    fetch(ENDPOINT_SESSION_AUTH, { credentials: 'same-origin' }).then(async function (res) {
+    fetch(ENDPOINT_SESSION_AUTH, { credentials: 'include' }).then(async function (res) {
         if (res.ok) {
             let sessionResponse = await res.json();
             if (sessionResponse.user_id !== '') {
@@ -30,7 +30,7 @@ export async function postLogin(username: string, password: string): Promise<boo
 }
 
 export async function getLogout() {
-    const res = await fetch(ENDPOINT_SESSION_LOGOUT, { credentials: 'same-origin' });
+    const res = await fetch(ENDPOINT_SESSION_LOGOUT, { credentials: 'include' });
 
     let logoutResponse = await res.json();
     if (logoutResponse.result == "error") {

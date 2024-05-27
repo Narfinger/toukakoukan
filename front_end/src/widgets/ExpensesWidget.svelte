@@ -15,7 +15,9 @@
         if (group_id == -1) {
             return [];
         } else {
-            let response = await fetch(ENDPOINT_EXPENSES + group_id + "/");
+            let response = await fetch(ENDPOINT_EXPENSES + group_id + "/", {
+                credentials: "include",
+            });
             let expenses: Array<Expense> = await response.json();
             const uig = user_id;
             const nogm = await number_of_group_members;

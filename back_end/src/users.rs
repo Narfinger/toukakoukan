@@ -54,8 +54,11 @@ impl User {
     pub(crate) async fn get_user_from_session(state: &AppState, session: &Session) -> Result<User> {
         if state.args.release {
             let user_id_val = session.get_value("user_id").await?.unwrap_or(Value::Null);
+            info!("user_id value {}", user_id_val);
             let user_id: i64 = serde_json::from_value(user_id_val)?;
+            info!("user_id {}", user_id);
             let user = User::from_id(&state.pool, user_id).await?;
+            info!("user {:?}", user);
             Ok(user)
         } else {
             User::from_id(&state.pool, 1).await

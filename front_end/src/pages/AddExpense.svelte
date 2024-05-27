@@ -29,6 +29,7 @@
             headers: {
                 "content-type": "application/json",
             },
+            credentials: "include",
         });
         push("/expenses");
     }
