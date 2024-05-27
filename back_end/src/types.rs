@@ -17,7 +17,7 @@ pub(crate) type DBPool = Pool<Sqlite>;
 #[command(author, version, about, long_about = None)]
 pub(crate) struct Args {
     /// enable release version
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "true")]
     pub(crate) release: bool,
 
     /// allow user creation

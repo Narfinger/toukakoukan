@@ -29,6 +29,7 @@ async fn login(
             .await
             .context("check password failed")
             .map_err(|_| StatusCode::UNAUTHORIZED)?;
+        info!("Found user {:?}", user);
         session
             .insert("user_id", user.id)
             .await
