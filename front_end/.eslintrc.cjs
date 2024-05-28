@@ -5,8 +5,7 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-	'plugin:svelte/recommended'
+        "plugin:@typescript-eslint/recommended"
     ],
     "overrides": [
         {
@@ -27,8 +26,7 @@ module.exports = {
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint",
-	'svelte/recommended'
+        "@typescript-eslint"
     ],
     "rules": {
     }
