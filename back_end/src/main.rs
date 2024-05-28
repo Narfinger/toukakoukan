@@ -82,7 +82,7 @@ async fn app(args: &Args) -> anyhow::Result<Router> {
     let session_service = SessionManagerLayer::new(caching_store)
         .with_secure(false)
         .with_name(SESSION_COOKIE_NAME)
-        .with_expiry(Expiry::OnInactivity(Duration::seconds(10)));
+        .with_expiry(Expiry::OnInactivity(Duration::seconds(60 * 60 * 24)));
     let backend = Router::new()
         .merge(routes::back_public_route(state))
         //.merge(back_token_route(state))
