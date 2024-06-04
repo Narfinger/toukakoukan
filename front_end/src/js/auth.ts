@@ -14,6 +14,10 @@ export async function getSession() {
                 user.set('');
                 push("/");
             }
+        } else {
+            console.log("The session probably ended");
+            user.set('');
+            push("/");
         }
     }).catch(function () {
         console.log("some error in getting session, don't worry about it");

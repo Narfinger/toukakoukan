@@ -74,9 +74,9 @@
             >
         {/await}
     </div>
-    {#await groups}
+    {#await groups then g}
         <div>
-            {#if groups.length != 0}
+            {#if g.length != 0}
                 <ExpensesInfoWidget
                     {group_id}
                     group={groups.then((g) => g[active_tab])}
@@ -84,7 +84,7 @@
             {/if}
         </div>
         <div class="lg:col-start-2 lg:col-span-2">
-            {#if groups.length != 0}
+            {#if g.length != 0}
                 {#await user then user}
                     <ExpensesWidget
                         {group_id}
