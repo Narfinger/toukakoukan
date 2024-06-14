@@ -10,17 +10,7 @@
 	import Router from "svelte-spa-router";
 	import NotFound from "./pages/NotFound.svelte";
 	import EditExpense from "./pages/EditExpense.svelte";
-	import { useRegisterSW } from "virtual:pwa-register/svelte";
 
-	const intervalMS = 24 * 60 * 60 * 1000; //one day
-	const updateServiceWorker = useRegisterSW({
-		onRegistered(r) {
-			r &&
-				setInterval(() => {
-					r.update();
-				}, intervalMS);
-		},
-	});
 
 	$: loggedin = $user !== "";
 
