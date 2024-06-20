@@ -8,6 +8,7 @@ export type LoginResult = {
     result: string;
 };
 
+// A group
 export type Group = {
     id: number;
     name: string;
@@ -15,11 +16,13 @@ export type Group = {
     querying_user_is: number;
 };
 
+// payed type
 export type PayedType = {
     t: string;
     c: number;
 };
 
+// expense
 export type Expense = {
     id: number;
     payed_type: PayedType;
@@ -29,6 +32,7 @@ export type Expense = {
     expense_group_id: number;
 };
 
+// expense adjusted to the group and who payed what
 export type ExpenseAdjusted = {
     id: number;
     payed_type: PayedType;
@@ -39,6 +43,7 @@ export type ExpenseAdjusted = {
     amount_adjusted: string;
 };
 
+// a user
 export type User = {
     id: number;
     name: string;

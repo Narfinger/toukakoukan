@@ -42,6 +42,7 @@ export async function prefetchGroups(g: Array<Group>) {
     }
 }
 
+// logout
 export async function logout() {
     await fetch(ENDPOINT_SESSION_LOGOUT, { credentials: 'include' });
     push("/");

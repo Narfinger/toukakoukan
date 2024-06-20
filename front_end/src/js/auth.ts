@@ -3,6 +3,7 @@ import { ENDPOINT_SESSION_AUTH, ENDPOINT_SESSION_LOGIN, ENDPOINT_SESSION_LOGOUT 
 import { user } from './store.js';
 import type { LoginResult } from './types.js';
 
+// gets a session or go back to home if the session ended
 export async function getSession() {
     console.log("Getting session");
     fetch(ENDPOINT_SESSION_AUTH, { credentials: 'include' }).then(async function (res) {
@@ -25,6 +26,7 @@ export async function getSession() {
     });
 }
 
+// send a post request for login and return if it is successful
 export async function postLogin(username: string, password: string): Promise<boolean> {
     return await fetch(ENDPOINT_SESSION_LOGIN, {
         method: "POST",
@@ -36,6 +38,7 @@ export async function postLogin(username: string, password: string): Promise<boo
     }).then((r) => r.json()).then((r: LoginResult) => r.result == "ok").catch(() => false);
 }
 
+// logout of the backend
 export async function getLogout() {
     const res = await fetch(ENDPOINT_SESSION_LOGOUT, { credentials: 'include' });
 

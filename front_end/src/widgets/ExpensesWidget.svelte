@@ -61,7 +61,7 @@
                             >Edit</button
                         ></td
                     >
-                    <td>{exp["amount_adjusted"]}</td>
+                    <td>{exp["amount_adjusted"]}¥</td>
                     <td>{formatDistance(new Date(exp["time"]), Date.now())}</td>
                 </tr>
             {/each}

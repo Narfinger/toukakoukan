@@ -9,15 +9,17 @@ import {
 export const OwedTotal = "OwedTotal";
 export const EvenSplit = "EvenSplit";
 
-//The types are `OwedTotal` and `EvenSplit`
+/// The types are `OwedTotal` and `EvenSplit`
 export function createPayed(type: string, who: number): PayedType {
     return { "t": type, "c": who }
 }
 
+/// Construct a string from PayedType
 export function fromPayed(t: PayedType): string {
     return t.t + " " + t.c;
 }
 
+/// shows how much a person is owed, looking at how many members the group has and who payed what
 export function adjusted_expense(user_id: number, number_of_group_members: number, val: Expense): string {
     if (val.payed_type.t == OwedTotal) {
         if (val.payed_type.c === user_id) {
