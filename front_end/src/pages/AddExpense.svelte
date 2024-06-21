@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { EvenSplit, createPayed, payed_type_list } from "../js/utils";
+    import { EvenSplit, payed_type_list } from "../js/utils";
     import { push } from "svelte-spa-router";
-    import { ENDPOINT_EXPENSES, ENDPOINT_GROUP } from "../js/endpoints";
+    import { ENDPOINT_EXPENSES } from "../js/endpoints";
     import { getGroup } from "../js/api";
 
     export let params: any = {};
-    let amount: Number,
-        description: String,
+    let amount: number,
+        description: string,
         who: number = 1;
 
     const group = getGroup(params.id);

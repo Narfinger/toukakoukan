@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
     import { user_creation_enabled } from "../js/api";
     import { postLogin } from "../js/auth";
     import { push } from "svelte-spa-router";
 
-    let username, password;
+    let username: string;
+    let password: string;
     let errorMessage = "";
 
     const enabled = user_creation_enabled();

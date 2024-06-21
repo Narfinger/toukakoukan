@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Expense, Group, GroupResponse, PayedType } from "../js/types";
+    import type { Expense, GroupResponse } from "../js/types";
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GET_EXPENSE } from "../js/endpoints";
     import { getGroup } from "../js/api";
@@ -7,7 +7,7 @@
     import { EvenSplit, payed_type_list } from "../js/utils";
 
     export let params: any = {};
-    async function getExpense(expense_id): Promise<Expense> {
+    async function getExpense(expense_id: number): Promise<Expense> {
         let res = await fetch(ENDPOINT_GET_EXPENSE + expense_id + "/", {
             credentials: "include",
         });

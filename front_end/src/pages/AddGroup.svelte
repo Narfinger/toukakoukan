@@ -7,7 +7,7 @@
     const user = getUser();
 
     let name = "";
-    let user_checked: Map<Number, boolean> = new Map();
+    let user_checked: Map<number, boolean> = new Map();
     users.then((users) => {
         users.forEach((u) => {
             user_checked.set(u.id, false);
@@ -16,8 +16,8 @@
     });
 
     async function handleAdd() {
-        let selected_user_ids: Array<Number> = [];
-        user_checked.forEach((value, key, _) => {
+        let selected_user_ids: Array<number> = [];
+        user_checked.forEach((value, key, _v) => {
             if (value) {
                 selected_user_ids.push(key);
             }

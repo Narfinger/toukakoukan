@@ -2,10 +2,10 @@
     import { ENDPOINT_TOTAL } from "../js/endpoints";
     import type { Group } from "../js/types";
 
-    export let group_id: Promise<Number>;
+    export let group_id: Promise<number>;
     export let group: Promise<Group>;
 
-    async function getTotal(group_id: Number): Promise<Number> {
+    async function getTotal(group_id: number): Promise<number> {
         if (group_id != -1) {
             let response = await fetch(ENDPOINT_TOTAL + group_id + "/");
             let total = await response.json();

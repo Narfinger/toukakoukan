@@ -1,4 +1,3 @@
-import { every } from "lodash";
 import {
     type Expense,
     type PayedType,
