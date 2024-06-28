@@ -190,12 +190,15 @@ async fn get_user(
     Ok(Json(user))
 }
 
+/// this always adds the own user to it
 async fn create_group(
-    Extension(_): Extension<User>,
+    Extension(user): Extension<User>,
     State(state): State<AppState>,
     Json(group): extract::Json<CreateGroupJson>,
 ) -> Result<(), StatusCode> {
-    Group::create_group(group, &state.pool)
+    let mut g = group;
+    g.users.push(user.id);
+    Group::create_group(g, &state.pool)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
