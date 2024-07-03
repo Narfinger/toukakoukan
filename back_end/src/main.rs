@@ -1,8 +1,8 @@
-use ansi_term::Colour::{Green, Red};
 use anyhow::{anyhow, Context};
 use axum::Router;
 use axum_server::tls_rustls::RustlsConfig;
 use clap::Parser;
+use yansi::Paint;
 
 use sqlx::{migrate::Migrator, sqlite::SqliteConnectOptions, ConnectOptions, Pool};
 use std::{env, net::SocketAddr, path::PathBuf, str::FromStr};
@@ -100,15 +100,15 @@ async fn main() -> Result<(), anyhow::Error> {
     let cli = Args::parse();
 
     if cli.release {
-        println!("{}", Green.paint("In release mode!"));
+        println!("{}", "In release mode!".green());
     } else {
         println!(
             "{}",
-            Red.paint("WARNING: IN DEBUG MODE, EVERYTHING IS INSECURE!")
+            "WARNING: IN DEBUG MODE, EVERYTHING IS INSECURE!".red()
         );
     }
     if cli.user_creation {
-        println!("{}", Red.paint("User creation is enabled!"));
+        println!("{}", "User creation is enabled!").red();
     }
 
     // start tracing - level set by either RUST_LOG env variable or defaults to debug
