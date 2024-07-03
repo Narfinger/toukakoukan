@@ -3,6 +3,7 @@
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES } from "../js/endpoints";
     import { getGroup } from "../js/api";
+    import type { PayedTypeSelect } from "../js/types";
 
     export let params: any = {};
     let amount: number,
@@ -12,7 +13,7 @@
     const group = getGroup(params.id);
 
     async function handleAdd() {
-        const payed_type = await expense_types[who];
+        const payed_type = (await expense_types)[who];
         const d = new Date(Date.now());
         let data = {
             id: -1,
@@ -33,12 +34,14 @@
         });
         push("/expenses");
     }
-    const expense_types = group.then((g) => payed_type_list(g.users));
+    const expense_types: Promise<PayedTypeSelect> = group.then((g) =>
+        payed_type_list(g.users),
+    );
 </script>
 
 <div class="flex flex-col p-8 justify-center">
     <p class="text-2xl lg:text-6xl pb-4">Add an expense</p>
-    <form>
+    <form on:submit|preventDefault={() => handleAdd}>
         <div class="flex flex-col">
             <div class="p-2">
                 <input
@@ -85,12 +88,11 @@
     </form>
     <div class="flex flex-col">
         <div class="p-2">
-            <button class="btn btn-primary w-full" on:click={handleAdd}
-                >Add</button
-            >
+            <button class="btn btn-primary w-full">Add</button>
         </div>
         <div class="p-2 grow">
             <button
+                type="submit"
                 class="btn btn-warning w-full"
                 on:click={() => {
                     push("/expenses");

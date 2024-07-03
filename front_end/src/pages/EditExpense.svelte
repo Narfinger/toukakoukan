@@ -33,7 +33,7 @@
         );
     }
 
-    async function handleAdd() {
+    async function handleEdit() {
         let e = await expense;
         e.amount = amount;
         e.name = description;
@@ -56,7 +56,7 @@
 
 <div class="flex flex-col p-8 justify-center">
     <p class="text-2xl lg:text-6xl pb-4">Add an expense</p>
-    <form>
+    <form on:submit|preventDefault={() => handleEdit}>
         <div class="flex flex-col">
             <div class="p-2">
                 <input
@@ -104,9 +104,7 @@
     </form>
     <div class="flex flex-col">
         <div class="p-2">
-            <button class="btn btn-primary w-full" on:click={handleAdd}
-                >Modify</button
-            >
+            <button class="btn btn-primary w-full">Modify</button>
         </div>
         <div class="p-2 grow">
             <button

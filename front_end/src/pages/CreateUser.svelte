@@ -1,9 +1,8 @@
-<script>
+<script lang="ts">
     import { push } from "svelte-spa-router";
     import { ENDPOINT_CREATE_USER } from "../js/endpoints.js";
 
-    let username, password;
-    let errorMessage = "";
+    let username: string, password: string;
 
     async function handleCreate() {
         await fetch(ENDPOINT_CREATE_USER, {
@@ -39,6 +38,7 @@
         >
         <div class="lg:col-span-2">
             or <button
+                type="submit"
                 on:click={() => {
                     push("/createuser/");
                 }}>Create a User</button

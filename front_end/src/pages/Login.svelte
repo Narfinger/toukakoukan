@@ -28,31 +28,33 @@
 <div class="p-8 container mx-auto">
     <p class="text-6xl pb-4">Login</p>
     <div class="grid lg:grid-cols-2 gap-4">
-        <input
-            class="input input-bordered input-primary"
-            type="username"
-            placeholder="Username"
-            bind:value={username}
-        />
-        <input
-            class="input input-bordered input-secondary pb-2"
-            type="password"
-            placeholder="Password"
-            bind:value={password}
-        />
-        <button class="btn btn-primary lg:w-32 md:w-32" on:click={handleLogin}
-            >Login</button
-        >
-        {#await enabled then show_creation}
-            {#if show_creation}
-                or <button
-                    on:click={() => {
-                        push("/createuser/");
-                    }}>Create a User</button
-                >
-            {:else}
-                User creation not enabled
-            {/if}
-        {/await}
+        <form on:submit|preventDefault={() => handleLogin}>
+            <input
+                class="input input-bordered input-primary"
+                type="username"
+                placeholder="Username"
+                bind:value={username}
+            />
+            <input
+                class="input input-bordered input-secondary pb-2"
+                type="password"
+                placeholder="Password"
+                bind:value={password}
+            />
+            <button class="btn btn-primary lg:w-32 md:w-32" type="submit"
+                >Login</button
+            >
+            {#await enabled then show_creation}
+                {#if show_creation}
+                    or <button
+                        on:click={() => {
+                            push("/createuser/");
+                        }}>Create a User</button
+                    >
+                {:else}
+                    User creation not enabled
+                {/if}
+            {/await}
+        </form>
     </div>
 </div>

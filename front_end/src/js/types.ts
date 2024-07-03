@@ -49,4 +49,5 @@ export type User = {
     name: string;
 };
 
+// type for select who payed
 export type PayedTypeSelect = Array<[number, PayedType]>;
