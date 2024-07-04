@@ -45,7 +45,7 @@
 
 <div class="flex flex-col p-8 justify-center">
     <p class="text-2xl lg:text-6xl pb-4">Add an expense</p>
-    <form on:submit|preventDefault={() => handleAdd}>
+    <form on:submit|preventDefault={handleAdd}>
         <div class="flex flex-col">
             <div class="p-2">
                 <input
@@ -89,19 +89,19 @@
                 </div>
             {/await}
         </div>
+        <div class="flex flex-col">
+            <div class="p-2">
+                <button class="btn btn-primary w-full" type="submit">Add</button
+                >
+            </div>
+            <div class="p-2 grow">
+                <button
+                    class="btn btn-warning w-full"
+                    on:click={() => {
+                        push("/expenses");
+                    }}>Cancel</button
+                >
+            </div>
+        </div>
     </form>
-    <div class="flex flex-col">
-        <div class="p-2">
-            <button class="btn btn-primary w-full">Add</button>
-        </div>
-        <div class="p-2 grow">
-            <button
-                type="submit"
-                class="btn btn-warning w-full"
-                on:click={() => {
-                    push("/expenses");
-                }}>Cancel</button
-            >
-        </div>
-    </div>
 </div>

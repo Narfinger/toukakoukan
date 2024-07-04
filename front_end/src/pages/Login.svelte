@@ -9,9 +9,12 @@
 
     const enabled = user_creation_enabled();
     async function handleLogin() {
+        console.log("p and a" + username + " " + password);
         let loginResponse = await postLogin(username, password);
+        console.log("Submit");
         if (!loginResponse) {
             errorMessage = "Login Denied";
+            console.log("Login Denied");
         } else {
             //getSession();
             push("/expenses");
@@ -28,7 +31,7 @@
 <div class="p-8 container mx-auto">
     <p class="text-6xl pb-4">Login</p>
     <div class="grid lg:grid-cols-2 gap-4">
-        <form on:submit|preventDefault={() => handleLogin}>
+        <form on:submit|preventDefault={handleLogin}>
             <input
                 class="input input-bordered input-primary"
                 type="username"
@@ -44,17 +47,17 @@
             <button class="btn btn-primary lg:w-32 md:w-32" type="submit"
                 >Login</button
             >
-            {#await enabled then show_creation}
-                {#if show_creation}
-                    or <button
-                        on:click={() => {
-                            push("/createuser/");
-                        }}>Create a User</button
-                    >
-                {:else}
-                    User creation not enabled
-                {/if}
-            {/await}
         </form>
+        {#await enabled then show_creation}
+            {#if show_creation}
+                or <button
+                    on:click={() => {
+                        push("/createuser/");
+                    }}>Create a User</button
+                >
+            {:else}
+                User creation not enabled
+            {/if}
+        {/await}
     </div>
 </div>

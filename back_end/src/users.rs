@@ -61,6 +61,7 @@ impl User {
             info!("user {:?}", user);
             Ok(user)
         } else {
+            info!("Using default user 1");
             User::from_id(&state.pool, 1).await
         }
     }

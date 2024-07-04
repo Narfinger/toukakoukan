@@ -13,7 +13,9 @@ use tower_sessions_moka_store::MokaStore;
 use tower_sessions_sqlx_store::SqliteStore;
 use tracing::info;
 
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{
+    filter, fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer,
+};
 use types::Args;
 
 use crate::types::AppState;
@@ -110,17 +112,9 @@ async fn main() -> Result<(), anyhow::Error> {
     if cli.user_creation {
         println!("{}", "User creation is enabled!").red();
     }
-
-    // start tracing - level set by either RUST_LOG env variable or defaults to debug
     tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                // axum logs rejections from built-in extractors with the `axum::rejection`
-                // target, at `TRACE` level. `axum::rejection=trace` enables showing those events
-                "tower_http=debug,axum::rejection=trace".into()
-            }),
-        )
-        .with(tracing_subscriber::fmt::layer())
+        .with(fmt::layer())
+        .with(EnvFilter::from_default_env())
         .init();
     let host = if cli.listen_global {
         "0.0.0.0"

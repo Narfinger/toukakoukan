@@ -17,17 +17,19 @@ export async function getSession() {
             }
         } else {
             console.log("The session probably ended");
+            console.log(res);
             user.set('');
             push("/");
         }
     }).catch(function () {
         console.log("some error in getting session, don't worry about it");
-        push("/");
+        // push("/");
     });
 }
 
 // send a post request for login and return if it is successful
 export async function postLogin(username: string, password: string): Promise<boolean> {
+    console.log(username + " " + password);
     return await fetch(ENDPOINT_SESSION_LOGIN, {
         method: "POST",
         headers: {
