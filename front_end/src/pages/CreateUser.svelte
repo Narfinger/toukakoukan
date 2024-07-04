@@ -36,13 +36,5 @@
         <button class="btn btn-primary lg:w-32 md:w-32" on:click={handleCreate}
             >Create User</button
         >
-        <div class="lg:col-span-2">
-            or <button
-                type="submit"
-                on:click={() => {
-                    push("/createuser/");
-                }}>Create a User</button
-            >
-        </div>
     </div>
 </div>
