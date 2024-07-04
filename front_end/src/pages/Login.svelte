@@ -9,14 +9,11 @@
 
     const enabled = user_creation_enabled();
     async function handleLogin() {
-        console.log("p and a" + username + " " + password);
         let loginResponse = await postLogin(username, password);
-        console.log("Submit");
         if (!loginResponse) {
             errorMessage = "Login Denied";
             console.log("Login Denied");
         } else {
-            //getSession();
             push("/expenses");
         }
     }
