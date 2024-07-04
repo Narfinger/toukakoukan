@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { user } from "./js/store";
 	import { getSession } from "./js/auth";
 	import MainView from "./pages/MainView.svelte";
 	import Login from "./pages/Login.svelte";
@@ -10,9 +9,6 @@
 	import Router from "svelte-spa-router";
 	import NotFound from "./pages/NotFound.svelte";
 	import EditExpense from "./pages/EditExpense.svelte";
-
-
-	$: loggedin = $user !== "";
 
 	const routes = {
 		"/": Login,

@@ -5,7 +5,11 @@
     import { getGroup } from "../js/api";
     import type { PayedTypeSelect } from "../js/types";
 
-    export let params: any = {};
+    type AddExpenseParam = {
+        id: number;
+    };
+
+    export let params: AddExpenseParam;
     let amount: number,
         description: string,
         who: number = 1;

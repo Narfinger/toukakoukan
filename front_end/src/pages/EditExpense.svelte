@@ -1,12 +1,16 @@
 <script lang="ts">
-    import type { Expense, GroupResponse } from "../js/types";
+    import type { Expense, GroupResponse, PayedTypeSelect } from "../js/types";
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES, ENDPOINT_GET_EXPENSE } from "../js/endpoints";
     import { getGroup } from "../js/api";
     import { onMount } from "svelte";
     import { EvenSplit, payed_type_list } from "../js/utils";
 
-    export let params: any = {};
+    type EditExpenseParam = {
+        id: number;
+    };
+
+    export let params: EditExpenseParam;
     async function getExpense(expense_id: number): Promise<Expense> {
         let res = await fetch(ENDPOINT_GET_EXPENSE + expense_id + "/", {
             credentials: "include",
@@ -18,7 +22,7 @@
     let amount: number = 0;
     let description: string = "";
     let who: number;
-    let expense_types = [];
+    let expense_types: PayedTypeSelect = [];
     let group: GroupResponse = { name: "", users: [], querying_user_is: 0 };
     async function setDetailsOnLoad() {
         expense = await getExpense(params.id);
