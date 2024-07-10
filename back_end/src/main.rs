@@ -11,11 +11,9 @@ use tower_http::trace::TraceLayer;
 use tower_sessions::{CachingSessionStore, Expiry, SessionManagerLayer};
 use tower_sessions_moka_store::MokaStore;
 use tower_sessions_sqlx_store::SqliteStore;
-use tracing::info;
+use tracing::{info, level_filters::LevelFilter};
 
-use tracing_subscriber::{
-    filter, fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer,
-};
+use tracing_subscriber::{filter, fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 use types::Args;
 
 use crate::types::AppState;
@@ -49,7 +47,6 @@ async fn app(args: &Args) -> anyhow::Result<Router> {
         let pool = Pool::connect_with(
             SqliteConnectOptions::from_str(p)
                 .context("Could not parse db location")?
-                .log_statements(log::LevelFilter::Error)
                 .create_if_missing(true),
         )
         .await
@@ -113,11 +110,17 @@ async fn main() -> Result<(), anyhow::Error> {
         println!("{}", "User creation is enabled!").red();
     }
 
-    let mut filter =
-        EnvFilter::try_from_default_env()?.add_directive("sqlx::migrations=error".parse()?);
+    let filter = EnvFilter::builder()
+        .with_default_directive(LevelFilter::ERROR.into())
+        .from_env_lossy();
 
     tracing_subscriber::registry()
-        .with(fmt::layer())
+        .with(
+            fmt::layer()
+                .compact()
+                .with_line_number(true)
+                .with_target(true),
+        )
         .with(filter)
         .init();
     let host = if cli.listen_global {
