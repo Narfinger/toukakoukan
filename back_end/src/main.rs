@@ -112,9 +112,13 @@ async fn main() -> Result<(), anyhow::Error> {
     if cli.user_creation {
         println!("{}", "User creation is enabled!").red();
     }
+
+    let mut filter =
+        EnvFilter::try_from_default_env()?.add_directive("sqlx::migrations=error".parse()?);
+
     tracing_subscriber::registry()
         .with(fmt::layer())
-        .with(EnvFilter::from_default_env())
+        .with(filter)
         .init();
     let host = if cli.listen_global {
         "0.0.0.0"
