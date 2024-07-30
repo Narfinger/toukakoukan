@@ -55,9 +55,7 @@ pub(crate) struct AppState {
 }
 
 impl<'q> Decode<'q, Sqlite> for PayedType {
-    fn decode(
-        value: <Sqlite as sqlx::database::HasValueRef<'q>>::ValueRef,
-    ) -> Result<Self, sqlx::error::BoxDynError> {
+    fn decode(value: <Sqlite as Database>::ValueRef<'q>) -> Result<Self, sqlx::error::BoxDynError> {
         let value = <&str as Decode<Sqlite>>::decode(value)?;
 
         let mut it = value.split_whitespace();
@@ -82,7 +80,10 @@ pub(crate) enum PayedType {
 }
 
 impl<'q> Encode<'q, Sqlite> for PayedType {
-    fn encode_by_ref(&self, buf: &mut <Sqlite as HasArguments<'q>>::ArgumentBuffer) -> IsNull {
+    fn encode_by_ref(
+        &self,
+        buf: &mut <Sqlite as Database>::ArgumentBuffer<'q>,
+    ) -> Result<IsNull, sqlx::error::BoxDynError> {
         let bytes = match self {
             PayedType::EvenSplit(index) => format!("EVEN {}", index),
             PayedType::OwedTotal(index) => format!("OWED {}", index),
