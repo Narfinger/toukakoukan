@@ -2,8 +2,7 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use serde::{Deserialize, Serialize};
-use sqlx::{
-    database::HasArguments, encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
+use sqlx::{ encode::IsNull, prelude::Type, sqlite::SqliteTypeInfo, Database,
     Decode, Encode,
 };
 use sqlx::{Pool, Sqlite};
