@@ -3,13 +3,13 @@ on: [push, pull_request]
 jobs:
   build_rust:
     name: "Rust Project"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-latest"
     steps:
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
       - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspace: back_end
       - run: cargo build
         working-directory: back_end
   build_web:
