@@ -60,7 +60,7 @@
 
 <div class="flex flex-col p-8 justify-center">
     <p class="text-2xl lg:text-6xl pb-4">Add an expense</p>
-    <form on:submit|preventDefault={() => handleEdit}>
+    <form on:submit|preventDefault={handleEdit}>
         <div class="flex flex-col">
             <div class="p-2">
                 <input

@@ -3,7 +3,17 @@
     import { push } from "svelte-spa-router";
     import { ENDPOINT_EXPENSES } from "../js/endpoints";
     import { getGroup } from "../js/api";
-    import type { PayedTypeSelect } from "../js/types";
+    import type { PayedType, PayedTypeSelect } from "../js/types";
+
+    async function payed_type_select_to_payedtype(
+        p: Promise<PayedTypeSelect>,
+        index: number,
+    ): Promise<PayedType> {
+        const pts = await p;
+        const cur = pts[index];
+        console.log(cur);
+        return cur[1];
+    }
 
     type AddExpenseParam = {
         id: number;
@@ -17,7 +27,10 @@
     const group = getGroup(params.id);
 
     async function handleAdd() {
-        const payed_type = (await expense_types)[who];
+        const payed_type = await payed_type_select_to_payedtype(
+            expense_types,
+            who,
+        );
         const d = new Date(Date.now());
         let data = {
             id: -1,
