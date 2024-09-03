@@ -18,7 +18,9 @@ export type Group = {
 
 // payed type
 export type PayedType = {
+    // type
     t: string;
+    // how much
     c: number;
 };
 
