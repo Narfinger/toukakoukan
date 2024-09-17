@@ -87,6 +87,7 @@ async fn post_expense(
     {
         Err(StatusCode::UNAUTHORIZED)
     } else {
+        info!("expense added: {:?}", payload);
         sqlx::query!(
             "INSERT INTO expense (payed_type, amount, name, time, expense_group_id) VALUES (?, ?, ?, ?, ?);
 ", payload.payed_type, payload.amount, payload.name, payload.time, expense_group_id
