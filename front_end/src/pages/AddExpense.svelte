@@ -40,7 +40,7 @@
             time: d.toISOString(),
             expense_group_id: Number(params.id),
         };
-
+        console.log("WE ARE DOING SOMETHING WRONG HERE");
         await fetch(ENDPOINT_EXPENSES + params.id + "/", {
             method: "POST",
             body: JSON.stringify(data),
