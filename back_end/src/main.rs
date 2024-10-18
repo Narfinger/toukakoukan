@@ -107,7 +107,7 @@ async fn main() -> Result<(), anyhow::Error> {
         );
     }
     if cli.user_creation {
-        println!("{}", "User creation is enabled!").red();
+        println!("User creation is enabled!").red();
     }
 
     let filter = EnvFilter::builder()
