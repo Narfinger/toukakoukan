@@ -38,6 +38,6 @@
     "vite-plugin-pwa": "^0.20.5"
   },
   "dependencies": {
-    "workbox-window": "^7.1.0"
+    "workbox-window": "^7.3.0"
   }
 }
