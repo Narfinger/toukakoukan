@@ -29,7 +29,7 @@
                     nogm,
                     val,
                 );
-                expense;
+                return expense;
             });
             return expenses as Array<ExpenseAdjusted>;
         }
@@ -46,9 +46,11 @@
         class="table-auto border table-zebra p-2 border-separate border-spacing-y-2"
     >
         <thead>
-            <th class="p-2 w-52">Name</th>
-            <th class="p-2 w-52">Amount Owed</th>
-            <th class="p-2 w-52">Date</th>
+            <tr>
+                <th class="p-2 w-52">Name</th>
+                <th class="p-2 w-52">Amount Owed</th>
+                <th class="p-2 w-52">Date</th>
+            </tr>
         </thead>
         <tbody>
             {#each expenses as exp}

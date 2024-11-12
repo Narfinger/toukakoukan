@@ -82,11 +82,11 @@
                 <span class="loading loading-dots loading-lg"></span>
             {:then g}
                 <div class="p-2">
+                    {#await expense_types}
+                    <span class="loading loading-dots loading-lg"
+                    ></span>
+                    {:then exp_type}
                     <select bind:value={who}>
-                        {#await expense_types}
-                            <span class="loading loading-dots loading-lg"
-                            ></span>
-                        {:then exp_type}
                             {#each exp_type as e}
                                 <option
                                     class="select select-primary"
@@ -100,8 +100,8 @@
                                     {/if}</option
                                 >
                             {/each}
+                        </select>
                         {/await}
-                    </select>
                 </div>
             {/await}
         </div>
