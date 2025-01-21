@@ -13,7 +13,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^4.0.4",
     "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/typography": "^0.5.15",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/eslint__js": "^8.42.3",
     "@types/eslint-config-prettier": "^6.11.3",
     "@typescript-eslint/eslint-plugin": "8.20.0",
