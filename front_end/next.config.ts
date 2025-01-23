@@ -8,8 +8,8 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/about',
-        destination: '/',
+        source: '/api',
+        destination: 'http://localhost:3000/api',
       },
     ]
   },
