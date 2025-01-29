@@ -1,19 +1,19 @@
-function expensemap(expense:string[]) {
+import type {Expense} from "../../types";
+
+function expensemap(expense:Expense) {
     return (
         <tr>
-            <td>{expense[0]}</td>
-            <td>{expense[1]}</td>
+            <td>{expense.amount}</td>
+            <td>{expense.name}</td>
         </tr>
     )
 }
 
 
 export default function ExpenseView({ login_cookie }: { login_cookie: string }) {
-    const expenses: string[][] = [
-        ["You", "test", "400"]
-    ];
+    const expenses: Expense[] = [];
 
-    expenses.map((e: string[]) =>expensemap(e));
+    const exp = expenses.map((e: Expense[]) =>expensemap(e));
     return (<>
         <table className="table">
             <tr>
@@ -21,7 +21,7 @@ export default function ExpenseView({ login_cookie }: { login_cookie: string }) 
                 <th>Description</th>
                 <th>Amount</th>
             </tr>
-            {expenses}
+            {exp}
         </table>
     </>)
 

@@ -48,7 +48,7 @@ export default function Home() {
       <form onSubmit={login} >
         <input type="text" placeholder="Name" className="input input-bordered w-full max-w-xs" value={username} onChange={(e) => setUsername(e.target.value)}/>
         <input type="password" placeholder="Password" className="input input-bordered w-full max-w-xs" value={password} onChange={(e) => setPassword(e.target.value)}/>
-        <button type="submit">Login</button>
+        <button className="btn" type="submit">Login</button>
       </form>
       </main>
     </div>

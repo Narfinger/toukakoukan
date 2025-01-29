@@ -1,6 +1,6 @@
 "use client"
-import ExpenseView from "./expenseview";
-import UserView from "./userview";
+import ExpenseView from "./components/expenseview";
+import UserView from "./components/userview";
 
 export default function MainView({ login_cookie }: { login_cookie: string }) {
 
