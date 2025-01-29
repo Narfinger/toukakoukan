@@ -20,7 +20,7 @@ use crate::{
     users::User,
 };
 
-/// returns all groups fro the user_id in the session
+/// `/groups/returns`: all groups fro the user_id in the session
 async fn groups(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -29,7 +29,7 @@ async fn groups(
     Ok(Json(groups))
 }
 
-/// returns all expenses for the user_id in session and the expense_group_id in path
+/// `/expense/:id/`: returns all expenses for the user_id in session and the expense_group_id in path
 async fn get_expenses(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -69,7 +69,7 @@ async fn get_total(
     Ok(Json(total))
 }
 
-/// inserts a expense (without its id) into the database with the expense_group_id in the path
+/// `/expense/:id/`: inserts a expense (without its id) into the database with the expense_group_id in the path
 async fn post_expense(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -99,7 +99,7 @@ async fn post_expense(
     }
 }
 
-/// updates an expense
+/// `/expense/`: updates an expense
 async fn put_expense(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -130,7 +130,7 @@ async fn put_expense(
     }
 }
 
-/// gets one expense from the id
+/// `/details/:id/`: gets one expense from the id
 async fn get_expense_details(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -155,7 +155,7 @@ struct GroupResponse {
     people: Vec<String>,
 }
 
-/// gets a specific group for the group_id given in the path
+/// `/group/:id/`: gets a specific group for the group_id given in the path
 async fn get_group(
     Extension(user): Extension<User>,
     State(state): State<AppState>,
@@ -172,7 +172,7 @@ async fn get_group(
     }
 }
 
-/// returns all known users
+/// `/users/`: returns all known users
 async fn get_users(
     Extension(_): Extension<User>,
     State(state): State<AppState>,
@@ -183,7 +183,7 @@ async fn get_users(
     Ok(Json(users))
 }
 
-/// returns yourself
+/// `/user/"`: returns yourself
 async fn get_user(
     Extension(user): Extension<User>,
     State(_): State<AppState>,
@@ -191,7 +191,7 @@ async fn get_user(
     Ok(Json(user))
 }
 
-/// this always adds the own user to it
+/// `/creategroup/`: this always adds the own user to it
 async fn create_group(
     Extension(user): Extension<User>,
     State(state): State<AppState>,

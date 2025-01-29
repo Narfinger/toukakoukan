@@ -17,7 +17,7 @@ use tower_http::trace::TraceLayer;
 use tower_sessions::Session;
 use tracing::info;
 
-/// route to handle log in
+/// `/auth/login`: route to handle log in
 async fn login(
     session: Session,
     State(state): State<AppState>,
@@ -45,7 +45,7 @@ async fn login(
     Ok(Json(json!({"result": "ok"})))
 }
 
-/// route to handle log out
+/// `/auth/logout`: route to handle log out
 async fn logout(session: Session) -> Result<Json<Value>, StatusCode> {
     if let Ok(u) = session.get_value("user_id").await {
         tracing::info!("Logging out user: {:?}", u);
@@ -57,7 +57,7 @@ async fn logout(session: Session) -> Result<Json<Value>, StatusCode> {
     Ok(Json(json!({"result": "ok"})))
 }
 
-/// Route to create a user
+/// `/createuser/`: Route to create a user
 async fn create_user(
     _: Session,
     State(state): State<AppState>,
@@ -101,6 +101,7 @@ struct Login {
     password: String,
 }
 
+/// `/auth/session`: Get the current session
 async fn session(session: Session) -> Result<Json<Value>, StatusCode> {
     let user_id_val = session
         .get_value("user_id")
@@ -123,7 +124,7 @@ pub(crate) fn front_public_route(dir: PathBuf) -> Router {
         .layer(TraceLayer::new_for_http())
 }
 
-/// is the user creation enabled
+/// `/user_creation/`: is the user creation enabled
 async fn user_creation_enabled(
     _: Session,
     State(state): State<AppState>,
