@@ -1,4 +1,4 @@
-function expensemap({ expense}: {Array<string>}) {
+function expensemap(expense:string[]) {
     return (
         <tr>
             <td>{expense[0]}</td>
@@ -9,11 +9,11 @@ function expensemap({ expense}: {Array<string>}) {
 
 
 export default function ExpenseView({ login_cookie }: { login_cookie: string }) {
-    const expenses: Array<Array<string>> = [
+    const expenses: string[][] = [
         ["You", "test", "400"]
     ];
 
-    expenses.map((e) =>expensemap(e));
+    expenses.map((e: string[]) =>expensemap(e));
     return (<>
         <table className="table">
             <tr>
