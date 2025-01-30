@@ -1,6 +1,7 @@
-import type {Expense} from "../../types";
+import { useEffect, useState } from "react";
+import type { Expense, Group } from "../../types";
 
-function expensemap(expense:Expense) {
+function expensemap(expense: Expense) {
     return (
         <tr>
             <td>{expense.amount}</td>
@@ -9,20 +10,49 @@ function expensemap(expense:Expense) {
     )
 }
 
+function groupmap(g: Group) {
+    return <li>
+        {g.name}
+    </li>;
+}
 
-export default function ExpenseView({ login_cookie }: { login_cookie: string }) {
+export default function ExpenseView({ user_id }: { user_id: number }) {
+    const [groups, setGroups] = useState<Group[]>([])
+
     const expenses: Expense[] = [];
 
-    const exp = expenses.map((e: Expense[]) =>expensemap(e));
+    useEffect(() => {
+        async function fetchGroups() {
+            const res = await fetch('/groups')
+            const data = await res.json()
+            setGroups(data)
+        }
+        fetchGroups()
+    }, [])
+
+
+    const exp = expenses.map((e: Expense[]) => expensemap(e));
+    const groups_elem = groups.map((g: Group) => groupmap(g));
     return (<>
-        <table className="table">
-            <tr>
-                <th>Who Payed</th>
-                <th>Description</th>
-                <th>Amount</th>
-            </tr>
-            {exp}
-        </table>
+        <div className="row">
+            <ul>
+                {groups_elem}
+            </ul>
+        </div>
+        <div className="row">
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th>Who Payed</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {exp}
+                </tbody>
+            </table>
+        </div>
     </>)
 
 }

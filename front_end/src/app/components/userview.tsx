@@ -1,4 +1,4 @@
-export default function LoginView({ login_cookie }: { login_cookie: string }) {
+export default function LoginView({ user_id }: { user_id: number }) {
 
     return <span>{"Here is the user information"}</span>
 

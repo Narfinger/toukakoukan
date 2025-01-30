@@ -14,7 +14,7 @@ function LoginErrorView({ err_msg }: { err_msg: string }) {
 }
 
 export default function Home() {
-  const [login_cookie, setLoginCookie] = useState<string>('');
+  const [user_id, setUserId] = useState<number>(-1);
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [msg, setMsg] = useState<string>('');
@@ -33,15 +33,16 @@ export default function Home() {
     })
       .then((res) => res.json())
       .then((result) => {
-        setLoginCookie(result.cookie);
+        const ses = fetch('/auth/session');
+        console.log(ses);
+        setUserId(result.user_id);
         setUsername('');
         setPassword('');
-        redirect('/main');
       })
       .catch((e) => setMsg("Error: " + e));
   }
 
-  if (!login_cookie)
+  if (user_id === -1)
     return (
       <div className="grid grid-rows-[20px_1fr_20px] items-cente
   r justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -63,7 +64,7 @@ export default function Home() {
   else {
     return (
       <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-        <MainView login_cookie={login_cookie} />
+        <MainView user_id={user_id} />
       </div>
     );
   }
