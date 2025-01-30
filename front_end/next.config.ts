@@ -1,18 +1,15 @@
 import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
 module.exports = {
   async rewrites() {
-    return [
-      {
-        source: '/api',
-        destination: 'http://localhost:3000/api',
-      },
-    ]
+    return {
+      fallback: [
+        // These rewrites are checked after both pages/public files
+        // and dynamic routes are checked
+        {
+          source: '/:path*',
+          destination: `http://localhost:3001/:path*`,
+        },
+      ],
+    }
   },
 }
-
-export default nextConfig;
