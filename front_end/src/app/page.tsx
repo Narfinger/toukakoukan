@@ -1,8 +1,9 @@
 "use client"
 import { redirect } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useInsertionEffect, useState } from 'react';
 import MainView from './main';
 import Link from 'next/link';
+import { getCookie, setCookie } from 'cookies-next/client';
 
 
 function LoginErrorView({ err_msg }: { err_msg: string }) {
@@ -18,6 +19,17 @@ export default function Home() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [msg, setMsg] = useState<string>('');
+
+  useEffect(() => {
+    async function get_cookie() {
+      const cookie_user_id = await getCookie('userid');
+      if (cookie_user_id) {
+        setUserId(parseInt(cookie_user_id));
+      }
+    }
+    get_cookie();
+  }, [])
+
 
   const login = (e: Event) => {
     e.preventDefault();
@@ -38,6 +50,7 @@ export default function Home() {
         setUserId(result.user_id);
         setUsername('');
         setPassword('');
+        setCookie('userid', result.userId, { maxAge: 60 * 6 * 24 });
       })
       .catch((e) => setMsg("Error: " + e));
   }
