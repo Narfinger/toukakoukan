@@ -1,7 +1,7 @@
 "use client"
 import { redirect } from 'next/navigation';
 import { useEffect, useInsertionEffect, useState } from 'react';
-import MainView from './main';
+import MainView from './MainView';
 import Link from 'next/link';
 import { getCookie, setCookie } from 'cookies-next/client';
 

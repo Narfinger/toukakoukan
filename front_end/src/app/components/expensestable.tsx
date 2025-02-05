@@ -1,5 +1,5 @@
 'use client';
-import { Expense, Group } from "@/types";
+import { Expense, fetcher, Group } from "@/types";
 import useSWR from "swr";
 
 function expensemap(expense: Expense) {
@@ -10,11 +10,11 @@ function expensemap(expense: Expense) {
         </tr>
     )
 }
-const fetcher = (...args) => fetch(...args).then(res => res.json())
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function ExpensesTableView({ user_id, groups, active }: { user_id: number, groups: Group[], active: number }) {
     const group = groups[active];
-    const { data, error, isLoading } = useSWR('/expenses/' + group, fetcher)
+    const { data, error, isLoading } = useSWR('/api/expense/' + group.id, fetcher)
 
     if (error) {
         return <span>{"Error in query" + error}</span>;
