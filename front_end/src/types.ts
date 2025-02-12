@@ -23,7 +23,7 @@ export type Group = {
 export type PayedType = {
     // type
     t: string;
-    // how much
+    // id
     c: number;
 };
 
