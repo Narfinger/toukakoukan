@@ -18,7 +18,7 @@
     "@types/eslint-config-prettier": "^6.11.3",
     "@typescript-eslint/eslint-plugin": "8.20.0",
     "@typescript-eslint/parser": "^8.19.1",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.21",
     "daisyui": "^4.12.23",
     "date-fns": "^4.1.0",
     "eslint": "^9.18.0",
