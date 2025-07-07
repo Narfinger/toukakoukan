@@ -21,7 +21,7 @@
     "autoprefixer": "^10.4.21",
     "daisyui": "^5.0.43",
     "date-fns": "^4.1.0",
-    "eslint": "^9.30.0",
+    "eslint": "^9.30.1",
     "eslint-config-js": "^5.0.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",
