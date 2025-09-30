@@ -28,7 +28,7 @@
     "eslint-plugin-svelte": "^3.10.1",
     "prettier": "^3.6.2",
     "prettier-plugin-svelte": "^3.3.3",
-    "svelte": "^5.33.16",
+    "svelte": "^5.39.6",
     "svelte-eslint-parser": "^1.2.0",
     "svelte-spa-router": "^4.0.0",
     "tailwindcss": "^4.1.12",
